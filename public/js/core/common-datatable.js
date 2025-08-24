@@ -1,7 +1,13 @@
 /**
- * Utilidades comunes para DataTables
+ * common-datatable.js - Utilidades comunes para DataTables
+ * 
  * Este archivo proporciona funciones de ayuda para la configuración de DataTables
  * sin interferir con las configuraciones existentes.
+ * 
+ * @package ProyectoBase
+ * @subpackage JavaScript\Core
+ * @author Jandres25
+ * @version 1.0
  */
 
 /**

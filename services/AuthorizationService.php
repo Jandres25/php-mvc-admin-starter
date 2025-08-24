@@ -5,9 +5,18 @@
  * 
  * Gestiona los permisos y autorización de usuarios
  * 
- * @author Sistema de Calzados y Carteras
+ * @package ProyectoBase
+ * @subpackage Services
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Services;
+
+use Config\Conexion;
+use PDO;
+use PDOException;
+
 class AuthorizationService
 {
     /**

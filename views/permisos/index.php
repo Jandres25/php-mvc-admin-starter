@@ -1,10 +1,9 @@
 <?php
-require_once __DIR__ . '/../../controllers/permisos/PermisoController.php';
-require_once __DIR__ . '/../../services/AuthorizationService.php';
 require_once __DIR__ . '/../layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 $idusuario = $_SESSION['usuario_id'];
-$auth = new AuthorizationService();
+$auth = new \Services\AuthorizationService();
 
 // Verificar si el usuario tiene acceso al módulo ANTES de incluir el header
 if (!($auth->tienePermisoNombre($idusuario, 'permisos')) && !($auth->esAdministrador($idusuario))) {
@@ -19,7 +18,7 @@ if (!($auth->tienePermisoNombre($idusuario, 'permisos')) && !($auth->esAdministr
 // Incluir el encabezado después de verificar permisos
 include_once '../layouts/header.php';
 
-$controller = new PermisoController();
+$controller = new \Controllers\Permisos\PermisoController();
 $permisos = $controller->index();
 $estadisticas = $controller->getEstadisticas();
 
@@ -29,7 +28,7 @@ $module_scripts = ['permisos/index-permisos'];
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
                 <h1>Gestión de Permisos</h1>
             </div>

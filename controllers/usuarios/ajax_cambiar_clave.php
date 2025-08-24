@@ -1,11 +1,23 @@
 <?php
+
+/**
+ * Cambio de Contraseña vía AJAX
+ * 
+ * Procesa el cambio de contraseña de usuarios mediante solicitudes AJAX
+ * 
+ * @package ProyectoBase
+ * @subpackage Controllers\Usuarios
+ * @author Jandres25
+ * @version 1.0
+ */
+
 // Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Incluir el controlador
-require_once __DIR__ . '/UsuarioController.php';
+// Incluir autoload
+require_once __DIR__ . '/../../config/config.php';
 
 // Verificar que sea una solicitud POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -22,7 +34,7 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 // Instanciar el controlador
-$controller = new UsuarioController();
+$controller = new \Controllers\Usuarios\UsuarioController();
 
 // Crear un método específico para el manejo AJAX del cambio de contraseña
 $result = $controller->actualizarClavePerfilAjax();

@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../../services/AuthorizationService.php';
 require_once __DIR__ . '/../layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 $idusuario = $_SESSION['usuario_id'];
-$authService = new AuthorizationService();
+$authService = new \Services\AuthorizationService();
 
 // Verificar si el usuario tiene acceso al módulo
 if (!($authService->tienePermisoNombre($idusuario, 'usuarios')) && !($authService->esAdministrador($idusuario))) {
@@ -22,7 +22,7 @@ include_once '../layouts/header.php';
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
                 <h1>Crear Usuario</h1>
             </div>

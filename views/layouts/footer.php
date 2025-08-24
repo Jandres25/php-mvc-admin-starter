@@ -13,7 +13,7 @@
     </div>
     <div class="footer-content">
         <strong>Copyright &copy; <?= date('Y'); ?>
-            <a href="#" class="text-decoration-none">PHP-MVC-Auth-Base</a>
+            <a href="#" class="text-decoration-none">ProyectoBase</a>
         </strong>
         - Sistema Base
     </div>

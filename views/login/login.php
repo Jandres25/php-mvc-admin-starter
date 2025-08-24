@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../views/layouts/session.php';
 
 // Verificar si ya hay una sesión activa
 if (isAuthenticated()) {
-    header('Location: ../../index.php');
+    header('Location: ' . $URL);
     exit;
 }
 

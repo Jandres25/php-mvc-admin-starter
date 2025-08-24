@@ -5,9 +5,16 @@
  * 
  * Gestiona las operaciones relacionadas con la autenticación de usuarios
  * 
- * @author PHP-MVC-Auth-Base
+ * @package ProyectoBase
+ * @subpackage Controllers\Auth
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Controllers\Auth;
+
+use Models\Usuario;
+
 class AuthController
 {
     /**
@@ -21,8 +28,6 @@ class AuthController
      */
     public function __construct()
     {
-        // Incluir el modelo de Usuario
-        require_once __DIR__ . '/../../models/Usuario.php';
         $this->modelo = new Usuario();
 
         // Iniciar sesión si no está iniciada

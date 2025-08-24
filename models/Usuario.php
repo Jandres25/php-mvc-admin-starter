@@ -5,9 +5,17 @@
  * 
  * Gestiona las operaciones relacionadas con los usuarios en la base de datos
  * 
- * @author Sistema de Calzados y Carteras
+ * @package ProyectoBase
+ * @subpackage Models
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Models;
+
+use Config\Conexion;
+use PDO;
+use PDOException;
 
 // Incluir la clase Conexion
 require_once __DIR__ . '/../config/conexion.php';

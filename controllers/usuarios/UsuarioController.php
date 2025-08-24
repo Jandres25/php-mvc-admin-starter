@@ -5,12 +5,17 @@
  * 
  * Gestiona las operaciones relacionadas con los usuarios
  * 
- * @author Sistema de Ventas
+ * @package ProyectoBase
+ * @subpackage Controllers\Usuarios
+ * @author Jandres25
  * @version 1.0
  */
 
-// Incluir el servicio de imágenes
-require_once __DIR__ . '/../../services/ImagenService.php';
+namespace Controllers\Usuarios;
+
+use Models\Usuario;
+use Services\ImagenService;
+use Services\AuthorizationService;
 
 class UsuarioController
 {
@@ -31,8 +36,6 @@ class UsuarioController
      */
     public function __construct()
     {
-        // Incluir el modelo de Usuario
-        require_once __DIR__ . '/../../models/Usuario.php';
         $this->modelo = new Usuario();
 
         // Inicializar el servicio de imágenes
@@ -455,8 +458,6 @@ class UsuarioController
      */
     private function procesarPermisos($idusuario, $post_data)
     {
-        // Incluir el servicio de autorización
-        require_once __DIR__ . '/../../services/AuthorizationService.php';
         $authService = new AuthorizationService();
 
         // Obtener todos los permisos disponibles

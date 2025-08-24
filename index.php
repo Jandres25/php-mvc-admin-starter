@@ -32,14 +32,14 @@ require_once 'views/layouts/header.php';
                             Este sistema base te permite crear rápidamente aplicaciones con un sistema de autenticación
                             completo, gestión de permisos y una estructura MVC organizada.
                         </p>
-                        <div class="mt-4">
+                        <div class="mt-4 d-flex gap-2 flex-wrap">
                             <?php if ($authService->tienePermisoNombre($idusuariosesion, 'usuarios')) : ?>
-                                <a href="<?= $URL; ?>views/usuarios" class="btn btn-primary btn-lg me-2">
+                                <a href="<?= $URL; ?>views/usuarios" class="btn btn-primary btn-lg">
                                     <i class="fas fa-users"></i> Gestionar Usuarios
                                 </a>
                             <?php endif; ?>
                             <?php if ($authService->tienePermisoNombre($idusuariosesion, 'permisos')) : ?>
-                                <a href="<?= $URL; ?>views/permisos" class="btn btn-warning btn-lg me-2">
+                                <a href="<?= $URL; ?>views/permisos" class="btn btn-warning btn-lg">
                                     <i class="fas fa-key"></i> Gestionar Permisos
                                 </a>
                             <?php endif; ?>

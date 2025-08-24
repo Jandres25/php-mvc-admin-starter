@@ -2,8 +2,11 @@
  * common-utils.js - Utilidades JavaScript básicas para el sistema
  * 
  * Este archivo contiene funciones simples para inicializar componentes
- * comunes en el sistema de Alojamiento Flores.
+ * comunes en el ProyectoBase.
  * 
+ * @package ProyectoBase
+ * @subpackage JavaScript\Core
+ * @author Jandres25
  * @version 1.0
  */
 

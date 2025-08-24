@@ -6,11 +6,14 @@
  * Contiene la configuración global de la aplicación, incluyendo
  * parámetros de conexión a la base de datos y configuración general.
  * 
- * @author Sistema de Ventas
+ * @package ProyectoBase
+ * @subpackage Config
+ * @author Jandres25
  * @version 1.0
  */
 
 require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/autoload.php';
 
 // Configurar zona horaria con valor predeterminado si no está definida
 $timezone = env('TIMEZONE');
@@ -26,7 +29,7 @@ return [
     ],
     'app' => [
         'timezone' => $timezone,
-        'name' => 'Sistema de Ventas',
+        'name' => 'ProyectoBase',
         'url' => env('APP_URL'),
         'debug' => env('DEBUG')
     ]

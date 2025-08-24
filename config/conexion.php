@@ -6,9 +6,19 @@
  * Maneja la conexión a la base de datos utilizando el patrón Singleton
  * para asegurar una única instancia de conexión durante toda la aplicación.
  * 
- * @author Sistema de Ventas
+ * @package ProyectoBase
+ * @subpackage Config
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Config;
+
+use PDO;
+use PDOException;
+use Exception;
+use DateTime;
+use DateTimeZone;
 
 class Conexion
 {

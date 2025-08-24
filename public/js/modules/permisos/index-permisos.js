@@ -1,3 +1,15 @@
+/**
+ * index-permisos.js - Gestión de la página principal de permisos
+ * 
+ * Maneja la inicialización de DataTables y las operaciones CRUD
+ * de permisos mediante modales y AJAX.
+ * 
+ * @package ProyectoBase
+ * @subpackage JavaScript\Modules\Permisos
+ * @author Jandres25
+ * @version 1.0
+ */
+
 $(document).ready(function () {
     // Usar la utilidad para crear la configuración de DataTables
     const config = createTableConfig('Permisos', [0, 1, 2, 3], {

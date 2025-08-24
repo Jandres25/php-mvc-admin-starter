@@ -5,9 +5,15 @@
  * 
  * Gestiona las operaciones relacionadas con los permisos
  * 
- * @author PHP-MVC-Auth-Base
+ * @package ProyectoBase
+ * @subpackage Controllers\Permisos
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Controllers\Permisos;
+
+use Models\Permiso;
 
 class PermisoController
 {
@@ -22,8 +28,6 @@ class PermisoController
      */
     public function __construct()
     {
-        // Incluir el modelo de Permiso
-        require_once __DIR__ . '/../../models/Permiso.php';
         $this->modelo = new Permiso();
     }
 

@@ -6,9 +6,9 @@
  * Este archivo proporciona funciones para cargar y acceder a
  * variables de entorno desde un archivo .env
  * 
- * @package Sistema_Alojamiento
+ * @package ProyectoBase
  * @subpackage Config
- * @author Tu Nombre
+ * @author Jandres25
  * @version 1.0
  */
 

@@ -5,9 +5,14 @@
  * 
  * Gestiona la carga, procesamiento y eliminación de imágenes
  * 
- * @author Sistema de Ventas
+ * @package ProyectoBase
+ * @subpackage Services
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Services;
+
 class ImagenService
 {
     /**

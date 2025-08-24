@@ -1,10 +1,9 @@
 <?php
-require_once __DIR__ . '/../../controllers/usuarios/UsuarioController.php';
-require_once __DIR__ . '/../../services/AuthorizationService.php';
 require_once __DIR__ . '/../layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 $idusuario = $_SESSION['usuario_id'];
-$authService = new AuthorizationService();
+$authService = new \Services\AuthorizationService();
 
 // Verificar si el usuario tiene acceso al módulo
 if (!($authService->tienePermisoNombre($idusuario, 'usuarios')) && !($authService->esAdministrador($idusuario))) {
@@ -23,19 +22,19 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (!$id) {
     $_SESSION['mensaje'] = 'ID de usuario no válido';
     $_SESSION['icono'] = 'error';
-    header('Location: index.php');
+    header('Location: ' . $URL . 'views/usuarios');
     exit;
 }
 
 // Instanciar el controlador y obtener los datos del usuario
-$controller = new UsuarioController();
+$controller = new \Controllers\Usuarios\UsuarioController();
 $usuario = $controller->editar($id);
 
 // Verificar si el usuario existe
 if (!$usuario) {
     $_SESSION['mensaje'] = 'Usuario no encontrado';
     $_SESSION['icono'] = 'error';
-    header('Location: index.php');
+    header('Location: ' . $URL . 'views/usuarios');
     exit;
 }
 
@@ -45,7 +44,7 @@ $module_scripts = ['usuarios/update-usuario'];
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
                 <h1>Editar Usuario</h1>
             </div>

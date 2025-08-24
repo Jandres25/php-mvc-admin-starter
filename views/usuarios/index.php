@@ -1,11 +1,10 @@
 <?php
-require_once __DIR__ . '/../../controllers/usuarios/UsuarioController.php';
-require_once __DIR__ . '/../../services/AuthorizationService.php';
 require_once __DIR__ . '/../layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 $idusuario = $_SESSION['usuario_id'] ?? '';
 
-$authService = new AuthorizationService();
+$authService = new \Services\AuthorizationService();
 
 // Verificar si el usuario tiene acceso al módulo
 if (!($authService->tienePermisoNombre($idusuario, 'usuarios')) && !($authService->esAdministrador($idusuario))) {
@@ -18,7 +17,7 @@ if (!($authService->tienePermisoNombre($idusuario, 'usuarios')) && !($authServic
 // Incluir el encabezado DESPUÉS de verificar permisos
 include_once '../layouts/header.php';
 
-$controller = new UsuarioController();
+$controller = new \Controllers\Usuarios\UsuarioController();
 $usuarios = $controller->index();
 
 $module_scripts = ['usuarios/index-usuarios'];
@@ -27,7 +26,7 @@ $module_scripts = ['usuarios/index-usuarios'];
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
                 <h1>Gestión de Usuarios</h1>
             </div>

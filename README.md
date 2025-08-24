@@ -1,4 +1,4 @@
-# PHP-MVC-Auth-Base
+# ProyectoBase
 
 Un sistema base para proyectos PHP con autenticación de usuarios y control de permisos, siguiendo el patrón de diseño MVC (Modelo-Vista-Controlador).
 
@@ -32,8 +32,8 @@ Un sistema base para proyectos PHP con autenticación de usuarios y control de p
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/usuario/php-mvc-auth-base.git
-   cd php-mvc-auth-base
+   git clone https://github.com/Jandres25/php-mvc-admin-starter.git
+   cd php-mvc-admin-starter
    ```
 
 2. Crear la base de datos:
@@ -196,6 +196,50 @@ Para agregar nuevos módulos:
 5. Agrega los archivos CSS y JS correspondientes en las carpetas `public/css/modules/` y `public/js/modules/`
 6. Configura los permisos necesarios en la tabla `permiso` para el nuevo módulo
 
+## Documentación
+
+Este proyecto mantiene una documentación completa:
+
+- **PHPDoc**: Todos los archivos PHP incluyen documentación estándar con `@package`, `@author` y descripción de funcionalidades
+- **JSDoc**: Los módulos JavaScript personalizados están documentados con JSDoc
+- **CHANGELOG**: Ver [CHANGELOG.md](CHANGELOG.md) para el historial completo de cambios
+- **Versionado**: Seguimos [Semantic Versioning](https://semver.org/) para las versiones
+
+### Estructura de Documentación
+
+```php
+/**
+ * Descripción del archivo
+ * 
+ * @package ProyectoBase
+ * @subpackage [Módulo]
+ * @author Jandres25
+ * @version 1.0
+ */
+```
+
+## Versionado y Releases
+
+- **Versión actual**: 1.1.0
+- **Historial completo**: Ver [CHANGELOG.md](CHANGELOG.md)
+- **Releases**: Ver [GitHub Releases](https://github.com/Jandres25/php-mvc-admin-starter/releases)
+
+## Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Mantén la documentación actualizada (PHPDoc/JSDoc)
+4. Commit tus cambios siguiendo [Conventional Commits](https://conventionalcommits.org/)
+5. Push a la rama (`git push origin feature/AmazingFeature`)
+6. Abre un Pull Request
+
+### Estándares de Código
+
+- Mantener documentación PHPDoc en todos los archivos PHP
+- Documentar funciones JavaScript con JSDoc
+- Seguir la estructura de packages existente
+- Actualizar CHANGELOG.md para cambios significativos
+
 ## Seguridad
 
 - Las contraseñas se almacenan usando `password_hash()` con el algoritmo PASSWORD_DEFAULT
@@ -206,3 +250,7 @@ Para agregar nuevos módulos:
 ## Licencia
 
 Este proyecto está disponible como código abierto bajo la licencia MIT.
+
+## Changelog
+
+Ver [CHANGELOG.md](CHANGELOG.md) para una lista detallada de cambios y versiones.

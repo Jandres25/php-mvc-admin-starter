@@ -1,10 +1,9 @@
 <?php
-require_once __DIR__ . '/../../controllers/usuarios/UsuarioController.php';
-require_once __DIR__ . '/../../services/AuthorizationService.php';
 require_once __DIR__ . '/../layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 $idusuario_session = $_SESSION['usuario_id'];
-$authService = new AuthorizationService();
+$authService = new \Services\AuthorizationService();
 
 // Verificar si el usuario tiene acceso al módulo
 if (!$authService->tienePermisoNombre($idusuario_session, 'perfil')) {
@@ -27,7 +26,7 @@ if (!isset($idusuario_session)) {
 include_once '../layouts/header.php';
 
 // Instanciar el controlador y obtener los datos del usuario
-$usuario_controller = new UsuarioController();
+$usuario_controller = new \Controllers\Usuarios\UsuarioController();
 $usuario = $usuario_controller->editar($idusuario_session);
 
 // Verificar si el usuario existe
@@ -44,7 +43,7 @@ $module_scripts = ['usuarios/perfil-usuario'];
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
                 <h1>Perfil de Usuario</h1>
             </div>

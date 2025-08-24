@@ -1,3 +1,15 @@
+/**
+ * perfil-usuario.js - Script para la página de perfil de usuario
+ * 
+ * Maneja la vista previa de imágenes y mejoras de usabilidad
+ * para el formulario de perfil del usuario autenticado.
+ * 
+ * @package ProyectoBase
+ * @subpackage JavaScript\Modules\Usuarios
+ * @author Jandres25
+ * @version 1.0
+ */
+
 // Script para mostrar el nombre del archivo en el input de imagen
 document.addEventListener('DOMContentLoaded', function () {
     const customFileInputs = document.querySelectorAll('.custom-file-input');

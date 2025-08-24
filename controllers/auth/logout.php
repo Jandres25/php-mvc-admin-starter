@@ -5,7 +5,9 @@
  * 
  * Este archivo procesa el cierre de sesión
  * 
- * @author Sistema de Calzados y Carteras
+ * @package ProyectoBase
+ * @subpackage Controllers\Auth
+ * @author Jandres25
  * @version 1.0
  */
 
@@ -14,11 +16,11 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Incluir el controlador de autenticación
-require_once __DIR__ . '/AuthController.php';
+// Incluir autoload y configuración
+require_once __DIR__ . '/../../config/config.php';
 
 // Crear instancia del controlador
-$authController = new AuthController();
+$authController = new \Controllers\Auth\AuthController();
 
 // Procesar logout
 $authController->logout();

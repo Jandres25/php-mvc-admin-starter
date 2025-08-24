@@ -1,7 +1,15 @@
 /**
- * Script para la página de actualización de usuarios
- * Incluye validaciones y mejoras de usabilidad
+ * update-usuario.js - Script para la página de actualización de usuarios
+ * 
+ * Incluye validaciones de formulario, vista previa de imágenes
+ * y mejoras de usabilidad para el formulario de actualización.
+ * 
+ * @package ProyectoBase
+ * @subpackage JavaScript\Modules\Usuarios
+ * @author Jandres25
+ * @version 1.0
  */
+
 $(document).ready(function () {
     // Inicializar Select2
     initializeSelect2();

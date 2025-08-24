@@ -5,9 +5,17 @@
  * 
  * Gestiona las operaciones relacionadas con los permisos en la base de datos
  * 
- * @author PHP-MVC-Auth-Base
+ * @package ProyectoBase
+ * @subpackage Models
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Models;
+
+use Config\Conexion;
+use PDO;
+use PDOException;
 
 require_once __DIR__ . '/../config/conexion.php';
 

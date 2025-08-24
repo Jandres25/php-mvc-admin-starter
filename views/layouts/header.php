@@ -9,9 +9,11 @@ requireLogin();
 $currentUser = getCurrentUser();
 $idusuariosesion = $currentUser['id'];
 
+// Incluir autoload
+require_once __DIR__ . '/../../config/config.php';
+
 // Incluir el servicio de autorización
-require_once __DIR__ . '/../../services/AuthorizationService.php';
-$authService = new AuthorizationService();
+$authService = new \Services\AuthorizationService();
 
 // Usar la variable global URL
 global $URL;

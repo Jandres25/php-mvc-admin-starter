@@ -5,9 +5,17 @@
  * 
  * Gestiona las operaciones relacionadas con el perfil del usuario autenticado
  * 
- * @author PHP-MVC-Auth-Base
+ * @package ProyectoBase
+ * @subpackage Controllers\Usuarios
+ * @author Jandres25
  * @version 1.0
  */
+
+namespace Controllers\Usuarios;
+
+use Models\Usuario;
+use Services\ImagenService;
+
 class PerfilController
 {
     /**
@@ -27,12 +35,9 @@ class PerfilController
      */
     public function __construct()
     {
-        // Incluir el modelo de Usuario
-        require_once __DIR__ . '/../../models/Usuario.php';
         $this->modelo = new Usuario();
 
         // Inicializar el servicio de imágenes
-        require_once __DIR__ . '/../../services/ImagenService.php';
         $this->imagenService = new ImagenService(__DIR__ . '/../../public/uploads/usuarios/');
 
         // Iniciar sesión si no está iniciada

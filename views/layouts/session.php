@@ -5,7 +5,9 @@
  * 
  * Este archivo verifica si el usuario está autenticado y gestiona la sesión
  * 
- * @author PHP-MVC-Auth-Base
+ * @package ProyectoBase
+ * @subpackage Views\Layouts
+ * @author Jandres25
  * @version 1.0
  */
 
