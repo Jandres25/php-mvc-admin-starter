@@ -18,11 +18,15 @@
  */
 function customAutoload($class)
 {
-    // Convertir namespace separadores a separadores de directorio
-    $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+    // Separar namespace (directorios) del nombre de clase
+    $parts = explode('\\', $class);
+    $className = array_pop($parts);
+
+    // Los namespaces se mapean a directorios en minúsculas; el nombre de clase conserva su capitalización
+    $directory = strtolower(implode(DIRECTORY_SEPARATOR, $parts));
 
     // Construir la ruta del archivo basándose en el namespace
-    $file = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . strtolower($class) . '.php';
+    $file = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $className . '.php';
 
     // Verificar si el archivo existe y cargarlo
     if (file_exists($file)) {
@@ -32,8 +36,6 @@ function customAutoload($class)
 
     // Si no se encuentra, intentar buscar directamente por el nombre de clase
     // Esto es útil para casos especiales como Config\Conexion
-    $parts = explode('\\', $class);
-    $className = end($parts);
 
     // Buscar en config/ si es del namespace Config
     if ($parts[0] === 'Config') {

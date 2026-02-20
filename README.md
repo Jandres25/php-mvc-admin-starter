@@ -1,256 +1,130 @@
-# ProyectoBase
+# PHP MVC Admin Starter
 
-Un sistema base para proyectos PHP con autenticación de usuarios y control de permisos, siguiendo el patrón de diseño MVC (Modelo-Vista-Controlador).
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.1.1-green)](CHANGELOG.md)
 
-## Características
+A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
-- Sistema de autenticación completo
-- Gestión de usuarios y permisos
-- Protección contra CSRF (Cross-Site Request Forgery)
-- Arquitectura MVC
-- Manejo de sesiones seguras
-- Gestión de imágenes
-- Interfaz administrativa con AdminLTE 3
-- Responsive Design
-- Generación de PDFs con TCPDF
-- DataTables para manejo de tablas
-- Validaciones frontend con jQuery Validate
-- Componentes UI avanzados (Select2, SweetAlert2)
-- Gráficos con Chart.js
+> A solid starting point for PHP web applications that need a secure admin panel out of the box.
 
-## Requisitos
+## Features
 
-- **PHP 8.2.4** o superior
-- **MariaDB 10.4.28** o MySQL 5.7 o superior  
-- **Apache 2.4.56** (con OpenSSL/1.1.1t) o Nginx
-- **phpMyAdmin 5.2.1** (recomendado para administración de BD)
-- Extensión PDO de PHP
-- Extensión GD de PHP (para el manejo de imágenes)
-- Extensión OpenSSL de PHP
+- **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout
+- **User management** — Full CRUD, profile images, account activation/deactivation
+- **Permission control** — Granular per-user permissions, adaptive navigation menu
+- **No Composer** — Custom PSR-4 autoloader; zero external dependencies to manage
+- **AdminLTE 3** — Production-ready responsive dashboard
+- **PDF generation** — Built-in report generation with TCPDF
+- **Full UI toolkit** — DataTables, Select2, SweetAlert2, Chart.js, jQuery Validate included
 
-## Instalación
+## Requirements
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/Jandres25/php-mvc-admin-starter.git
-   cd php-mvc-admin-starter
-   ```
+- PHP 8.2+ with **PDO** and **GD** extensions
+- MySQL 5.7+ / MariaDB 10.4+
+- Apache 2.4+ or Nginx
 
-2. Crear la base de datos:
-   - Importar el archivo `auth_base.sql` para crear la estructura de la base de datos
+## Installation
 
-3. Configurar el entorno:
-   - Copiar el archivo `.env.example` a `.env`
-   - Editar el archivo `.env` con tus configuraciones:
+```bash
+# 1. Clone the repository
+git clone https://github.com/Jandres25/php-mvc-admin-starter.git
+cd php-mvc-admin-starter
 
-   ```bash
-   # Configuración de la Base de Datos
-   DB_HOST=localhost
-   DB_NAME=auth_base
-   DB_USER=root
-   DB_PASS=tupassword
-   DB_CHARSET=utf8mb4
+# 2. Import the database
+mysql -u root -p < auth_base.sql
 
-   # Configuración de la Aplicación
-   APP_URL=http://localhost/proyectobase/
-   TIMEZONE=America/La_Paz
-   DEBUG=true
-   ```
+# 3. Set up the environment
+cp .env.example .env
+# Edit .env with your credentials (see Configuration section)
 
-4. Crear las carpetas necesarias para uploads:
-   ```bash
-   mkdir -p public/uploads/usuarios
-   chmod 755 public/uploads/usuarios
-   ```
-
-5. Copiar la imagen de usuario por defecto:
-   ```bash
-   cp public/img/user_default.jpg public/uploads/usuarios/
-   ```
-
-## Estructura del Proyecto
-
-```
-ProyectoBase/
-├── config/                 # Configuración
-│   ├── conexion.php        # Conexión a la base de datos
-│   ├── config.php          # Configuraciones generales
-│   └── env.php             # Extracción de contenido de .env
-├── controllers/            # Controladores
-│   ├── auth/               # Controladores de autenticación
-│   │   ├── AuthController.php
-│   │   ├── login.php
-│   │   └── logout.php
-│   ├── permisos/           # Controladores de permisos
-│   │   ├── PermisoController.php
-│   │   └── ...
-│   └── usuarios/           # Controladores de usuarios
-│       ├── UsuarioController.php
-│       ├── PerfilController.php
-│       └── ...
-├── models/                 # Modelos
-│   ├── Usuario.php         # Modelo de usuario
-│   └── Permiso.php         # Modelo de permisos
-├── services/               # Servicios
-│   ├── AuthorizationService.php  # Servicio de autorización
-│   └── ImagenService.php   # Servicio para manejo de imágenes
-├── libs/                   # Librerías externas
-│   └── TCPDF-main/         # Librería para generación de PDFs
-├── public/                 # Archivos públicos
-│   ├── css/                # Hojas de estilo organizadas por módulos
-│   │   ├── core/           # CSS del sistema
-│   │   ├── lib/            # Librerías CSS (AdminLTE, Bootstrap, FontAwesome)
-│   │   ├── modules/        # CSS específicos por módulo
-│   │   └── plugins/        # CSS de plugins
-│   ├── js/                 # JavaScript organizados por módulos
-│   │   ├── core/           # JS del sistema
-│   │   ├── lib/            # Librerías JS (jQuery, Bootstrap, AdminLTE)
-│   │   ├── modules/        # JS específicos por módulo
-│   │   └── plugins/        # JS de plugins (DataTables, Select2, etc.)
-│   ├── img/                # Imágenes del sistema
-│   └── uploads/            # Carpeta para archivos subidos
-│       └── usuarios/       # Imágenes de usuarios
-├── views/                  # Vistas
-│   ├── layouts/            # Plantillas
-│   │   ├── header.php      # Cabecera con menú
-│   │   ├── footer.php      # Pie de página
-│   │   ├── mensajes.php    # Sistema de mensajes
-│   │   └── session.php     # Verificación de sesión
-│   ├── login/              # Vistas de autenticación
-│   ├── usuarios/           # Vistas de usuarios
-│   └── permisos/           # Vistas de permisos
-├── .env.example            # Plantilla para archivo .env
-├── auth_base.sql           # Script SQL para crear la base de datos
-├── index.php               # Punto de entrada
-└── README.md               # Documentación
+# 4. Create the uploads directory
+mkdir -p public/uploads/usuarios
+cp public/img/user_default.jpg public/uploads/usuarios/
 ```
 
-## Acceso por defecto
+Open `http://localhost/php-mvc-admin-starter/` in your browser.
 
-- **Usuario:** admin@sistema.com
-- **Contraseña:** admin123
+**Default credentials:** `admin@sistema.com` / `admin123`
+⚠️ Change the default credentials immediately after installation.
 
-## Funcionalidades Principales
+## Configuration `.env`
 
-### Sistema de Autenticación
-- Login seguro con validación
-- Gestión de sesiones
-- Logout automático por inactividad
+```env
+DB_HOST=localhost
+DB_NAME=auth_base
+DB_USER=root
+DB_PASS=yourpassword
+DB_CHARSET=utf8mb4
 
-### Gestión de Usuarios
-- CRUD completo de usuarios
-- Subida y gestión de imágenes de perfil
-- Cambio de contraseñas
-- Activación/desactivación de usuarios
-- Perfil de usuario editable
+APP_URL=http://localhost/php-mvc-admin-starter
+TIMEZONE=America/La_Paz
+DEBUG=true
+```
 
-### Sistema de Permisos
-- Gestión granular de permisos
-- Asignación de permisos por usuario
-- Control de acceso a módulos
+## Adding a New Module
 
-### Interfaz de Usuario
-- Dashboard responsivo
-- Tablas con DataTables (paginación, búsqueda, ordenamiento)
-- Formularios con validación en tiempo real
-- Alertas y confirmaciones con SweetAlert2
-- Selectores mejorados con Select2
+This project is designed to be extended. To add a module (e.g. `Products`):
 
-### Generación de Reportes
-- Exportación a PDF con TCPDF
-- Posibilidad de generar reportes personalizados
-
-## Uso
-
-1. Navega a la raíz del proyecto en tu navegador
-2. Inicia sesión con las credenciales por defecto
-3. Explora y personaliza el sistema según tus necesidades
-
-## Librerías y Plugins Incluidos
-
-### Frontend
-- **AdminLTE 3**: Framework de administración
-- **Bootstrap 4**: Framework CSS responsive
-- **FontAwesome**: Iconos vectoriales
-- **jQuery**: Librería JavaScript
-- **DataTables**: Plugin para tablas avanzadas con paginación, búsqueda y filtros
-- **Select2**: Plugin para selectores avanzados
-- **SweetAlert2**: Alertas y confirmaciones elegantes
-- **jQuery Validate**: Validación de formularios
-- **Chart.js**: Librería para gráficos
-- **Moment.js**: Manejo de fechas
-
-### Backend
-- **TCPDF**: Generación de documentos PDF
-- **PHP PDO**: Acceso seguro a base de datos
-- **Sistema de sesiones**: Manejo seguro de autenticación
-
-## Personalización
-
-Para agregar nuevos módulos:
-
-1. Crea un nuevo controlador en la carpeta `controllers/`
-2. Agrega los modelos correspondientes en `models/`
-3. Crea las vistas en `views/`
-4. Actualiza el menú en `views/layouts/header.php` para incluir tu nuevo módulo
-5. Agrega los archivos CSS y JS correspondientes en las carpetas `public/css/modules/` y `public/js/modules/`
-6. Configura los permisos necesarios en la tabla `permiso` para el nuevo módulo
-
-## Documentación
-
-Este proyecto mantiene una documentación completa:
-
-- **PHPDoc**: Todos los archivos PHP incluyen documentación estándar con `@package`, `@author` y descripción de funcionalidades
-- **JSDoc**: Los módulos JavaScript personalizados están documentados con JSDoc
-- **CHANGELOG**: Ver [CHANGELOG.md](CHANGELOG.md) para el historial completo de cambios
-- **Versionado**: Seguimos [Semantic Versioning](https://semver.org/) para las versiones
-
-### Estructura de Documentación
+1. **Controller** — Create `controllers/products/ProductController.php` with namespace `Controllers\Products`
+2. **Model** — Create `models/Product.php` with namespace `Models`
+3. **Views** — Create `views/products/index.php`, `create.php`, etc.
+4. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
+5. **Permission** — Insert the permission into the `permiso` table in the database
+6. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
 
 ```php
-/**
- * Descripción del archivo
- * 
- * @package ProyectoBase
- * @subpackage [Módulo]
- * @author Jandres25
- * @version 1.0
- */
+<?php if ($authService->tienePermiso($usuario['idusuario'], 'products')): ?>
+    <li class="nav-item">
+        <a href="<?= $URL ?>/views/products/index.php" class="nav-link">Products</a>
+    </li>
+<?php endif; ?>
 ```
 
-## Versionado y Releases
+The autoloader automatically resolves any class whose namespace matches the directory structure.
 
-- **Versión actual**: 1.1.0
-- **Historial completo**: Ver [CHANGELOG.md](CHANGELOG.md)
-- **Releases**: Ver [GitHub Releases](https://github.com/Jandres25/php-mvc-admin-starter/releases)
+## Architecture
 
-## Contribución
+```
+config/         # PSR-4 autoloader, PDO singleton, .env helpers
+controllers/    # One file per action (no central router)
+models/         # Data access + input sanitization
+services/       # Reusable business logic (AuthorizationService, ImagenService)
+views/          # PHP templates; layouts/session.php validates the session
+public/         # Static assets organized into lib/, core/, plugins/, modules/
+libs/           # Vendored libraries (TCPDF)
+```
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Mantén la documentación actualizada (PHPDoc/JSDoc)
-4. Commit tus cambios siguiendo [Conventional Commits](https://conventionalcommits.org/)
-5. Push a la rama (`git push origin feature/AmazingFeature`)
-6. Abre un Pull Request
+**Request flow:** URLs point directly to controller files (e.g. `/controllers/auth/login.php`). There is no central router. Every protected page includes `views/layouts/session.php` as its first step, which validates the session and exposes the `requireLogin()` and `getCurrentUser()` helpers.
 
-### Estándares de Código
+## Tech Stack
 
-- Mantener documentación PHPDoc en todos los archivos PHP
-- Documentar funciones JavaScript con JSDoc
-- Seguir la estructura de packages existente
-- Actualizar CHANGELOG.md para cambios significativos
+| Layer | Technology |
+|---|---|
+| Backend | PHP 8.2, PDO, custom PSR-4 autoloader |
+| UI framework | AdminLTE 3, Bootstrap 4, FontAwesome |
+| JavaScript | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |
+| PDF | TCPDF |
+| Database | MySQL / MariaDB |
 
-## Seguridad
+## Security
 
-- Las contraseñas se almacenan usando `password_hash()` con el algoritmo PASSWORD_DEFAULT
-- Protección CSRF en todos los formularios
-- Verificación de sesiones para prevenir session hijacking
-- Sanitización de entradas para prevenir inyección SQL y XSS
+- Passwords hashed with `password_hash()` (PASSWORD_DEFAULT)
+- CSRF tokens on all forms
+- Prepared statements for all SQL queries
+- XSS prevention via `htmlspecialchars()` input sanitization
+- Session hijacking protection (IP and User-Agent validation)
+- Session ID regeneration on every login
 
-## Licencia
+## Contributing
 
-Este proyecto está disponible como código abierto bajo la licencia MIT.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+We follow [Conventional Commits](https://conventionalcommits.org/) and [Semantic Versioning](https://semver.org/).
 
 ## Changelog
 
-Ver [CHANGELOG.md](CHANGELOG.md) para una lista detallada de cambios y versiones.
+See [CHANGELOG.md](CHANGELOG.md) for the full change history.
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
