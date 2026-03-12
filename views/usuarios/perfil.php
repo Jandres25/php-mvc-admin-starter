@@ -2,16 +2,9 @@
 require_once __DIR__ . '/../layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
-$idusuario_session = $_SESSION['usuario_id'];
-$authService = new \Services\AuthorizationService();
+requirePermiso('perfil');
 
-// Verificar si el usuario tiene acceso al módulo
-if (!$authService->tienePermisoNombre($idusuario_session, 'perfil')) {
-    $_SESSION['mensaje'] = 'No tiene permisos para acceder a esta sección.';
-    $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL);
-    exit;
-}
+$idusuario_session = $_SESSION['usuario_id'];
 
 // Verificar si el usuario está logueado
 if (!isset($idusuario_session)) {

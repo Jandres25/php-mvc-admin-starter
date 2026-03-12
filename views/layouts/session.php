@@ -227,3 +227,19 @@ function regenerateCSRFToken()
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     return $_SESSION['csrf_token'];
 }
+
+/**
+ * Requerir un permiso específico para acceder a una página
+ *
+ * @param string $permiso Nombre del permiso requerido
+ */
+function requirePermiso(string $permiso): void
+{
+    $idusuario = $_SESSION['usuario_id'] ?? null;
+    $authService = new \Services\AuthorizationService();
+
+    if (!$authService->tienePermisoNombre($idusuario, $permiso)) {
+        require __DIR__ . '/../errors/403.php';
+        exit;
+    }
+}

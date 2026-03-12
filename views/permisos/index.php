@@ -2,18 +2,7 @@
 require_once __DIR__ . '/../layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
-$idusuario = $_SESSION['usuario_id'];
-$auth = new \Services\AuthorizationService();
-
-// Verificar si el usuario tiene acceso al módulo ANTES de incluir el header
-if (!($auth->tienePermisoNombre($idusuario, 'permisos')) && !($auth->esAdministrador($idusuario))) {
-    $_SESSION['mensaje'] = 'No tiene permisos para acceder a esta sección.';
-    $_SESSION['icono'] = 'error';
-
-    // Redirigir al inicio
-    header('Location: ' . $URL);
-    exit;
-}
+requirePermiso('permisos');
 
 // Incluir el encabezado después de verificar permisos
 include_once '../layouts/header.php';
