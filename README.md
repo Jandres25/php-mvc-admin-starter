@@ -1,3 +1,5 @@
+<div align="center">
+
 # PHP MVC Admin Starter
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
@@ -7,6 +9,8 @@
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
 > A solid starting point for PHP web applications that need a secure admin panel out of the box.
+
+</div>
 
 ## Features
 
@@ -99,13 +103,13 @@ libs/           # Vendored libraries (TCPDF)
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | PHP 8.2, PDO, custom PSR-4 autoloader |
-| UI framework | AdminLTE 3, Bootstrap 4, FontAwesome |
-| JavaScript | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |
-| PDF | TCPDF |
-| Database | MySQL / MariaDB |
+| Layer        | Technology                                                    |
+| ------------ | ------------------------------------------------------------- |
+| Backend      | PHP 8.2, PDO, custom PSR-4 autoloader                         |
+| UI framework | AdminLTE 3, Bootstrap 4, FontAwesome                          |
+| JavaScript   | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |
+| PDF          | TCPDF                                                         |
+| Database     | MySQL / MariaDB                                               |
 
 ## Security
 
@@ -127,4 +131,8 @@ See [CHANGELOG.md](CHANGELOG.md) for the full change history.
 
 ## License
 
+<div align="center">
+
 MIT — see [LICENSE](LICENSE) for details.
+
+</div>
