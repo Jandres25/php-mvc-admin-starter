@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.2-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -17,6 +17,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Permission control** — Granular per-user permissions, adaptive navigation menu
+- **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
 - **No Composer** — Custom PSR-4 autoloader; zero external dependencies to manage
 - **AdminLTE 3** — Production-ready responsive dashboard
 - **PDF generation** — Built-in report generation with TCPDF
@@ -64,6 +65,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter
 TIMEZONE=America/La_Paz
 DEBUG=true
+APP_VERSION=1.0.0
 ```
 
 ## Adding a New Module

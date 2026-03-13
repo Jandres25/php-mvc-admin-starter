@@ -29,9 +29,7 @@ global $URL;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sistema Base MVC</title>
 
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Bootstrap 5 -->
+    <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/bootstrap/bootstrap.min.css">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/fontawesome/all.min.css">

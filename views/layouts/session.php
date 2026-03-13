@@ -56,6 +56,10 @@ try {
     // Definir URL base global
     $GLOBALS['URL'] = $app_url;
     $URL = $GLOBALS['URL'];
+
+    // Definir versión de la aplicación
+    $GLOBALS['APP_VERSION'] = $_ENV['APP_VERSION'] ?? getenv('APP_VERSION') ?: '1.0.0';
+    $APP_VERSION = $GLOBALS['APP_VERSION'];
 } catch (Exception $e) {
     die("Error al cargar la configuración: " . $e->getMessage() . ". Verifique que el archivo .env esté configurado correctamente.");
 }

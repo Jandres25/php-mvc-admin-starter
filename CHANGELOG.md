@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-03-13
+
+### Added
+- Custom error pages (403, 404, 500) served via Apache `ErrorDocument` directives in `.htaccess`
+- `APP_VERSION` environment variable exposed as `$APP_VERSION` global in `session.php`, displayed in the footer
+- `requirePermiso()` helper in `session.php` to gate access by named permission, rendering the 403 view directly instead of redirecting
+
+### Fixed
+- `$URL` undefined variable in `404.php` and `403.php` when served by Apache; replaced with local `$app_url`
+- Font Awesome webfonts not loading due to mismatched relative path; added `public/css/lib/webfonts` symlink pointing to `fontawesome/webfonts`
+- Removed external Google Fonts request in `header.php`; font is now loaded from local `public/css/core/webfonts.css`
+
 ## [1.1.1] - 2026-02-20
 
 ### Fixed
@@ -58,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/releases/tag/v1.0.0

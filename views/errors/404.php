@@ -18,17 +18,28 @@ if (file_exists($env_file)) {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>404 - Página no encontrada</title>
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/adminlte/adminlte.min.css">
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/fontawesome/all.min.css">
+    <link rel="stylesheet" href="<?= $app_url ?>public/css/core/webfonts.css">
     <link rel="icon" type="image/png" href="<?= $app_url ?>public/img/e-commerce_logo.png">
     <style>
-        body { background-color: #f4f6f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
     </style>
 </head>
+
 <body>
     <div class="text-center">
         <h1 class="display-1 font-weight-bold text-warning">404</h1>
@@ -39,4 +50,5 @@ if (file_exists($env_file)) {
         </a>
     </div>
 </body>
+
 </html>

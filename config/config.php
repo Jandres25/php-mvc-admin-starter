@@ -31,6 +31,7 @@ return [
         'timezone' => $timezone,
         'name' => 'ProyectoBase',
         'url' => env('APP_URL'),
-        'debug' => env('DEBUG')
+        'debug' => env('DEBUG'),
+        'version' => env('APP_VERSION', '1.0.0')
     ]
 ];
