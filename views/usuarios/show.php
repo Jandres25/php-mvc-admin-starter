@@ -4,6 +4,9 @@ require_once __DIR__ . '/../../config/config.php';
 
 requirePermiso('usuarios');
 
+$module_styles  = ['usuarios/show-usuario'];
+$module_scripts = ['usuarios/show-usuario'];
+
 // Incluir el encabezado
 include_once '../layouts/header.php';
 
@@ -108,7 +111,7 @@ $permisos_usuario = $authService->obtenerPermisosUsuario($usuario['idusuario']);
                             <a href="<?= $URL; ?>views/usuarios/update.php?id=<?= $usuario['idusuario']; ?>" class="btn btn-warning mb-3">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
-                            <a href="<?= $URL; ?>views/usuarios/index.php" class="btn btn-secondary mb-3">
+                            <a href="<?= $URL; ?>views/usuarios/index.php" class="btn btn-default mb-3">
                                 <i class="fas fa-arrow-left"></i> Volver
                             </a>
                         </div>
@@ -116,7 +119,7 @@ $permisos_usuario = $authService->obtenerPermisosUsuario($usuario['idusuario']);
                 </div>
 
                 <!-- Tarjeta de actividad del usuario -->
-                <div class="card card-info">
+                <div class="card card-outline card-info">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-history mr-1"></i> Información del Sistema</h3>
                         <div class="card-tools">
@@ -145,8 +148,8 @@ $permisos_usuario = $authService->obtenerPermisosUsuario($usuario['idusuario']);
             <!-- Columna derecha - Información detallada -->
             <div class="col-md-8">
                 <!-- Card tabs -->
-                <div class="card card-info card-outline card-tabs">
-                    <div class="card-header p-0">
+                <div class="card card-info card-outline card-outline-tabs">
+                    <div class="card-header p-0 border-bottom-0">
                         <ul class="nav nav-tabs" id="user-tabs" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="tab-info-personal-tab" data-toggle="pill" href="#tab-info-personal" role="tab" aria-controls="tab-info-personal" aria-selected="true">
@@ -310,47 +313,6 @@ $permisos_usuario = $authService->obtenerPermisosUsuario($usuario['idusuario']);
         </div>
     </div>
 </section>
-
-<style>
-    /* Color info para el texto de las pestañas no activas */
-    #user-tabs .nav-link:not(.active) {
-        color: #17a2b8;
-        /* Color info */
-    }
-
-    /* Opcional: Color info más intenso al pasar el mouse por pestañas no activas */
-    #user-tabs .nav-link:not(.active):hover {
-        color: #138496;
-        /* Un tono más oscuro de info */
-    }
-</style>
-
-<script>
-    // Guardar la última pestaña activa en localStorage
-    $('a[data-toggle="pill"]').on('shown.bs.tab', function(e) {
-        localStorage.setItem('lastUserDetailTab', $(e.target).attr('href'));
-    });
-
-    // Restaurar la última pestaña activa
-    var lastTab = localStorage.getItem('lastUserDetailTab');
-    if (lastTab) {
-        $('a[href="' + lastTab + '"]').tab('show');
-    }
-
-    // Mostrar imagen más grande al hacer clic
-    $('.profile-user-img').on('click', function() {
-        const imgSrc = $(this).attr('src');
-
-        Swal.fire({
-            imageUrl: imgSrc,
-            imageAlt: 'Imagen de perfil',
-            confirmButtonText: 'Cerrar',
-            customClass: {
-                image: 'img-fluid'
-            }
-        });
-    });
-</script>
 
 <?php
 include_once '../layouts/mensajes.php';

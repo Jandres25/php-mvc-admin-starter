@@ -1,164 +1,80 @@
 /**
- * perfil-usuario.js - Script para la página de perfil de usuario
- * 
- * Maneja la vista previa de imágenes y mejoras de usabilidad
- * para el formulario de perfil del usuario autenticado.
- * 
- * @package ProyectoBase
- * @subpackage JavaScript\Modules\Usuarios
- * @author Jandres25
- * @version 1.0
+ * perfil-usuario.js — Lógica de la página de perfil del usuario autenticado
  */
 
-// Script para mostrar el nombre del archivo en el input de imagen
-document.addEventListener('DOMContentLoaded', function () {
-    const customFileInputs = document.querySelectorAll('.custom-file-input');
-    customFileInputs.forEach(function (input) {
-        input.addEventListener('change', function (e) {
-            const fileName = e.target.files[0] ? e.target.files[0].name : 'Seleccionar archivo...';
-            const nextSibling = e.target.nextElementSibling;
-            if (nextSibling && nextSibling.classList.contains('custom-file-label')) {
-                nextSibling.innerText = fileName;
-            }
-        });
-    });
-});
+// ─── Vista previa de imagen ──────────────────────────────────────────────────
 
 document.getElementById('imagen').addEventListener('change', function (e) {
     const file = e.target.files[0];
-    if (file) {
-        // Validar tamaño del archivo (2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Archivo muy grande',
-                text: 'El archivo no debe superar los 2MB'
-            });
-            e.target.value = '';
-            return;
-        }
+    if (!file) return;
 
-        // Validar tipo de archivo
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Tipo de archivo no válido',
-                text: 'Solo se permiten archivos JPG, PNG, GIF y WEBP'
-            });
-            e.target.value = '';
-            return;
-        }
-
-        const reader = new FileReader();
-        const previewContainer = document.getElementById('preview-container');
-        const previewImage = document.getElementById('preview-image');
-
-        reader.onload = function (e) {
-            previewImage.src = e.target.result;
-            previewContainer.style.display = 'block';
-        }
-
-        reader.readAsDataURL(file);
-
-        // Actualizar el label con el nombre del archivo
-        const fileName = file.name;
-        const label = e.target.nextElementSibling;
-        label.textContent = fileName;
+    if (file.size > 2 * 1024 * 1024) {
+        Swal.fire({ icon: 'error', title: 'Archivo muy grande', text: 'El archivo no debe superar los 2 MB.' });
+        e.target.value = '';
+        return;
     }
+
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+        Swal.fire({ icon: 'error', title: 'Formato no válido', text: 'Solo se permiten JPG, PNG, GIF y WEBP.' });
+        e.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+        document.getElementById('preview-image').src = ev.target.result;
+        document.getElementById('sidebar-avatar').src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    const label = e.target.nextElementSibling;
+    if (label) label.textContent = file.name;
 });
 
-// Script para manejar el cambio de contraseña con AJAX
-document.addEventListener('DOMContentLoaded', function () {
-    const formCambiarPassword = document.getElementById('formCambiarPassword');
+// ─── Cambiar contraseña (AJAX) ───────────────────────────────────────────────
 
-    formCambiarPassword.addEventListener('submit', function (e) {
-        e.preventDefault();
+document.getElementById('formCambiarPassword').addEventListener('submit', function (e) {
+    e.preventDefault();
 
-        // Validar contraseñas
-        const claveActual = document.getElementById('clave_actual').value;
-        const nuevaClave = document.getElementById('nueva_clave').value;
-        const confirmarClave = document.getElementById('confirmar_nueva_clave').value;
+    const nuevaClave     = document.getElementById('nueva_clave').value;
+    const confirmarClave = document.getElementById('confirmar_nueva_clave').value;
 
-        if (!claveActual || !nuevaClave || !confirmarClave) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Todos los campos son obligatorios'
-            });
-            return;
-        }
+    if (nuevaClave !== confirmarClave) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Las contraseñas no coinciden.' });
+        return;
+    }
 
-        if (nuevaClave !== confirmarClave) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Las contraseñas no coinciden'
-            });
-            return;
-        }
+    const btn = document.getElementById('btnCambiarPassword');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
 
-        if (nuevaClave.length < 6) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'La contraseña debe tener al menos 6 caracteres'
-            });
-            return;
-        }
+    fetch(`${baseUrl}controllers/usuarios/ajax_cambiar_clave.php`, {
+        method: 'POST',
+        body: new FormData(this)
+    })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-key mr-1"></i> Cambiar contraseña';
 
-        // Preparar datos para enviar
-        const formData = new FormData(formCambiarPassword);
-
-        // Deshabilitar botón
-        const btnCambiarPassword = document.getElementById('btnCambiarPassword');
-        btnCambiarPassword.disabled = true;
-        btnCambiarPassword.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-
-        // Realizar solicitud AJAX
-        fetch(`${baseUrl}controllers/usuarios/ajax_cambiar_clave.php`, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Habilitar botón
-                btnCambiarPassword.disabled = false;
-                btnCambiarPassword.innerHTML = 'Cambiar Contraseña';
-
-                if (data.success) {
-                    // Mostrar mensaje de éxito y luego cerrar sesión
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Éxito',
-                        text: 'Contraseña actualizada correctamente. Se cerrará la sesión.',
-                        allowOutsideClick: false,
-                        confirmButtonText: 'Aceptar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Redirigir al logout
-                            window.location.href = `${baseUrl}controllers/auth/logout.php`;
-                        }
-                    });
-                } else {
-                    // Mostrar mensaje de error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                btnCambiarPassword.disabled = false;
-                btnCambiarPassword.innerHTML = 'Cambiar Contraseña';
-
+            if (data.success) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Ocurrió un error al procesar la solicitud'
+                    icon: 'success',
+                    title: 'Contraseña actualizada',
+                    text: 'Se cerrará la sesión.',
+                    allowOutsideClick: false,
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    window.location.href = `${baseUrl}controllers/auth/logout.php`;
                 });
-            });
-    });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-key mr-1"></i> Cambiar contraseña';
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Ocurrió un error al procesar la solicitud.' });
+        });
 });

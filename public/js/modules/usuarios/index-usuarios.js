@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
             text: textoAlerta,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: estadoActual == 1 ? '#d33' : '#3085d6',
+            confirmButtonColor: estadoActual == 1 ? '#d33' : '#28a745',
             cancelButtonColor: '#6c757d',
             confirmButtonText: confirmButtonText,
             cancelButtonText: cancelButtonText,
@@ -70,23 +70,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Usar delegación de eventos para mejor compatibilidad móvil
-    document.body.addEventListener('click', function(e) {
+    document.body.addEventListener('click', function (e) {
         // Verificar si el elemento clickeado es un botón de cambiar estado
         if (e.target.classList.contains('btn-cambiar-estado') || e.target.closest('.btn-cambiar-estado')) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const boton = e.target.classList.contains('btn-cambiar-estado') ? e.target : e.target.closest('.btn-cambiar-estado');
             handleEstadoChange(boton);
         }
     }, { capture: true, passive: false }); // Configuración optimizada para móviles
 
     // Agregar soporte para eventos táctiles en dispositivos móviles
-    document.body.addEventListener('touchend', function(e) {
+    document.body.addEventListener('touchend', function (e) {
         if (e.target.classList.contains('btn-cambiar-estado') || e.target.closest('.btn-cambiar-estado')) {
             e.preventDefault();
             const boton = e.target.classList.contains('btn-cambiar-estado') ? e.target : e.target.closest('.btn-cambiar-estado');
-            
+
             // Pequeño retraso para evitar doble evento
             setTimeout(() => {
                 handleEstadoChange(boton);

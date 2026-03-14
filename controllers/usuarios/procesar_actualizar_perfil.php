@@ -23,8 +23,8 @@ require_once __DIR__ . '/../../views/layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
 // Instanciar el controlador
-$controller = new \Controllers\Usuarios\UsuarioController();
-$resultado = $controller->actualizarPerfil();
+$controller = new \Controllers\Usuarios\PerfilController();
+$resultado  = $controller->actualizarPerfil();
 
 // Guardar mensaje en la sesión
 $_SESSION['mensaje'] = $resultado['message'];

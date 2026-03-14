@@ -16,10 +16,13 @@ mysql -u root -p < auth_base.sql
 cp .env.example .env
 # Edit .env: DB_HOST, DB_NAME, DB_USER, DB_PASS, APP_URL, TIMEZONE
 
-# 3. Create upload directory
+# 3. Create upload directory and set write permissions
 mkdir -p public/uploads/usuarios
 cp public/img/user_default.jpg public/uploads/usuarios/
+chmod 777 public/uploads/usuarios/
 ```
+
+> **Note:** Apache runs as `daemon` on LAMPP. The uploads directory must be world-writable (`777`) or owned by the web server user, otherwise `move_uploaded_file()` silently fails.
 
 **Requirements:** PHP 8.2+ with PDO and GD extensions, Apache/Nginx, MariaDB/MySQL.
 
@@ -74,6 +77,10 @@ Action controllers (e.g., `crear_usuario.php`, `ajax_cambiar_clave.php`) return 
 
 Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJAX helpers, DataTables setup) are in `public/js/core/`. All third-party libraries are already bundled in `public/js/lib/` and `public/css/lib/`.
 
+**Loading order:** `footer.php` loads Bootstrap and AdminLTE before `$module_scripts`. Always register page-specific JS via `$module_scripts = ['feature/file']` at the top of the view — never use inline `<script>` blocks before `footer.php`, as Bootstrap plugins (e.g. `.tab()`) will not yet be available.
+
+Similarly, register page-specific CSS via `$module_styles = ['feature/file']` at the top of the view.
+
 ## Coding Conventions
 
 - **Namespaces:** `Controllers\Auth`, `Controllers\Usuarios`, `Models`, `Services` — match directory structure in lowercase.
@@ -82,4 +89,5 @@ Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJA
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImagenService`.
 - **JS:** ES6+ with JSDoc comments. Use `SweetAlert2` for confirmations, `DataTables` for lists, `Select2` for dropdowns.
+- **AdminLTE cards:** `card-outline card-{color}` classes go on the outer `div.card`, **never** on `div.card-header`. Adding them to the header instead of the card silently breaks the colored left border style.
 - **Commits:** Follow Conventional Commits (`feat:`, `fix:`, `docs:`, etc.).

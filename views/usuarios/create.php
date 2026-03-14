@@ -34,331 +34,347 @@ include_once '../layouts/header.php';
         <div class="row">
             <!-- Formulario Principal (8 columnas) -->
             <div class="col-md-8">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-user-plus mr-2"></i>Formulario de Nuevo Usuario</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <form action="<?= $URL; ?>controllers/usuarios/crear_usuario.php" method="POST" enctype="multipart/form-data" id="formUsuario">
-                        <div class="card-body">
-                            <!-- Tarjeta de Información Personal -->
-                            <div class="card card-outline card-primary mb-4">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-address-card mr-2"></i>Información Personal</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Nombre -->
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="nombre">Nombre <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="nombre" name="nombre"
-                                                    placeholder="Ingrese el nombre" required>
-                                            </div>
-                                        </div>
+                <!-- form start -->
+                <form action="<?= $URL; ?>controllers/usuarios/crear_usuario.php" method="POST" enctype="multipart/form-data" id="formUsuario">
+                    <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
-                                        <!-- Apellido Paterno -->
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="apellidopaterno">Apellido Paterno <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="apellidopaterno" name="apellidopaterno"
-                                                    placeholder="Ingrese el apellido paterno" required>
-                                            </div>
-                                        </div>
-
-                                        <!-- Apellido Materno -->
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="apellidomaterno">Apellido Materno</label>
-                                                <input type="text" class="form-control" id="apellidomaterno" name="apellidomaterno"
-                                                    placeholder="Ingrese el apellido materno">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <!-- Tipo de Documento -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="tipodocumento">Tipo de Documento <span class="text-danger">*</span></label>
-                                                <select class="form-control select2" id="tipodocumento" name="tipodocumento" required>
-                                                    <option value="">Seleccione un tipo de documento</option>
-                                                    <option value="DNI">DNI</option>
-                                                    <option value="Pasaporte">Pasaporte</option>
-                                                    <option value="CI">Cédula de Identidad</option>
-                                                    <option value="RUC">RUC</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- Número de Documento -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="numdocumento">Número de Documento <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="numdocumento" name="numdocumento"
-                                                    placeholder="Ingrese el número de documento" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Tarjeta de Información Personal -->
+                    <div class="card card-outline card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-address-card mr-2"></i>Información Personal</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
                             </div>
-                            <!-- Fin Tarjeta Información Personal -->
-
-                            <!-- Tarjeta de Información de Contacto -->
-                            <div class="card card-outline card-info mb-4">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Información de Contacto</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Dirección -->
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="direccion">Dirección</label>
-                                                <textarea class="form-control" id="direccion" name="direccion" rows="2"
-                                                    placeholder="Ingrese la dirección"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <!-- Teléfono -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="telefono">Teléfono</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                                    </div>
-                                                    <input type="tel" class="form-control" id="telefono" name="telefono"
-                                                        placeholder="Ingrese el teléfono">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Correo -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fas fa-at"></i></span>
-                                                    </div>
-                                                    <input type="email" class="form-control" id="correo" name="correo"
-                                                        placeholder="Ingrese el correo electrónico" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Fin Tarjeta Información de Contacto -->
-
-                            <!-- Tarjeta de Información de Cuenta -->
-                            <div class="card card-outline card-warning mb-4">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-user-lock mr-2"></i>Información de Cuenta</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Cargo -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="cargo">Cargo <span class="text-danger">*</span></label>
-                                                <select class="form-control select2" id="cargo" name="cargo" required>
-                                                    <option value="">Seleccione un cargo</option>
-                                                    <option value="Administrador">Administrador</option>
-                                                    <option value="Encargado">Encargado</option>
-                                                    <option value="Vendedor">Vendedor</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- Estado -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="estado">Estado</label>
-                                                <select class="form-control select2" id="estado" name="estado">
-                                                    <option value="1" selected>Activo</option>
-                                                    <option value="0">Inactivo</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <!-- Contraseña -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="clave">Contraseña <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <input type="password" class="form-control" id="clave" name="clave"
-                                                        placeholder="Ingrese la contraseña" autocomplete="off" required>
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                                            <i class="fas fa-eye"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <small class="form-text text-muted">Mínimo 6 caracteres</small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Confirmar Contraseña -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="confirmar_clave">Confirmar Contraseña <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <input type="password" class="form-control" id="confirmar_clave" name="confirmar_clave"
-                                                        placeholder="Confirme la contraseña" autocomplete="off" required>
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
-                                                            <i class="fas fa-eye"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="invalid-feedback" id="password-error-message">
-                                                    Las contraseñas no coinciden
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Fin Tarjeta Información de Cuenta -->
-
-                            <!-- Tarjeta de Imagen de Perfil -->
-                            <div class="card card-outline card-success mb-4">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-image mr-2"></i>Imagen de Perfil</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="imagen">Seleccionar Imagen</label>
-                                                <div class="input-group">
-                                                    <div class="custom-file">
-                                                        <input type="file" class="custom-file-input" id="imagen" name="imagen"
-                                                            accept="image/*">
-                                                        <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
-                                                    </div>
-                                                </div>
-                                                <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF. Máximo 2MB</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 text-center">
-                                            <!-- Vista previa de imagen -->
-                                            <div id="preview-container" style="display: none;">
-                                                <label>Vista Previa:</label><br>
-                                                <img id="preview-image" src="#" alt="Vista previa" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Fin Tarjeta Imagen de Perfil -->
-
-                            <!-- Tarjeta de Permisos -->
-                            <div class="card card-outline card-secondary mb-4">
-                                <div class="card-header">
-                                    <h3 class="card-title"><i class="fas fa-key mr-2"></i>Asignación de Permisos</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-outline-primary btn-sm" id="seleccionar-todos">
-                                                    <i class="fas fa-check-square mr-1"></i> Seleccionar todos
-                                                </button>
-                                                <button type="button" class="btn btn-outline-secondary btn-sm" id="deseleccionar-todos">
-                                                    <i class="fas fa-square mr-1"></i> Deseleccionar todos
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>Permisos disponibles:</label>
-                                                <div class="row">
-                                                    <?php
-                                                    // Obtener todos los permisos disponibles
-                                                    $permisos = $authService->obtenerTodosLosPermisos();
-                                                    foreach ($permisos as $permiso) :
-                                                    ?>
-                                                        <div class="col-md-4">
-                                                            <div class="custom-control custom-checkbox">
-                                                                <input type="checkbox" class="custom-control-input"
-                                                                    id="permiso_<?= $permiso['idpermiso'] ?>"
-                                                                    name="permisos[]"
-                                                                    value="<?= $permiso['idpermiso'] ?>">
-                                                                <label class="custom-control-label" for="permiso_<?= $permiso['idpermiso'] ?>">
-                                                                    <?= htmlspecialchars($permiso['nombre']) ?>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Fin Tarjeta Permisos -->
                         </div>
-                        <!-- /.card-body -->
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Nombre -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="nombre" name="nombre"
+                                                placeholder="Ingrese el nombre" required>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Apellido Paterno -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="apellidopaterno">Apellido Paterno <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="apellidopaterno" name="apellidopaterno"
+                                                placeholder="Ingrese el apellido paterno" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Apellido Materno -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="apellidomaterno">Apellido Materno</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="apellidomaterno" name="apellidomaterno"
+                                                placeholder="Ingrese el apellido materno">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Tipo de Documento -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="tipodocumento">Tipo de Documento <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="tipodocumento" name="tipodocumento" required>
+                                            <option value="">Seleccione un tipo de documento</option>
+                                            <option value="DNI">DNI</option>
+                                            <option value="Pasaporte">Pasaporte</option>
+                                            <option value="CI">Cédula de Identidad</option>
+                                            <option value="RUC">RUC</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Número de Documento -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="numdocumento">Número de Documento <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="numdocumento" name="numdocumento"
+                                                placeholder="Ingrese el número de documento" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Tarjeta Información Personal -->
+
+                    <!-- Tarjeta de Información de Contacto -->
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Información de Contacto</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Dirección -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="direccion">Dirección</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                            </div>
+                                            <textarea class="form-control" id="direccion" name="direccion" rows="2"
+                                                placeholder="Ingrese la dirección"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Teléfono -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="telefono">Teléfono</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control" id="telefono" name="telefono"
+                                                placeholder="Ingrese el teléfono">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Correo -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-at"></i></span>
+                                            </div>
+                                            <input type="email" class="form-control" id="correo" name="correo"
+                                                placeholder="Ingrese el correo electrónico" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Tarjeta Información de Contacto -->
+
+                    <!-- Tarjeta de Información de Cuenta -->
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-user-lock mr-2"></i>Información de Cuenta</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Cargo -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="cargo">Cargo <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="cargo" name="cargo" required>
+                                            <option value="">Seleccione un cargo</option>
+                                            <option value="Administrador">Administrador</option>
+                                            <option value="Encargado">Encargado</option>
+                                            <option value="Vendedor">Vendedor</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Estado -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="estado">Estado</label>
+                                        <select class="form-control select2" id="estado" name="estado">
+                                            <option value="1" selected>Activo</option>
+                                            <option value="0">Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Contraseña -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="clave">Contraseña <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="clave" name="clave"
+                                                placeholder="Ingrese la contraseña" autocomplete="off" minlength="6" required>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted">Mínimo 6 caracteres</small>
+                                    </div>
+                                </div>
+
+                                <!-- Confirmar Contraseña -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="confirmar_clave">Confirmar Contraseña <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="confirmar_clave" name="confirmar_clave"
+                                                placeholder="Confirme la contraseña" autocomplete="off" required>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="invalid-feedback" id="password-error-message">
+                                            Las contraseñas no coinciden
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Tarjeta Información de Cuenta -->
+
+                    <!-- Tarjeta de Imagen de Perfil -->
+                    <div class="card card-outline card-success">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-image mr-2"></i>Imagen de Perfil</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="imagen">Seleccionar Imagen</label>
+                                        <div class="input-group">
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" id="imagen" name="imagen"
+                                                    accept="image/*">
+                                                <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF. Máximo 2MB</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-center">
+                                    <!-- Vista previa de imagen -->
+                                    <div id="preview-container" style="display: none;">
+                                        <label>Vista Previa:</label><br>
+                                        <img id="preview-image" src="#" alt="Vista previa" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Tarjeta Imagen de Perfil -->
+
+                    <!-- Tarjeta de Permisos -->
+                    <div class="card card-outline card-secondary">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Asignación de Permisos</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="seleccionar-todos">
+                                            <i class="fas fa-check-square mr-1"></i> Seleccionar todos
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="deseleccionar-todos">
+                                            <i class="fas fa-square mr-1"></i> Deseleccionar todos
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Permisos disponibles:</label>
+                                        <div class="row">
+                                            <?php
+                                            // Obtener todos los permisos disponibles
+                                            $permisos = $authService->obtenerTodosLosPermisos();
+                                            foreach ($permisos as $permiso) :
+                                            ?>
+                                                <div class="col-md-4">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                            id="permiso_<?= $permiso['idpermiso'] ?>"
+                                                            name="permisos[]"
+                                                            value="<?= $permiso['idpermiso'] ?>">
+                                                        <label class="custom-control-label" for="permiso_<?= $permiso['idpermiso'] ?>">
+                                                            <?= htmlspecialchars($permiso['nombre']) ?>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-footer">
                             <div class="row">
-                                <div class="col-12 col-sm-auto mb-2 mb-sm-0 mr-sm-2">
+                                <div class="col-12 col-sm-auto mb-2 mb-sm-0">
                                     <button type="submit" class="btn btn-primary btn-block">
-                                        <i class="fas fa-save mr-1"></i> Guardar Usuario
+                                        <i class="fas fa-save"></i> Guardar Usuario
                                     </button>
                                 </div>
                                 <div class="col-12 col-sm-auto">
-                                    <a href="<?= $URL; ?>views/usuarios" class="btn btn-secondary btn-block">
-                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    <a href="<?= $URL; ?>views/usuarios" class="btn btn-default btn-block">
+                                        <i class="fas fa-times"></i> Cancelar
                                     </a>
                                 </div>
                             </div>
                         </div>
-                    </form>
-                </div>
-                <!-- /.card -->
+                    </div>
+                    <!-- Fin Tarjeta Permisos -->
+                </form>
             </div>
             <!-- Fin formulario principal -->
 
             <!-- Guía de ayuda (4 columnas) -->
             <div class="col-md-4">
                 <!-- Acordeón de ayuda -->
-                <div class="card card-info">
+                <div class="card card-outline card-info">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-question-circle mr-1"></i> Guía para crear usuarios</h3>
                         <div class="card-tools">
@@ -458,17 +474,11 @@ include_once '../layouts/header.php';
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="alert alert-warning mb-0">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                            <strong>Importante:</strong> Verifique que el correo electrónico y número de documento no estén ya registrados en el sistema.
-                        </div>
-                    </div>
                 </div>
                 <!-- Fin acordeón de ayuda -->
 
                 <!-- Tarjeta de vista previa -->
-                <div class="card card-primary sticky-top">
+                <div class="card card-outline card-primary sticky-top">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-id-card mr-1"></i> Vista previa del perfil</h3>
                         <div class="card-tools">

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-14
+
+### Added
+- `show-usuario.js` module: Bootstrap tab persistence via `localStorage` and profile image lightbox with SweetAlert2
+- `show-usuario.css` module: active tab color styling for the user detail page
+- CSRF token on `create.php` and `update.php` user forms
+
+### Changed
+- `create.php` and `update.php`: input fields now use `input-group` with FontAwesome icons; sidebar cards use `card-outline sticky-top`; submit/cancel buttons moved to `card-footer`
+- `show.php`: moved inline `<style>` and `<script>` blocks to `$module_styles` / `$module_scripts` modules; fixed `card-outline` placement on Sistema card
+- `perfil.php`: simplified to only editable fields — profile photo, phone, and address; password change moved to a separate AJAX tab
+- `perfil-usuario.js`: rewrote with client-side image preview (size and format validation) and AJAX password change that redirects to logout on success
+- `PerfilController::actualizarPerfil`: non-editable fields (nombre, apellidos, correo) now sourced from DB instead of POST to prevent premature validation failure
+- `procesar_actualizar_perfil.php`: switched from `UsuarioController` to `PerfilController`
+- `common-datatable.js`: added `initComplete` callback to reveal the table only after DataTables finishes rendering
+
+### Fixed
+- `.tab is not a function` error in `show.php` caused by inline script running before Bootstrap loaded
+- Image upload silently failing due to Apache (`daemon`) lacking write permission on `public/uploads/usuarios/`
+- Profile update rejecting valid image uploads when nombre/apellidos were absent from POST
+
 ## [1.1.2] - 2026-03-13
 
 ### Added
@@ -70,7 +91,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.0.0...v1.1.0

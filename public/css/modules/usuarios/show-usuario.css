@@ -1,0 +1,8 @@
+/* Pestañas de detalle de usuario */
+#user-tabs .nav-link:not(.active) {
+    color: #17a2b8;
+}
+
+#user-tabs .nav-link:not(.active):hover {
+    color: #138496;
+}

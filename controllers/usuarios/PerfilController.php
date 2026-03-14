@@ -84,7 +84,6 @@ class PerfilController
      */
     public function actualizarPerfil()
     {
-        global $URL;
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             return ['success' => false, 'message' => 'Acceso no permitido.', 'icon' => 'warning', 'redirect' => 'views/perfil/mi-perfil.php'];
         }
@@ -104,26 +103,20 @@ class PerfilController
         // Guardar imagen actual
         $imagen_antigua = $usuario_actual['imagen'];
 
-        // CAMPOS PERMITIDOS: Solo recoger campos que el usuario puede modificar desde su perfil
+        // Solo los campos editables desde el perfil; el resto se preserva del DB
         $datos = [
-            'nombre' => isset($_POST['nombre']) ? trim($_POST['nombre']) : '',
-            'apellidopaterno' => isset($_POST['apellidopaterno']) ? trim($_POST['apellidopaterno']) : '',
-            'apellidomaterno' => isset($_POST['apellidomaterno']) ? trim($_POST['apellidomaterno']) : null,
-            'direccion' => isset($_POST['direccion']) ? trim($_POST['direccion']) : null,
-            'telefono' => isset($_POST['telefono']) ? trim($_POST['telefono']) : null,
-            'correo' => isset($_POST['correo']) ? trim($_POST['correo']) : '',
-            'imagen' => $imagen_antigua
+            'nombre'          => $usuario_actual['nombre'],
+            'apellidopaterno' => $usuario_actual['apellidopaterno'],
+            'apellidomaterno' => $usuario_actual['apellidomaterno'],
+            'correo'          => $usuario_actual['correo'],
+            'telefono'        => isset($_POST['telefono']) ? trim($_POST['telefono']) : null,
+            'direccion'       => isset($_POST['direccion']) ? trim($_POST['direccion']) : null,
+            'imagen'          => $imagen_antigua
         ];
 
-        // Sanitizar los datos
-        $datos = $this->modelo->sanitizarDatos($datos);
-
-        // Validación específica para el perfil
-        $errores = $this->validarDatosPerfil($datos, $id, $usuario_actual);
-
-        if (!empty($errores)) {
-            return ['success' => false, 'message' => $errores[0], 'icon' => 'error', 'redirect' => 'views/perfil/mi-perfil.php'];
-        }
+        // Sanitizar solo los campos editables por el usuario
+        $datos['telefono']  = $datos['telefono']  !== null ? htmlspecialchars($datos['telefono'],  ENT_QUOTES, 'UTF-8') : null;
+        $datos['direccion'] = $datos['direccion'] !== null ? htmlspecialchars($datos['direccion'], ENT_QUOTES, 'UTF-8') : null;
 
         // Procesar nueva imagen si se subió
         if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == 0) {
@@ -131,82 +124,22 @@ class PerfilController
             if ($nueva_imagen_path) {
                 $datos['imagen'] = $nueva_imagen_path;
 
-                // Eliminar imagen anterior si no es la predeterminada
-                if ($imagen_antigua && $imagen_antigua !== 'user_default.jpg' && $imagen_antigua !== $nueva_imagen_path) {
+                if ($imagen_antigua && $imagen_antigua !== 'user_default.jpg') {
                     $this->imagenService->eliminarImagen($imagen_antigua);
                 }
             } else {
-                return ['success' => false, 'message' => 'Error al procesar la nueva imagen. Verifique el formato y tamaño.', 'icon' => 'error', 'redirect' => 'views/perfil/mi-perfil.php'];
+                return ['success' => false, 'message' => 'Error al procesar la imagen. Verifique el formato (JPG, PNG, WEBP) y que no supere 5 MB.', 'icon' => 'error', 'redirect' => 'views/usuarios/perfil.php'];
             }
         }
 
-        // Usar el método específico para actualizar el perfil
         if ($this->modelo->actualizarPerfil($id, $datos)) {
-            // Actualizar datos de sesión
-            $_SESSION['usuario_nombre'] = $datos['nombre'];
-            $_SESSION['usuario_correo'] = $datos['correo'];
-            if (isset($datos['imagen']) && $datos['imagen'] !== $imagen_antigua) {
+            if ($datos['imagen'] !== $imagen_antigua) {
                 $_SESSION['usuario_imagen'] = $datos['imagen'];
             }
-            return ['success' => true, 'message' => 'Perfil actualizado correctamente', 'icon' => 'success', 'redirect' => 'views/perfil/mi-perfil.php'];
-        } else {
-            $db_error = $this->modelo->getLastError();
-            return ['success' => false, 'message' => 'Error al actualizar el perfil: ' . ($db_error ?: 'Error desconocido.'), 'icon' => 'error', 'redirect' => 'views/perfil/mi-perfil.php'];
-        }
-    }
-
-    /**
-     * Valida los datos del perfil antes de actualizar
-     * 
-     * @param array $datos Datos del perfil a validar
-     * @param int $id ID del usuario
-     * @param array $usuario_actual Datos actuales del usuario
-     * @return array Lista de errores encontrados
-     */
-    private function validarDatosPerfil($datos, $id, $usuario_actual)
-    {
-        $errores = [];
-
-        // Validar campos obligatorios
-        if (empty($datos['nombre'])) {
-            $errores[] = 'El nombre no puede estar vacío.';
+            return ['success' => true, 'message' => 'Perfil actualizado correctamente.', 'icon' => 'success', 'redirect' => 'views/usuarios/perfil.php'];
         }
 
-        if (empty($datos['apellidopaterno'])) {
-            $errores[] = 'El apellido paterno no puede estar vacío.';
-        }
-
-        // Validar correo
-        if (empty($datos['correo'])) {
-            $errores[] = 'El correo electrónico no puede estar vacío.';
-        } elseif (!filter_var($datos['correo'], FILTER_VALIDATE_EMAIL)) {
-            $errores[] = 'El formato del correo electrónico no es válido.';
-        } elseif ($datos['correo'] !== $usuario_actual['correo'] && $this->modelo->existeCorreo($datos['correo'], $id)) {
-            $errores[] = 'El correo electrónico ya está registrado para otro usuario.';
-        }
-
-        // Validar longitud de los campos
-        if (strlen($datos['nombre']) > 255) {
-            $errores[] = 'El nombre no debe exceder los 255 caracteres.';
-        }
-
-        if (strlen($datos['apellidopaterno']) > 255) {
-            $errores[] = 'El apellido paterno no debe exceder los 255 caracteres.';
-        }
-
-        if (!empty($datos['apellidomaterno']) && strlen($datos['apellidomaterno']) > 255) {
-            $errores[] = 'El apellido materno no debe exceder los 255 caracteres.';
-        }
-
-        if (!empty($datos['telefono']) && strlen($datos['telefono']) > 15) {
-            $errores[] = 'El número de teléfono no debe exceder los 15 caracteres.';
-        }
-
-        if (!empty($datos['direccion']) && strlen($datos['direccion']) > 255) {
-            $errores[] = 'La dirección no debe exceder los 255 caracteres.';
-        }
-
-        return $errores;
+        return ['success' => false, 'message' => 'Error al actualizar el perfil: ' . ($this->modelo->getLastError() ?: 'Error desconocido.'), 'icon' => 'error', 'redirect' => 'views/usuarios/perfil.php'];
     }
 
     /**

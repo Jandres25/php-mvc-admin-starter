@@ -322,7 +322,7 @@ class Usuario
 
     /**
      * Actualiza la contraseña de un usuario
-     * 
+     *
      * @param int $id ID del usuario
      * @param string $clave Nueva contraseña
      * @return bool True si se actualizó correctamente, False en caso contrario

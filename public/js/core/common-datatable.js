@@ -191,7 +191,10 @@ const DataTableUtils = {
                 [3, 5, 10, 25, 50],
                 [3, 5, 10, 25, 50]
             ],
-            language: this.languageConfig
+            language: this.languageConfig,
+            initComplete: function () {
+                $(this.api().table().node()).css('visibility', 'visible');
+            }
         };
 
         return $.extend(true, {}, baseConfig, customOptions);

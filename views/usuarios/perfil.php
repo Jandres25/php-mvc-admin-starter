@@ -6,23 +6,20 @@ requirePermiso('perfil');
 
 $idusuario_session = $_SESSION['usuario_id'];
 
-// Verificar si el usuario está logueado
 if (!isset($idusuario_session)) {
-    // Redirigir al login si no está autenticado
     $_SESSION['mensaje'] = 'Debe iniciar sesión para acceder a su perfil.';
     $_SESSION['icono'] = 'warning';
     header('Location: ' . $URL . 'views/login/login.php');
     exit;
 }
 
-// Incluir el encabezado
+$module_scripts = ['usuarios/perfil-usuario'];
+
 include_once '../layouts/header.php';
 
-// Instanciar el controlador y obtener los datos del usuario
 $usuario_controller = new \Controllers\Usuarios\UsuarioController();
 $usuario = $usuario_controller->editar($idusuario_session);
 
-// Verificar si el usuario existe
 if (!$usuario) {
     $_SESSION['mensaje'] = 'Usuario no encontrado.';
     $_SESSION['icono'] = 'error';
@@ -30,20 +27,20 @@ if (!$usuario) {
     exit;
 }
 
-$module_scripts = ['usuarios/perfil-usuario'];
+$imagen_src = $URL . 'public/uploads/usuarios/' . (!empty($usuario['imagen']) ? htmlspecialchars($usuario['imagen']) : 'user_default.jpg');
 ?>
 
-<!-- Content Header (Page header) -->
+<!-- Content Header -->
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <h1>Perfil de Usuario</h1>
+                <h1>Mi Perfil</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li class="breadcrumb-item active">Perfil de Usuario</li>
+                    <li class="breadcrumb-item active">Mi Perfil</li>
                 </ol>
             </div>
         </div>
@@ -54,215 +51,192 @@ $module_scripts = ['usuarios/perfil-usuario'];
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <!-- Columna para la imagen y datos básicos -->
+
+            <!-- Columna izquierda — resumen -->
             <div class="col-md-4">
-                <!-- Profile Image -->
-                <div class="card card-primary card-outline">
+                <div class="card card-outline card-primary sticky-top">
                     <div class="card-body box-profile">
                         <div class="text-center">
-                            <img class="profile-user-img img-fluid img-circle"
-                                src="<?= $URL . 'public/uploads/usuarios/' . (!empty($usuario['imagen']) && file_exists(__DIR__ . '/../../public/uploads/usuarios/' . $usuario['imagen']) ? htmlspecialchars($usuario['imagen']) : 'user_default.jpg'); ?>"
-                                alt="User profile picture"
-                                style="width: 100px; height: 100px; object-fit: cover;">
+                            <img id="sidebar-avatar"
+                                class="profile-user-img img-fluid img-circle"
+                                src="<?= $imagen_src; ?>"
+                                alt="Foto de perfil"
+                                style="width:100px;height:100px;object-fit:cover;">
                         </div>
-                        <h3 class="profile-username text-center"><?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidopaterno']); ?></h3>
-                        <p class="text-muted text-center"><?= htmlspecialchars($usuario['cargo'] ?? 'N/A'); ?></p>
+                        <h3 class="profile-username text-center mt-2">
+                            <?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidopaterno']); ?>
+                        </h3>
+                        <p class="text-muted text-center"><?= htmlspecialchars($usuario['cargo'] ?? 'Sin cargo'); ?></p>
 
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
-                                <b>Correo</b> <a class="float-right"><?= htmlspecialchars($usuario['correo'] ?? 'N/A'); ?></a>
+                                <b><i class="fas fa-envelope mr-1"></i> Correo</b>
+                                <span class="float-right text-muted small"><?= htmlspecialchars($usuario['correo']); ?></span>
                             </li>
                             <li class="list-group-item">
-                                <b>Teléfono</b> <a class="float-right"><?= htmlspecialchars($usuario['telefono'] ?? 'N/A'); ?></a>
+                                <b><i class="fas fa-phone mr-1"></i> Teléfono</b>
+                                <span class="float-right text-muted">
+                                    <?= !empty($usuario['telefono']) ? htmlspecialchars($usuario['telefono']) : 'No registrado'; ?>
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                <b><i class="fas fa-toggle-on mr-1"></i> Estado</b>
+                                <span class="float-right">
+                                    <?php if ($usuario['estado'] == 1): ?>
+                                        <span class="badge badge-success badge-pill">Activo</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-danger badge-pill">Inactivo</span>
+                                    <?php endif; ?>
+                                </span>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
+            <!-- Fin columna izquierda -->
 
-            <!-- Columna para los formularios de actualización -->
+            <!-- Columna derecha — formularios -->
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header p-2">
-                        <ul class="nav nav-pills">
-                            <li class="nav-item"><a class="nav-link active" href="#datosPersonales" data-toggle="tab">Datos Personales</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#cambiarPassword" data-toggle="tab">Cambiar Contraseña</a></li>
+                <div class="card card-outline card-outline-tabs card-primary">
+                    <div class="card-header p-0 border-bottom-0">
+                        <ul class="nav nav-tabs" id="perfil-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#tab-datos" data-toggle="tab" role="tab">
+                                    <i class="fas fa-user-edit mr-1"></i> Mis datos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#tab-password" data-toggle="tab" role="tab">
+                                    <i class="fas fa-lock mr-1"></i> Contraseña
+                                </a>
+                            </li>
                         </ul>
-                    </div><!-- /.card-header -->
+                    </div>
+
                     <div class="card-body">
                         <div class="tab-content">
-                            <!-- Tab Datos Personales -->
-                            <div class="active tab-pane" id="datosPersonales">
+
+                            <!-- Tab: Mis datos -->
+                            <div class="tab-pane fade show active" id="tab-datos" role="tabpanel">
                                 <form action="<?= $URL; ?>controllers/usuarios/procesar_actualizar_perfil.php" method="POST" enctype="multipart/form-data">
                                     <input type="hidden" name="idusuario" value="<?= $usuario['idusuario']; ?>">
 
-                                    <div class="card card-outline card-primary mb-4">
+                                    <!-- Foto de perfil -->
+                                    <div class="card card-outline card-success mb-3">
                                         <div class="card-header">
-                                            <h3 class="card-title">Información Personal</h3>
+                                            <h3 class="card-title"><i class="fas fa-camera mr-2"></i>Foto de perfil</h3>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
-                                                <!-- Nombre -->
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="nombre" name="nombre"
-                                                            value="<?= htmlspecialchars($usuario['nombre']); ?>" required>
-                                                    </div>
+                                            <div class="row align-items-center">
+                                                <div class="col-md-5 text-center">
+                                                    <img id="preview-image"
+                                                        src="<?= $imagen_src; ?>"
+                                                        class="img-circle img-thumbnail"
+                                                        style="width:120px;height:120px;object-fit:cover;"
+                                                        alt="Vista previa">
                                                 </div>
-
-                                                <!-- Apellido Paterno -->
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label for="apellidopaterno">Apellido Paterno <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="apellidopaterno" name="apellidopaterno"
-                                                            value="<?= htmlspecialchars($usuario['apellidopaterno']); ?>" required>
+                                                <div class="col-md-7">
+                                                    <div class="custom-file">
+                                                        <input type="file" class="custom-file-input" id="imagen" name="imagen" accept="image/*">
+                                                        <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
                                                     </div>
-                                                </div>
-
-                                                <!-- Apellido Materno -->
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label for="apellidomaterno">Apellido Materno</label>
-                                                        <input type="text" class="form-control" id="apellidomaterno" name="apellidomaterno"
-                                                            value="<?= htmlspecialchars($usuario['apellidomaterno'] ?? ''); ?>">
-                                                    </div>
+                                                    <small class="form-text text-muted">JPG, PNG, GIF, WEBP — máx. 2 MB</small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="card card-outline card-info mb-4">
+                                    <!-- Contacto -->
+                                    <div class="card card-outline card-info mb-3">
                                         <div class="card-header">
-                                            <h3 class="card-title">Información de Contacto</h3>
+                                            <h3 class="card-title"><i class="fas fa-address-book mr-2"></i>Contacto</h3>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
-                                                <!-- Dirección -->
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label for="direccion">Dirección</label>
-                                                        <textarea class="form-control" id="direccion" name="direccion" rows="2"
-                                                            placeholder="Ingrese su dirección"><?= htmlspecialchars($usuario['direccion'] ?? ''); ?></textarea>
+                                            <div class="form-group">
+                                                <label for="telefono">Teléfono</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                                     </div>
+                                                    <input type="tel" class="form-control" id="telefono" name="telefono"
+                                                        value="<?= htmlspecialchars($usuario['telefono'] ?? ''); ?>"
+                                                        placeholder="Ingrese su teléfono" maxlength="20">
                                                 </div>
                                             </div>
-
-                                            <div class="row">
-                                                <!-- Teléfono -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="telefono">Teléfono</label>
-                                                        <input type="tel" class="form-control" id="telefono" name="telefono"
-                                                            value="<?= htmlspecialchars($usuario['telefono'] ?? ''); ?>"
-                                                            placeholder="Ingrese su teléfono">
+                                            <div class="form-group mb-0">
+                                                <label for="direccion">Dirección</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                                                     </div>
-                                                </div>
-
-                                                <!-- Correo Electrónico -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control" id="correo" name="correo"
-                                                            value="<?= htmlspecialchars($usuario['correo']); ?>"
-                                                            placeholder="Ingrese su correo electrónico" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card card-outline card-success">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Imagen de Perfil</h3>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <!-- Imagen actual -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label>Imagen Actual</label><br>
-                                                        <?php if (isset($usuario['imagen']) && !empty($usuario['imagen'])): ?>
-                                                            <img src="<?= $URL; ?>public/uploads/usuarios/<?= htmlspecialchars($usuario['imagen']); ?>"
-                                                                alt="Imagen de perfil" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
-                                                        <?php else: ?>
-                                                            <img src="<?= $URL; ?>public/uploads/usuarios/user_default.jpg"
-                                                                alt="Imagen por defecto" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Imagen nueva -->
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="imagen">Cambiar Imagen</label>
-                                                        <div class="input-group">
-                                                            <div class="custom-file">
-                                                                <input type="file" class="custom-file-input" id="imagen" name="imagen" accept="image/*">
-                                                                <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
-                                                            </div>
-                                                        </div>
-                                                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Vista previa de imagen nueva -->
-                                            <div class="row" id="preview-container" style="display: none;">
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label>Vista Previa Nueva Imagen:</label><br>
-                                                        <img id="preview-image" src="#" alt="Vista previa" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
-                                                    </div>
+                                                    <textarea class="form-control" id="direccion" name="direccion" rows="2"
+                                                        placeholder="Ingrese su dirección"><?= htmlspecialchars($usuario['direccion'] ?? ''); ?></textarea>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="card-footer">
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="fas fa-save"></i> Guardar Cambios
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save mr-1"></i> Guardar cambios
                                             </button>
                                         </div>
                                     </div>
+
                                 </form>
                             </div>
+                            <!-- Fin Tab: Mis datos -->
 
-                            <!-- Tab Cambiar Contraseña -->
-                            <div class="tab-pane" id="cambiarPassword">
+                            <!-- Tab: Contraseña -->
+                            <div class="tab-pane fade" id="tab-password" role="tabpanel">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle mr-1"></i> Al cambiar la contraseña se cerrará la sesión.
+                                </div>
                                 <form id="formCambiarPassword" action="javascript:void(0)">
                                     <input type="hidden" name="idusuario" value="<?= $usuario['idusuario']; ?>">
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle"></i> Al cambiar su contraseña, se cerrará su sesión y deberá iniciar sesión nuevamente.
+
+                                    <div class="form-group">
+                                        <label for="clave_actual">Contraseña actual <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            </div>
+                                            <input type="password" class="form-control" id="clave_actual" name="clave_actual"
+                                                placeholder="Contraseña actual" autocomplete="off" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nueva_clave">Nueva contraseña <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                            </div>
+                                            <input type="password" class="form-control" id="nueva_clave" name="nueva_clave"
+                                                placeholder="Mínimo 6 caracteres" autocomplete="off" required minlength="6">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmar_nueva_clave">Confirmar nueva contraseña <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                            </div>
+                                            <input type="password" class="form-control" id="confirmar_nueva_clave" name="confirmar_nueva_clave"
+                                                placeholder="Repita la nueva contraseña" autocomplete="off" required minlength="6">
+                                        </div>
                                     </div>
 
-                                    <div class="form-group row">
-                                        <label for="clave_actual" class="col-sm-4 col-form-label">Contraseña Actual <span class="text-danger">*</span></label>
-                                        <div class="col-sm-8">
-                                            <input type="password" class="form-control" id="clave_actual" name="clave_actual" placeholder="Contraseña Actual" autocomplete="off" required>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="nueva_clave" class="col-sm-4 col-form-label">Nueva Contraseña <span class="text-danger">*</span></label>
-                                        <div class="col-sm-8">
-                                            <input type="password" class="form-control" id="nueva_clave" name="nueva_clave" placeholder="Nueva Contraseña" autocomplete="off" required minlength="6">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="confirmar_nueva_clave" class="col-sm-4 col-form-label">Confirmar Nueva Contraseña <span class="text-danger">*</span></label>
-                                        <div class="col-sm-8">
-                                            <input type="password" class="form-control" id="confirmar_nueva_clave" name="confirmar_nueva_clave" placeholder="Confirmar Nueva Contraseña" autocomplete="off" required minlength="6">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <div class="offset-sm-4 col-sm-8">
-                                            <button type="submit" class="btn btn-danger" id="btnCambiarPassword">Cambiar Contraseña</button>
-                                        </div>
-                                    </div>
+                                    <button type="submit" class="btn btn-danger" id="btnCambiarPassword">
+                                        <i class="fas fa-key mr-1"></i> Cambiar contraseña
+                                    </button>
                                 </form>
                             </div>
+                            <!-- Fin Tab: Contraseña -->
+
                         </div>
-                    </div><!-- /.card-body -->
+                    </div>
                 </div>
             </div>
+            <!-- Fin columna derecha -->
+
         </div>
     </div>
 </section>
