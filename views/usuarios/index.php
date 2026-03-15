@@ -104,12 +104,14 @@ $module_scripts = ['usuarios/index-usuarios'];
                                                 <a href="<?= $URL; ?>views/usuarios/update.php?id=<?= $usuario['idusuario']; ?>" class="btn btn-warning btn-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn <?= $clase_boton_estado; ?> btn-sm btn-cambiar-estado"
-                                                    data-id="<?= $usuario['idusuario']; ?>"
-                                                    data-estado="<?= $estado_actual; ?>"
-                                                    data-nombre="<?= htmlspecialchars($usuario['nombre']); ?>">
-                                                    <i class="fas <?= $icono_boton_estado; ?>"></i>
-                                                </button>
+                                                <?php if ($usuario['idusuario'] != $idusuariosesion): ?>
+                                                    <button type="button" class="btn <?= $clase_boton_estado; ?> btn-sm btn-cambiar-estado"
+                                                        data-id="<?= $usuario['idusuario']; ?>"
+                                                        data-estado="<?= $estado_actual; ?>"
+                                                        data-nombre="<?= htmlspecialchars($usuario['nombre']); ?>">
+                                                        <i class="fas <?= $icono_boton_estado; ?>"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>

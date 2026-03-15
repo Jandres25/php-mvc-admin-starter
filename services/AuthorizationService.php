@@ -59,13 +59,18 @@ class AuthorizationService
      */
     public function tienePermisoNombre($idusuario, $nombre_permiso)
     {
+        // Usar cache de sesión si está disponible (evita queries en cada carga de página)
+        if (isset($_SESSION['usuario_permisos'])) {
+            return in_array('*', $_SESSION['usuario_permisos']) ||
+                   in_array($nombre_permiso, $_SESSION['usuario_permisos']);
+        }
+
         try {
-            // Si el usuario es administrador, tiene todos los permisos
+            // Sin cache: consultar la BD (fallback para contextos fuera de sesión)
             if ($this->esAdministrador($idusuario)) {
                 return true;
             }
 
-            // Obtener el ID del permiso por su nombre
             $query = "SELECT idpermiso FROM permiso WHERE nombre = :nombre AND estado = 1";
             $stmt = $this->conexion->prepare($query);
             $stmt->bindParam(':nombre', $nombre_permiso, PDO::PARAM_STR);
@@ -74,7 +79,7 @@ class AuthorizationService
             $idpermiso = $stmt->fetchColumn();
 
             if (!$idpermiso) {
-                return false; // El permiso no existe
+                return false;
             }
 
             return $this->tienePermiso($idusuario, $idpermiso);

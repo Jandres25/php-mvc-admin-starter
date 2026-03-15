@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-03-15
+
+### Added
+- Permission cache in `$_SESSION['usuario_permisos']` populated at login — navigation checks now require zero DB queries per page load; cache is refreshed automatically when a user edits their own permissions
+- Self-deactivation protection: users cannot deactivate their own account from the index, nor change their own status from the edit form
+- Status field removed from the user edit form — account activation/deactivation is managed exclusively from the user list
+
+### Changed
+- `sanitizarDatos()` in `Usuario.php` and `Permiso.php` now only applies `trim()`; `htmlspecialchars()` moved exclusively to the view layer, eliminating double-encoding of stored data
+- Login no longer reveals whether an email or document number exists — all credential failures return a generic "Credenciales incorrectas" message
+- `loginPorCorreo()` and `loginPorNumDocumento()` no longer filter by `estado = 1`; account status is checked after credential verification so disabled-account users get an explicit message
+- `logout.php` now includes `session.php` (instead of raw `session_start()`) so `$URL` is always defined and the redirect lands on the correct login page
+
+### Security
+- CSRF token regenerated after every successful POST validation across all 6 endpoints (crear/actualizar/cambiar_estado permisos, crear/actualizar usuario, desactivar usuario)
+- Session cookie hardened: `httponly`, `SameSite=Lax`, `use_strict_mode` flags set in `session.php`
+- AJAX endpoints for permisos and usuarios now require `requirePermiso()` equivalent inline check returning JSON 403 instead of an HTML error page
+- `AuthController::verificarSesion()` removed — was dead code with an inconsistent 3600 s timeout vs the 86400 s used by `checkSessionTimeout()` in `session.php`
+- `desactivar_usuario.php` rewritten as POST + CSRF + JSON AJAX endpoint (was an unprotected GET redirect)
+- `AuthController` CSRF helpers now delegate to the global `generateCSRFToken()` / `verifyCSRFToken()` functions, eliminating duplicate logic
+
+### Fixed
+- N+1 queries in `PermisoController::index()` — replaced per-row `contarUsuarios()` loop with a single `getAllWithUserCount()` LEFT JOIN query
+- N+1 queries in `update.php` permission checkboxes — replaced per-permission `tienePermisoAsignado()` calls with a single `obtenerPermisosAsignados()` + `in_array()` check
+- Headers-after-output warning in `detalle.php` — controller logic moved before `include header.php`
+- `AdminLTE` card classes: `card-outline card-primary` moved from `card-header` to `div.card` in `usuarios/index.php`
+
 ## [1.2.0] - 2026-03-14
 
 ### Added
@@ -91,7 +118,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.0...v1.1.1

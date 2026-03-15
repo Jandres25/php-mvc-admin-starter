@@ -106,65 +106,34 @@ class AuthController
             // Determinar si el identificador es un correo o un número de documento
             $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
 
-            // Verificar si el usuario existe (por correo o número de documento)
-            $usuario_existe = false;
-            $usuario_id = null;
-
-            if ($isEmail) {
-                // Es un correo electrónico
-                $usuario_existe = $this->modelo->existeCorreo($identifier);
-                if ($usuario_existe) {
-                    $usuario_id = $this->modelo->obtenerIdPorCorreo($identifier);
-                } else {
-                    $_SESSION['mensaje'] = 'El correo electrónico no está registrado en el sistema';
-                    $_SESSION['icono'] = 'error';
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                    exit;
-                }
-            } else {
-                // Es un número de documento
-                $usuario_existe = $this->modelo->existeNumDocumento($identifier);
-                if ($usuario_existe) {
-                    $usuario_id = $this->modelo->obtenerIdPorNumDocumento($identifier);
-                } else {
-                    $_SESSION['mensaje'] = 'El número de documento no está registrado en el sistema';
-                    $_SESSION['icono'] = 'error';
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                    exit;
-                }
-            }
-
-            // Verificar si el usuario está activo
-            $estado_usuario = $this->modelo->obtenerEstadoPorId($usuario_id);
-
-            if ($estado_usuario === 0) {
-                $_SESSION['mensaje'] = 'Su cuenta está desactivada. Contacte al administrador.';
-                $_SESSION['icono'] = 'warning';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            // Verificar credenciales completas (identificador y contraseña)
+            // Verificar credenciales (no revelar si el usuario existe o no)
             if ($isEmail) {
                 $usuario = $this->modelo->loginPorCorreo($identifier, $clave);
             } else {
                 $usuario = $this->modelo->loginPorNumDocumento($identifier, $clave);
             }
 
-            if ($usuario) {
-                // Iniciar sesión
-                $this->iniciarSesion($usuario);
-
-                // Redirigir al dashboard
-                $_SESSION['mensaje'] = 'Bienvenido al sistema ' . $_SESSION['usuario_nombre'];
-                $_SESSION['icono'] = 'success';
-                header('Location: ' . $GLOBALS['URL']);
-            } else {
-                // Credenciales incorrectas (la contraseña es incorrecta)
-                $_SESSION['mensaje'] = 'La contraseña ingresada es incorrecta';
+            if (!$usuario) {
+                $_SESSION['mensaje'] = 'Credenciales incorrectas';
                 $_SESSION['icono'] = 'error';
                 header('Location: ' . $_SERVER['HTTP_REFERER']);
+                exit;
             }
+
+            // Verificar si el usuario está activo
+            if ((int)$usuario['estado'] === 0) {
+                $_SESSION['mensaje'] = 'Su cuenta está desactivada. Contacte al administrador.';
+                $_SESSION['icono'] = 'warning';
+                header('Location: ' . $_SERVER['HTTP_REFERER']);
+                exit;
+            }
+
+            // Iniciar sesión
+            $this->iniciarSesion($usuario);
+
+            $_SESSION['mensaje'] = 'Bienvenido al sistema ' . $_SESSION['usuario_nombre'];
+            $_SESSION['icono'] = 'success';
+            header('Location: ' . $GLOBALS['URL']);
             exit;
         }
 
@@ -174,7 +143,7 @@ class AuthController
 
     /**
      * Inicia la sesión del usuario
-     * 
+     *
      * @param array $usuario Datos del usuario
      */
     private function iniciarSesion($usuario)
@@ -196,6 +165,15 @@ class AuthController
         // Registrar IP y User Agent para seguridad adicional
         $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
         $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+
+        // Cachear permisos en sesión para evitar N+1 queries en cada carga de página
+        if (strtolower($usuario['cargo']) === 'administrador') {
+            $_SESSION['usuario_permisos'] = ['*'];
+        } else {
+            $authService = new \Services\AuthorizationService();
+            $permisos = $authService->obtenerPermisosUsuario($usuario['idusuario']);
+            $_SESSION['usuario_permisos'] = array_column($permisos, 'nombre');
+        }
     }
 
     /**
@@ -228,39 +206,4 @@ class AuthController
         exit;
     }
 
-    /**
-     * Verifica si la sesión es válida (para uso en middleware)
-     * 
-     * @return bool True si la sesión es válida, False en caso contrario
-     */
-    public function verificarSesion()
-    {
-        // Verificar si el usuario está autenticado
-        if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
-            return false;
-        }
-
-        // Verificar tiempo de inactividad
-        $timeout = 3600; // 60 minutos en segundos
-        if (!isset($_SESSION['ultimo_acceso']) || (time() - $_SESSION['ultimo_acceso']) > $timeout) {
-            $this->logout();
-            return false;
-        }
-
-        // Verificar posible session hijacking comparando IP y User Agent
-        if (isset($_SESSION['ip']) && isset($_SESSION['user_agent'])) {
-            if (
-                $_SESSION['ip'] !== $_SERVER['REMOTE_ADDR'] ||
-                $_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']
-            ) {
-                $this->logout();
-                return false;
-            }
-        }
-
-        // Actualizar tiempo de último acceso
-        $_SESSION['ultimo_acceso'] = time();
-
-        return true;
-    }
 }

@@ -197,6 +197,9 @@ class UsuarioController
         // Preparar datos del usuario
         $datos = $this->prepararDatosUsuario($_POST);
 
+        // El estado no se modifica desde el formulario de edición; se preserva el actual
+        $datos['estado'] = (int)$usuario_actual['estado'];
+
         // Asegurarse de que los campos obligatorios estén presentes incluso si no se modificaron
         $campos_obligatorios = ['nombre', 'apellidopaterno', 'tipodocumento', 'numdocumento', 'correo', 'cargo'];
         foreach ($campos_obligatorios as $campo) {
@@ -380,6 +383,12 @@ class UsuarioController
                 // Si no está seleccionado, revocarlo
                 $authService->revocarPermiso($idusuario, $idpermiso);
             }
+        }
+
+        // Si se modificaron los permisos del usuario en sesión, refrescar el cache
+        if ($idusuario === ($_SESSION['usuario_id'] ?? null)) {
+            $permisos = $authService->obtenerPermisosUsuario($idusuario);
+            $_SESSION['usuario_permisos'] = array_column($permisos, 'nombre');
         }
     }
 }

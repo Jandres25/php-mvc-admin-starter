@@ -27,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifyCSRFToken($_POST['csrf_token
     exit;
 }
 
+regenerateCSRFToken();
+
 // Instanciar el controlador
 $controller = new \Controllers\Usuarios\UsuarioController();
 

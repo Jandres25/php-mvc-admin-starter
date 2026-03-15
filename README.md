@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -115,12 +115,15 @@ libs/           # Vendored libraries (TCPDF)
 
 ## Security
 
-- Passwords hashed with `password_hash()` (PASSWORD_DEFAULT)
-- CSRF tokens on all forms
+- Passwords hashed with `password_hash()` (PASSWORD_DEFAULT), minimum 8 characters
+- CSRF tokens on all forms and AJAX endpoints; token regenerated after every successful POST
 - Prepared statements for all SQL queries
-- XSS prevention via `htmlspecialchars()` input sanitization
+- XSS prevention via `htmlspecialchars()` at the view layer on all output
+- Session cookie flags: `httponly`, `SameSite=Lax`, `use_strict_mode`
 - Session hijacking protection (IP and User-Agent validation)
 - Session ID regeneration on every login
+- Permission cache in session — navigation checks require zero DB queries per page load
+- Users cannot deactivate or change the status of their own account
 
 ## Contributing
 

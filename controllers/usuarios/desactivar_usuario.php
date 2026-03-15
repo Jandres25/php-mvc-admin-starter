@@ -41,11 +41,18 @@ if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
     exit;
 }
 
+regenerateCSRFToken();
+
 $id_usuario   = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $estado_actual = filter_var($_POST['estado_actual'] ?? null, FILTER_VALIDATE_INT);
 
 if ($id_usuario === false || $estado_actual === false) {
     echo json_encode(['success' => false, 'message' => 'Datos inválidos para cambiar el estado del usuario']);
+    exit;
+}
+
+if ($id_usuario === (int)$_SESSION['usuario_id']) {
+    echo json_encode(['success' => false, 'message' => 'No puedes desactivar tu propia cuenta']);
     exit;
 }
 

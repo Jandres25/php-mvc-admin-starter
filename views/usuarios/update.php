@@ -237,16 +237,6 @@ $module_scripts = ['usuarios/update-usuario'];
                                     </div>
                                 </div>
 
-                                <!-- Estado -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="estado">Estado</label>
-                                        <select class="form-control select2" id="estado" name="estado">
-                                            <option value="1" <?= $usuario['estado'] == 1 ? 'selected' : ''; ?>>Activo</option>
-                                            <option value="0" <?= $usuario['estado'] == 0 ? 'selected' : ''; ?>>Inactivo</option>
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

@@ -41,6 +41,8 @@ if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
     exit;
 }
 
+regenerateCSRFToken();
+
 // Instanciar el controlador
 $controller = new \Controllers\Permisos\PermisoController();
 

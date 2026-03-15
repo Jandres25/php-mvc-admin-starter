@@ -11,10 +11,8 @@
  * @version 1.0
  */
 
-// Iniciar sesión si no está iniciada
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+// Incluir sesión (inicia sesión, carga .env, define $URL y funciones globales)
+require_once __DIR__ . '/../../views/layouts/session.php';
 
 // Incluir autoload y configuración
 require_once __DIR__ . '/../../config/config.php';

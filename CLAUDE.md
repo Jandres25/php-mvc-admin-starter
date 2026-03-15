@@ -84,8 +84,8 @@ Similarly, register page-specific CSS via `$module_styles = ['feature/file']` at
 ## Coding Conventions
 
 - **Namespaces:** `Controllers\Auth`, `Controllers\Usuarios`, `Models`, `Services` — match directory structure in lowercase.
-- **CSRF:** Generate token with `AuthController::generarTokenCSRF()`, validate with `AuthController::validarTokenCSRF()`.
-- **Input sanitization:** Use `htmlspecialchars()` + `trim()` at the model layer before inserting/updating.
+- **CSRF:** Generate token with `generateCSRFToken()`, validate with `verifyCSRFToken()` (global functions in `session.php`). Call `regenerateCSRFToken()` after every successful POST validation to prevent replay attacks.
+- **Input sanitization:** Use `trim()` at the model layer (`sanitizarDatos()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImagenService`.
 - **JS:** ES6+ with JSDoc comments. Use `SweetAlert2` for confirmations, `DataTables` for lists, `Select2` for dropdowns.

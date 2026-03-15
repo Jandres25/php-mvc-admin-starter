@@ -69,8 +69,7 @@ class Usuario
         $sanitized = [];
         foreach ($datos as $key => $value) {
             if (is_string($value)) {
-                // Eliminar espacios adicionales y caracteres potencialmente peligrosos
-                $sanitized[$key] = trim(htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
+                $sanitized[$key] = trim($value);
             } else {
                 $sanitized[$key] = $value;
             }
@@ -514,7 +513,7 @@ class Usuario
     public function loginPorCorreo($correo, $clave)
     {
         try {
-            $query = "SELECT * FROM usuarios WHERE correo = :correo AND estado = 1";
+            $query = "SELECT * FROM usuarios WHERE correo = :correo";
             $stmt = $this->conexion->prepare($query);
             $stmt->bindParam(':correo', $correo, PDO::PARAM_STR);
             $stmt->execute();
@@ -542,7 +541,7 @@ class Usuario
     public function loginPorNumDocumento($numDocumento, $clave)
     {
         try {
-            $query = "SELECT * FROM usuarios WHERE numdocumento = :numdocumento AND estado = 1";
+            $query = "SELECT * FROM usuarios WHERE numdocumento = :numdocumento";
             $stmt = $this->conexion->prepare($query);
             $stmt->bindParam(':numdocumento', $numDocumento, PDO::PARAM_STR);
             $stmt->execute();
