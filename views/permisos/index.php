@@ -11,7 +11,7 @@ $controller = new \Controllers\Permisos\PermisoController();
 $permisos = $controller->index();
 $estadisticas = $controller->getEstadisticas();
 
-$module_scripts = ['permisos/index-permisos'];
+$module_scripts = ['permisos/modal-permiso', 'permisos/index-permisos'];
 ?>
 
 <!-- Content Header (Page header) -->
@@ -83,7 +83,7 @@ $module_scripts = ['permisos/index-permisos'];
                     </div>
                     <div class="card-body" style="display: block;">
                         <div class="table-responsive">
-                            <table id="tablaPermisos" class="table table-bordered table-hover table-striped table-sm">
+                            <table id="tablaPermisos" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 10%">ID</th>
@@ -106,12 +106,12 @@ $module_scripts = ['permisos/index-permisos'];
                                             <td class="text-center"><?= $permiso['idpermiso']; ?></td>
                                             <td><?= htmlspecialchars($permiso['nombre']); ?></td>
                                             <td class="text-center">
-                                                <span class="badge <?= $clase_usuarios; ?>">
+                                                <span class="badge <?= $clase_usuarios; ?> badge-pill p-2">
                                                     <?= $total_usuarios; ?> usuario<?= $total_usuarios != 1 ? 's' : ''; ?>
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge <?= $clase_estado; ?>"><?= $texto_estado; ?></span>
+                                                <span class="badge <?= $clase_estado; ?> badge-pill p-2"><?= $texto_estado; ?></span>
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
@@ -145,45 +145,9 @@ $module_scripts = ['permisos/index-permisos'];
     </div>
 </section>
 
-<!-- Modal para Permiso -->
-<div class="modal fade" id="modalPermiso" tabindex="-1" role="dialog" aria-labelledby="modalPermisoLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header" id="modalPermisoHeader">
-                <h5 class="modal-title" id="modalPermisoLabel">Gestión de Permiso</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="formPermiso" method="post">
-                <div class="modal-body">
-                    <input type="hidden" id="permisoAction" name="action" value="create">
-                    <input type="hidden" id="idPermiso" name="idpermiso" value="">
-
-                    <div class="form-group">
-                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                        <small class="form-text text-muted">Nombre único para el permiso</small>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="btnGuardarPermiso">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<?php include '_modal_permiso.php'; ?>
 
 <?php
 include_once '../layouts/mensajes.php';
 include_once '../layouts/footer.php';
 ?>
-
-<script>
-    const mensajeErrorDesactivar = "No se puede desactivar el permiso porque hay usuarios que lo tienen asignado";
-</script>

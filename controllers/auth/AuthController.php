@@ -52,24 +52,18 @@ class AuthController
      */
     public function generarCSRFToken()
     {
-        if (!isset($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-        return $_SESSION['csrf_token'];
+        return generateCSRFToken();
     }
 
     /**
      * Verifica si el token CSRF es válido
-     * 
+     *
      * @param string $token Token CSRF a verificar
      * @return bool True si es válido, False en caso contrario
      */
     public function verificarCSRFToken($token)
     {
-        if (!isset($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
-            return false;
-        }
-        return true;
+        return verifyCSRFToken($token);
     }
 
     /**
@@ -79,14 +73,12 @@ class AuthController
     {
         // Verificar si se envió el formulario
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Verificar token CSRF si está presente
-            if (isset($_POST['csrf_token'])) {
-                if (!$this->verificarCSRFToken($_POST['csrf_token'])) {
-                    $_SESSION['mensaje'] = 'Error de seguridad. Por favor, intente nuevamente.';
-                    $_SESSION['icono'] = 'error';
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                    exit;
-                }
+            // Verificar token CSRF
+            if (!$this->verificarCSRFToken($_POST['csrf_token'] ?? '')) {
+                $_SESSION['mensaje'] = 'Error de seguridad. Por favor, intente nuevamente.';
+                $_SESSION['icono'] = 'error';
+                header('Location: ' . $_SERVER['HTTP_REFERER']);
+                exit;
             }
 
             // Validar datos
@@ -166,7 +158,7 @@ class AuthController
                 // Redirigir al dashboard
                 $_SESSION['mensaje'] = 'Bienvenido al sistema ' . $_SESSION['usuario_nombre'];
                 $_SESSION['icono'] = 'success';
-                header('Location: ../../');
+                header('Location: ' . $GLOBALS['URL']);
             } else {
                 // Credenciales incorrectas (la contraseña es incorrecta)
                 $_SESSION['mensaje'] = 'La contraseña ingresada es incorrecta';
@@ -177,7 +169,7 @@ class AuthController
         }
 
         // Si no se envió el formulario, redirigir al login
-        header('Location: ../../views/login/login.php');
+        header('Location: ' . $GLOBALS['URL'] . 'views/login/login.php');
     }
 
     /**
@@ -232,7 +224,7 @@ class AuthController
         session_destroy();
 
         // Redirigir al login
-        header('Location: ../../views/login/login.php');
+        header('Location: ' . $GLOBALS['URL'] . 'views/login/login.php');
         exit;
     }
 

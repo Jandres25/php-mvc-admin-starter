@@ -103,6 +103,32 @@ class Permiso
     }
 
     /**
+     * Obtiene todos los permisos con el conteo de usuarios asignados (1 sola query)
+     *
+     * @param bool $soloActivos Si es true, solo devuelve permisos activos
+     * @return array Lista de permisos con total_usuarios
+     */
+    public function getAllWithUserCount($soloActivos = false)
+    {
+        try {
+            $where = $soloActivos ? "WHERE p.estado = 1" : "";
+            $query = "SELECT p.*, COUNT(pu.idusuario) as total_usuarios
+                      FROM {$this->tabla} p
+                      LEFT JOIN permisousuario pu ON p.idpermiso = pu.idpermiso
+                      {$where}
+                      GROUP BY p.idpermiso
+                      ORDER BY p.nombre";
+
+            $stmt = $this->conexion->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
      * Obtiene un permiso por su ID
      * 
      * @param int $id ID del permiso
@@ -282,20 +308,20 @@ class Permiso
     public function getEstadisticas()
     {
         try {
-            // Total de permisos
-            $stmt = $this->conexion->prepare("SELECT COUNT(*) as total FROM {$this->tabla}");
+            // Total, activos e inactivos en una sola consulta
+            $stmt = $this->conexion->prepare("
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN estado = 1 THEN 1 ELSE 0 END) as activos,
+                    SUM(CASE WHEN estado = 0 THEN 1 ELSE 0 END) as inactivos
+                FROM {$this->tabla}
+            ");
             $stmt->execute();
-            $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+            $conteos = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Permisos activos
-            $stmt = $this->conexion->prepare("SELECT COUNT(*) as activos FROM {$this->tabla} WHERE estado = 1");
-            $stmt->execute();
-            $activos = $stmt->fetch(PDO::FETCH_ASSOC)['activos'];
-
-            // Permisos inactivos
-            $stmt = $this->conexion->prepare("SELECT COUNT(*) as inactivos FROM {$this->tabla} WHERE estado = 0");
-            $stmt->execute();
-            $inactivos = $stmt->fetch(PDO::FETCH_ASSOC)['inactivos'];
+            $total    = (int) $conteos['total'];
+            $activos  = (int) $conteos['activos'];
+            $inactivos = (int) $conteos['inactivos'];
 
             // Permisos más utilizados
             $query = "SELECT p.idpermiso, p.nombre, COUNT(pu.idusuario) as total_usuarios

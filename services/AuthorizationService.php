@@ -43,27 +43,11 @@ class AuthorizationService
      */
     public function tienePermiso($idusuario, $idpermiso)
     {
-        try {
-            // Verificar si el usuario es administrador
-            if ($this->esAdministrador($idusuario)) {
-                return true;
-            }
-
-            // Verificar permiso específico asignado al usuario
-            $query = "SELECT COUNT(*) FROM permisousuario 
-                     WHERE idusuario = :idusuario AND idpermiso = :idpermiso";
-
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
-            $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
-            $stmt->execute();
-
-            return $stmt->fetchColumn() > 0;
-        } catch (PDOException $e) {
-            // Registrar error
-            error_log('Error al verificar permiso: ' . $e->getMessage());
-            return false;
+        if ($this->esAdministrador($idusuario)) {
+            return true;
         }
+
+        return $this->tienePermisoAsignado($idusuario, $idpermiso);
     }
 
     /**
@@ -79,11 +63,6 @@ class AuthorizationService
             // Si el usuario es administrador, tiene todos los permisos
             if ($this->esAdministrador($idusuario)) {
                 return true;
-            }
-
-            // Si el permiso es 'admin_completo', solo los administradores lo tienen
-            if ($nombre_permiso === 'admin_completo') {
-                return $this->esAdministrador($idusuario);
             }
 
             // Obtener el ID del permiso por su nombre

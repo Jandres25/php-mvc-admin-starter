@@ -23,7 +23,23 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQ
 // Verificar si el usuario está autenticado
 requireLogin();
 
+// Verificar permiso de gestión de permisos
+$authService = new \Services\AuthorizationService();
+if (!$authService->tienePermisoNombre($_SESSION['usuario_id'], 'permisos')) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'No tienes permiso para realizar esta acción']);
+    exit;
+}
+
 header('Content-Type: application/json');
+
+// Validar token CSRF
+if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Token de seguridad inválido']);
+    exit;
+}
 
 // Instanciar el controlador
 $controller = new \Controllers\Permisos\PermisoController();

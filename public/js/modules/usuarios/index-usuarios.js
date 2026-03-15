@@ -64,7 +64,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = `${baseUrl}controllers/usuarios/desactivar_usuario.php?id=${usuarioId}&estado=${estadoActual}`;
+                $.ajax({
+                    url: `${baseUrl}controllers/usuarios/desactivar_usuario.php`,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { id: usuarioId, estado_actual: estadoActual, csrf_token: csrfToken },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error(xhr.responseText);
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Ocurrió un error en la comunicación con el servidor' });
+                    }
+                });
             }
         });
     }

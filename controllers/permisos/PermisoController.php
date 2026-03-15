@@ -39,14 +39,7 @@ class PermisoController
      */
     public function index($soloActivos = false)
     {
-        $permisos = $this->modelo->getAll($soloActivos);
-
-        // Agregar conteo de usuarios a cada permiso
-        foreach ($permisos as &$permiso) {
-            $permiso['total_usuarios'] = $this->modelo->contarUsuarios($permiso['idpermiso']);
-        }
-
-        return $permisos;
+        return $this->modelo->getAllWithUserCount($soloActivos);
     }
 
     /**

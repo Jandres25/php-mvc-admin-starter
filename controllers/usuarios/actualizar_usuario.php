@@ -17,6 +17,16 @@ require_once __DIR__ . '/../../views/layouts/session.php';
 // Incluir autoload
 require_once __DIR__ . '/../../config/config.php';
 
+requireLogin();
+requirePermiso('usuarios');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+    $_SESSION['mensaje'] = 'Acción no permitida.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . 'views/usuarios/index.php');
+    exit;
+}
+
 // Instanciar el controlador
 $controller = new \Controllers\Usuarios\UsuarioController();
 

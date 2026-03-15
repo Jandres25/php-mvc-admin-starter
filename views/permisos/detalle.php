@@ -14,14 +14,10 @@ if (!$id) {
     exit;
 }
 
-// Incluir el encabezado
-include_once '../layouts/header.php';
-
-// Instanciar el controlador y obtener los datos del permiso
+// Obtener datos del permiso antes de incluir el header (evita headers after output)
 $controller = new \Controllers\Permisos\PermisoController();
 $permiso = $controller->getById($id);
 
-// Verificar si el permiso existe
 if (!$permiso) {
     $_SESSION['mensaje'] = 'Permiso no encontrado';
     $_SESSION['icono'] = 'error';
@@ -29,7 +25,10 @@ if (!$permiso) {
     exit;
 }
 
-$module_scripts = ['permisos/detalle-permiso'];
+// Incluir el encabezado
+include_once '../layouts/header.php';
+
+$module_scripts = ['permisos/modal-permiso', 'permisos/detalle-permiso'];
 
 // Obtener usuarios con este permiso
 $usuarios = $permiso['usuarios'];
@@ -57,75 +56,57 @@ $usuarios = $permiso['usuarios'];
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12">
-                <!-- Tarjeta de información del permiso -->
+            <!-- Columna izquierda - Info del permiso -->
+            <div class="col-md-4">
                 <div class="card card-primary card-outline">
-                    <div class="card-header">
-                        <h3 class="card-title">Información del Permiso</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
+                    <div class="card-body box-profile">
+                        <div class="text-center mb-3">
+                            <span class="fa-stack fa-2x">
+                                <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                                <i class="fas fa-key fa-stack-1x text-white"></i>
+                            </span>
+                            <h4 class="mt-2 mb-0"><?= htmlspecialchars($permiso['nombre']); ?></h4>
+                            <p class="text-muted">#<?= $permiso['idpermiso']; ?></p>
+                        </div>
+
+                        <ul class="list-group list-group-unbordered mb-3">
+                            <li class="list-group-item">
+                                <b><i class="fas fa-toggle-on mr-1"></i> Estado</b>
+                                <span class="float-right">
+                                    <?php if ($permiso['estado'] == 1): ?>
+                                        <span class="badge badge-success badge-pill p-2">Activo</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-danger badge-pill p-2">Inactivo</span>
+                                    <?php endif; ?>
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                <b><i class="fas fa-users mr-1"></i> Usuarios asignados</b>
+                                <span class="float-right">
+                                    <span class="badge badge-info badge-pill p-2"><?= count($usuarios); ?></span>
+                                </span>
+                            </li>
+                        </ul>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="<?= $URL; ?>views/permisos" class="btn btn-default">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                            <button type="button" class="btn btn-warning btn-editar"
+                                data-id="<?= $permiso['idpermiso']; ?>"
+                                data-nombre="<?= htmlspecialchars($permiso['nombre']); ?>">
+                                <i class="fas fa-edit"></i> Editar
                             </button>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>ID del Permiso:</label>
-                                    <input type="text" class="form-control" readonly value="<?= $permiso['idpermiso']; ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Nombre:</label>
-                                    <input type="text" class="form-control" readonly value="<?= htmlspecialchars($permiso['nombre']); ?>">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Estado:</label>
-                                    <p>
-                                        <?php if ($permiso['estado'] == 1): ?>
-                                            <span class="badge badge-success">Activo</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-danger">Inactivo</span>
-                                        <?php endif; ?>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Usuarios con este permiso:</label>
-                                    <p>
-                                        <span class="badge badge-info"><?= count($usuarios); ?> usuario(s)</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <a href="<?= $URL; ?>views/permisos" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Volver a la lista
-                        </a>
-                        <button type="button" class="btn btn-warning btn-editar ml-2"
-                            data-id="<?= $permiso['idpermiso']; ?>"
-                            data-nombre="<?= htmlspecialchars($permiso['nombre']); ?>">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Lista de usuarios con este permiso -->
-        <div class="row">
-            <div class="col-md-12">
+            <!-- Columna derecha - Usuarios con este permiso -->
+            <div class="col-md-8">
                 <div class="card card-info card-outline">
                     <div class="card-header">
-                        <h3 class="card-title">Usuarios con este Permiso</h3>
+                        <h3 class="card-title"><i class="fas fa-users mr-1"></i> Usuarios con este Permiso</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -133,42 +114,32 @@ $usuarios = $permiso['usuarios'];
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="detallePermisos" class="table table-bordered table-hover table-striped datatable">
-                                <thead>
+                        <table id="detallePermisos" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Cargo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($usuarios as $usuario): ?>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Correo</th>
-                                        <th>Cargo</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <td><?= $usuario['idusuario']; ?></td>
+                                        <td><?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidopaterno'] . ' ' . $usuario['apellidomaterno']); ?></td>
+                                        <td><?= htmlspecialchars($usuario['correo']); ?></td>
+                                        <td><?= htmlspecialchars($usuario['cargo']); ?></td>
+                                        <td class="text-center">
+                                            <a href="<?= $URL; ?>views/usuarios/show.php?id=<?= $usuario['idusuario']; ?>" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($usuarios as $usuario): ?>
-                                        <tr>
-                                            <td><?= $usuario['idusuario']; ?></td>
-                                            <td><?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidopaterno'] . ' ' . $usuario['apellidomaterno']); ?></td>
-                                            <td><?= htmlspecialchars($usuario['correo']); ?></td>
-                                            <td><?= htmlspecialchars($usuario['cargo']); ?></td>
-                                            <td class="text-center">
-                                                <?php if ($usuario['estado'] == 1): ?>
-                                                    <span class="badge badge-success">Activo</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-danger">Inactivo</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td class="text-center">
-                                                <a href="<?= $URL; ?>views/usuarios/show.php?id=<?= $usuario['idusuario']; ?>" class="btn btn-info btn-sm">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -176,96 +147,9 @@ $usuarios = $permiso['usuarios'];
     </div>
 </section>
 
-<!-- Modal para Editar Permiso -->
-<div class="modal fade" id="modalPermiso" tabindex="-1" role="dialog" aria-labelledby="modalPermisoLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="modalPermisoLabel">Editar Permiso</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="formPermiso" method="post">
-                <div class="modal-body">
-                    <input type="hidden" id="permisoAction" name="action" value="edit">
-                    <input type="hidden" id="idPermiso" name="idpermiso" value="">
-
-                    <div class="form-group">
-                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                        <small class="form-text text-muted">Nombre único para el permiso</small>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-warning" id="btnGuardarPermiso">
-                        <i class="fas fa-save"></i> Actualizar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<?php include '_modal_permiso.php'; ?>
 
 <?php
 include_once '../layouts/mensajes.php';
 include_once '../layouts/footer.php';
 ?>
-
-<script>
-    $(document).ready(function() {
-        // Configurar el modal de edición
-        $('.btn-editar').on('click', function() {
-            const id = $(this).data('id');
-            const nombre = $(this).data('nombre');
-            const descripcion = $(this).data('descripcion');
-
-            $('#idPermiso').val(id);
-            $('#nombre').val(nombre);
-            $('#descripcion').val(descripcion);
-
-            $('#modalPermiso').modal('show');
-        });
-
-        // Manejar el envío del formulario de edición
-        $('#formPermiso').on('submit', function(e) {
-            e.preventDefault();
-
-            const formData = $(this).serialize();
-
-            $.ajax({
-                url: baseUrl + 'controllers/permisos/actualizar_permiso_ajax.php',
-                type: 'POST',
-                dataType: 'json',
-                data: formData,
-                beforeSend: function() {
-                    $('#btnGuardarPermiso').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#modalPermiso').modal('hide');
-                        location.reload();
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message
-                        });
-                        $('#btnGuardarPermiso').prop('disabled', false).html('<i class="fas fa-save"></i> Actualizar');
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Ocurrió un error en la comunicación con el servidor'
-                    });
-                    $('#btnGuardarPermiso').prop('disabled', false).html('<i class="fas fa-save"></i> Actualizar');
-                }
-            });
-        });
-    });
-</script>

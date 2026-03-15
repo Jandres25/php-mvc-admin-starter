@@ -100,23 +100,19 @@ class PerfilController
             return ['success' => false, 'message' => 'Usuario no encontrado para actualizar', 'icon' => 'error', 'redirect' => 'views/perfil/mi-perfil.php'];
         }
 
-        // Guardar imagen actual
         $imagen_antigua = $usuario_actual['imagen'];
 
-        // Solo los campos editables desde el perfil; el resto se preserva del DB
         $datos = [
-            'nombre'          => $usuario_actual['nombre'],
-            'apellidopaterno' => $usuario_actual['apellidopaterno'],
-            'apellidomaterno' => $usuario_actual['apellidomaterno'],
-            'correo'          => $usuario_actual['correo'],
-            'telefono'        => isset($_POST['telefono']) ? trim($_POST['telefono']) : null,
-            'direccion'       => isset($_POST['direccion']) ? trim($_POST['direccion']) : null,
-            'imagen'          => $imagen_antigua
+            'telefono'  => !empty($_POST['telefono'])  ? htmlspecialchars(trim($_POST['telefono']),  ENT_QUOTES, 'UTF-8') : null,
+            'direccion' => !empty($_POST['direccion']) ? htmlspecialchars(trim($_POST['direccion']), ENT_QUOTES, 'UTF-8') : null,
+            'imagen'    => $imagen_antigua,
         ];
 
-        // Sanitizar solo los campos editables por el usuario
-        $datos['telefono']  = $datos['telefono']  !== null ? htmlspecialchars($datos['telefono'],  ENT_QUOTES, 'UTF-8') : null;
-        $datos['direccion'] = $datos['direccion'] !== null ? htmlspecialchars($datos['direccion'], ENT_QUOTES, 'UTF-8') : null;
+        // Validar campos del perfil
+        $errores = $this->modelo->validarDatosPerfil($datos);
+        if (!empty($errores)) {
+            return ['success' => false, 'message' => implode(' ', $errores), 'icon' => 'warning', 'redirect' => 'views/usuarios/perfil.php'];
+        }
 
         // Procesar nueva imagen si se subió
         if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == 0) {

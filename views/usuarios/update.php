@@ -383,11 +383,11 @@ $module_scripts = ['usuarios/update-usuario'];
                                         <label>Permisos disponibles:</label>
                                         <div class="row">
                                             <?php
-                                            // Obtener todos los permisos disponibles
+                                            // Obtener todos los permisos y los asignados en 2 queries (no N+1)
                                             $permisos = $authService->obtenerTodosLosPermisos();
+                                            $permisosAsignados = $authService->obtenerPermisosAsignados($usuario['idusuario']);
                                             foreach ($permisos as $permiso) :
-                                                // Verificar si el usuario tiene este permiso asignado
-                                                $checked = $authService->tienePermisoAsignado($usuario['idusuario'], $permiso['idpermiso']) ? 'checked' : '';
+                                                $checked = in_array($permiso['idpermiso'], $permisosAsignados) ? 'checked' : '';
                                             ?>
                                                 <div class="col-md-4">
                                                     <div class="custom-control custom-checkbox">

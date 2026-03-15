@@ -59,6 +59,7 @@ global $URL;
     <?php endif; ?>
     <script>
         const baseUrl = "<?= $URL; ?>";
+        const csrfToken = "<?= generateCSRFToken(); ?>";
     </script>
 </head>
 

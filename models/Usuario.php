@@ -267,35 +267,13 @@ class Usuario
     public function actualizarPerfil($id, $datos)
     {
         try {
-            // Construimos la consulta SQL sólo con los campos permitidos para el usuario
-            $query = "UPDATE {$this->tabla} SET 
-                  nombre = :nombre, 
-                  apellidopaterno = :apellidopaterno, 
-                  apellidomaterno = :apellidomaterno, 
-                  direccion = :direccion, 
-                  telefono = :telefono, 
-                  correo = :correo,
-                  imagen = :imagen
-                  WHERE idusuario = :id";
+            $query = "UPDATE {$this->tabla} SET
+                      telefono = :telefono,
+                      direccion = :direccion,
+                      imagen = :imagen
+                      WHERE idusuario = :id";
 
             $stmt = $this->conexion->prepare($query);
-
-            // Campos que el usuario puede modificar
-            $stmt->bindParam(':nombre', $datos['nombre'], PDO::PARAM_STR);
-            $stmt->bindParam(':apellidopaterno', $datos['apellidopaterno'], PDO::PARAM_STR);
-
-            // Campos opcionales
-            if (empty($datos['apellidomaterno'])) {
-                $stmt->bindValue(':apellidomaterno', null, PDO::PARAM_NULL);
-            } else {
-                $stmt->bindParam(':apellidomaterno', $datos['apellidomaterno'], PDO::PARAM_STR);
-            }
-
-            if (empty($datos['direccion'])) {
-                $stmt->bindValue(':direccion', null, PDO::PARAM_NULL);
-            } else {
-                $stmt->bindParam(':direccion', $datos['direccion'], PDO::PARAM_STR);
-            }
 
             if (empty($datos['telefono'])) {
                 $stmt->bindValue(':telefono', null, PDO::PARAM_NULL);
@@ -303,7 +281,11 @@ class Usuario
                 $stmt->bindParam(':telefono', $datos['telefono'], PDO::PARAM_STR);
             }
 
-            $stmt->bindParam(':correo', $datos['correo'], PDO::PARAM_STR);
+            if (empty($datos['direccion'])) {
+                $stmt->bindValue(':direccion', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindParam(':direccion', $datos['direccion'], PDO::PARAM_STR);
+            }
 
             if (empty($datos['imagen'])) {
                 $stmt->bindValue(':imagen', null, PDO::PARAM_NULL);
@@ -676,8 +658,8 @@ class Usuario
 
         // Validar contraseña si se está creando un nuevo usuario o si se proporcionó una nueva contraseña
         if ((!$es_actualizacion && isset($datos['clave'])) || (!empty($datos['clave']))) {
-            if (strlen($datos['clave']) < 6) {
-                $errores[] = 'La contraseña debe tener al menos 6 caracteres';
+            if (strlen($datos['clave']) < 8) {
+                $errores[] = 'La contraseña debe tener al menos 8 caracteres';
             }
         }
 
@@ -685,8 +667,34 @@ class Usuario
     }
 
     /**
+     * Valida los datos editables desde el perfil del usuario autenticado
+     *
+     * Solo valida los campos que el propio usuario puede modificar en su perfil:
+     * teléfono y dirección. La imagen es validada por ImagenService.
+     *
+     * @param array $datos Datos del perfil (telefono, direccion)
+     * @return array Lista de errores encontrados
+     */
+    public function validarDatosPerfil($datos)
+    {
+        $errores = [];
+
+        if (!empty($datos['telefono'])) {
+            if (!preg_match('/^\+?[0-9]{7,15}$/', $datos['telefono'])) {
+                $errores[] = 'El teléfono debe contener entre 7 y 15 dígitos numéricos.';
+            }
+        }
+
+        if (!empty($datos['direccion']) && strlen($datos['direccion']) > 255) {
+            $errores[] = 'La dirección no puede superar los 255 caracteres.';
+        }
+
+        return $errores;
+    }
+
+    /**
      * Obtiene el ID del último usuario insertado
-     * 
+     *
      * @return int ID del último usuario insertado
      */
     public function getLastInsertId()
