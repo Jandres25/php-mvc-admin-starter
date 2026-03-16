@@ -99,9 +99,9 @@ $permisos_usuario = $authService->obtenerPermisosUsuario($usuario['idusuario']);
                                 <b><i class="fas fa-toggle-on mr-1"></i> Estado</b>
                                 <span class="float-right">
                                     <?php if ($usuario['estado'] == 1): ?>
-                                        <span class="badge badge-success">Activo</span>
+                                        <span class="badge badge-success badge-pill p-2">Activo</span>
                                     <?php else: ?>
-                                        <span class="badge badge-danger">Inactivo</span>
+                                        <span class="badge badge-danger badge-pill p-2">Inactivo</span>
                                     <?php endif; ?>
                                 </span>
                             </li>

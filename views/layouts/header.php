@@ -37,14 +37,30 @@ global $URL;
     <link rel="icon" type="image/png" href="<?= $URL; ?>public/img/e-commerce_logo.png">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/adminlte/adminlte.min.css">
-    <!-- Datatables -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/datatables/datatables.min.css">
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/datatables/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/datatables/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/datatables/buttons.bootstrap4.min.css">
-    <!-- Select2 -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/select2/select2.min.css">
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/select2/select2-bootstrap4.min.css">
+    <!-- Plugins condicionales CSS -->
+    <?php
+    $plugin_css = [
+        'datatables' => [
+            'plugins/datatables/datatables.min.css',
+            'plugins/datatables/dataTables.bootstrap4.min.css',
+            'plugins/datatables/responsive.bootstrap4.min.css',
+            'plugins/datatables/buttons.bootstrap4.min.css',
+        ],
+        'select2' => [
+            'plugins/select2/select2.min.css',
+            'plugins/select2/select2-bootstrap4.min.css',
+        ],
+    ];
+    if (isset($plugins) && is_array($plugins)):
+        foreach ($plugins as $plugin):
+            if (isset($plugin_css[$plugin])):
+                foreach ($plugin_css[$plugin] as $css): ?>
+                    <link rel="stylesheet" href="<?= $URL; ?>public/css/<?= $css; ?>">
+    <?php endforeach;
+            endif;
+        endforeach;
+    endif;
+    ?>
     <!-- Sweetalert2 -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/sweetalert2/sweetalert2.min.css">
     <script src="<?= $URL; ?>public/js/plugins/sweetalert2/sweetalert2.min.js"></script>
@@ -73,8 +89,14 @@ global $URL;
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="<?= $URL; ?>" class="nav-link">Sistema Base</a>
+
+                <!-- Logo visible solo en móvil -->
+                <li class="nav-item d-sm-none">
+                    <a href="<?= $URL; ?>" class="nav-link d-flex align-items-center">
+                        <img src="<?= $URL; ?>/public/img/e-commerce_logo.png" alt="Logo Hospital System" class="img-circle"
+                            style="width: 25px; height: 25px; margin-right: 8px;">
+                        <span class="brand-text">Sistema Base</span>
+                    </a>
                 </li>
             </ul>
 
@@ -116,7 +138,7 @@ global $URL;
         <aside class="main-sidebar sidebar-dark-primary elevation-2">
             <!-- Brand Logo -->
             <a href="<?= $URL; ?>" class="brand-link">
-                <img src="<?= $URL; ?>public/img/AdminLTELogo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
+                <img src="<?= $URL; ?>public/img/e-commerce_logo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
                 <span class="brand-text font-weight-light">Sistema Base</span>
             </a>
 

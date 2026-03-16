@@ -14,6 +14,87 @@ $(document).ready(function () {
     // Inicializar Select2
     initializeSelect2();
 
+    // ============= JQUERY VALIDATE =============
+
+    $('#formUsuario').validate({
+        rules: {
+            nombre:          { required: true },
+            apellidopaterno: { required: true },
+            tipodocumento:   { required: true },
+            numdocumento: {
+                required: true,
+                remote: {
+                    url: baseUrl + 'controllers/usuarios/check_documento.php',
+                    type: 'post',
+                    data: {
+                        tipodocumento: function () { return $('#tipodocumento').val(); },
+                        numdocumento:  function () { return $('#numdocumento').val(); },
+                        idusuario:     function () { return ''; }
+                    }
+                }
+            },
+            correo: {
+                required: true,
+                email: true,
+                remote: {
+                    url: baseUrl + 'controllers/usuarios/check_correo.php',
+                    type: 'post',
+                    data: {
+                        correo:    function () { return $('#correo').val(); },
+                        idusuario: function () { return ''; }
+                    }
+                }
+            },
+            cargo:           { required: true },
+            clave:           { required: true, minlength: 8 },
+            confirmar_clave: { required: true, minlength: 8, equalTo: '#clave' },
+            imagen:          { extension: 'jpg|jpeg|png|gif|webp' }
+        },
+        messages: {
+            nombre:          { required: 'El nombre es obligatorio.' },
+            apellidopaterno: { required: 'El apellido paterno es obligatorio.' },
+            tipodocumento:   { required: 'Seleccione un tipo de documento.' },
+            numdocumento: {
+                required: 'El número de documento es obligatorio.',
+                remote:   'Este documento ya está registrado.'
+            },
+            correo: {
+                required: 'El correo es obligatorio.',
+                email:    'Ingrese un correo electrónico válido.',
+                remote:   'Este correo ya está en uso.'
+            },
+            cargo:  { required: 'Seleccione un cargo.' },
+            clave: {
+                required:  'La contraseña es obligatoria.',
+                minlength: 'La contraseña debe tener al menos 8 caracteres.'
+            },
+            confirmar_clave: {
+                required:  'Debe confirmar la contraseña.',
+                minlength: 'La contraseña debe tener al menos 8 caracteres.',
+                equalTo:   'Las contraseñas no coinciden.'
+            },
+            imagen: {
+                extension: 'Solo se permiten imágenes (jpg, png, gif, webp).'
+            }
+        },
+        submitHandler: function (form) {
+            const $btn = $(form).find('[type="submit"]');
+            $btn.prop('disabled', true)
+                .html('<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...');
+            form.submit();
+        }
+    });
+
+    // Revalidar selects de Select2 al cambiar
+    $('#tipodocumento, #cargo, #estado').on('change', function () {
+        $(this).valid();
+    });
+
+    // Revalidar documento al cambiar tipo (las reglas dinámicas cambian)
+    $('#tipodocumento').on('change', function () {
+        if ($('#numdocumento').val()) $('#numdocumento').valid();
+    });
+
     // ============= VALIDACIÓN DE CAMPOS =============
 
     // Actualizar etiqueta del archivo seleccionado
@@ -33,62 +114,6 @@ $(document).ready(function () {
             }
             reader.readAsDataURL(this.files[0]);
         }
-    });
-
-    // Validación de contraseñas mejorada
-    function validatePasswords() {
-        let clave = $('#clave').val();
-        let confirmar = $('#confirmar_clave').val();
-        let errorMessage = $('#password-error-message');
-
-        if (confirmar.length > 0) {
-            if (clave !== confirmar) {
-                $('#confirmar_clave').addClass('is-invalid');
-                errorMessage.show();
-                return false;
-            } else {
-                $('#confirmar_clave').removeClass('is-invalid').addClass('is-valid');
-                errorMessage.hide();
-                return true;
-            }
-        }
-        return true;
-    }
-
-    // Validar contraseñas en tiempo real
-    $('#clave, #confirmar_clave').on('keyup', function () {
-        validatePasswords();
-    });
-
-    // Validación del formulario antes de enviar
-    $('#formUsuario').on('submit', function (e) {
-        let clave = $('#clave').val();
-        let isValid = true;
-
-        // Validar coincidencia de contraseñas
-        if (!validatePasswords()) {
-            isValid = false;
-            e.preventDefault();
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Las contraseñas no coinciden'
-            });
-        }
-
-        // Validar longitud de contraseña
-        if (clave.length < 6) {
-            isValid = false;
-            e.preventDefault();
-            $('#clave').addClass('is-invalid');
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'La contraseña debe tener al menos 6 caracteres'
-            });
-        }
-
-        return isValid;
     });
 
     // Validación de número de documento según tipo
@@ -207,6 +232,4 @@ $(document).ready(function () {
     // Inicializar tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
-    // Ocultar mensajes de error al inicio
-    $('#password-error-message').hide();
 });

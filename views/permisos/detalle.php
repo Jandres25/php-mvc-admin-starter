@@ -25,6 +25,8 @@ if (!$permiso) {
     exit;
 }
 
+$plugins = ['datatables'];
+
 // Incluir el encabezado
 include_once '../layouts/header.php';
 

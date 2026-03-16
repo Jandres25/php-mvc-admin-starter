@@ -75,11 +75,21 @@ Action controllers (e.g., `crear_usuario.php`, `ajax_cambiar_clave.php`) return 
 
 ### Frontend Modules
 
-Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJAX helpers, DataTables setup) are in `public/js/core/`. All third-party libraries are already bundled in `public/js/lib/` and `public/css/lib/`.
+Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJAX helpers, DataTables setup, jQuery Validate config) are in `public/js/core/`. All third-party libraries are already bundled in `public/js/lib/` and `public/css/lib/`.
 
 **Loading order:** `footer.php` loads Bootstrap and AdminLTE before `$module_scripts`. Always register page-specific JS via `$module_scripts = ['feature/file']` at the top of the view — never use inline `<script>` blocks before `footer.php`, as Bootstrap plugins (e.g. `.tab()`) will not yet be available.
 
 Similarly, register page-specific CSS via `$module_styles = ['feature/file']` at the top of the view.
+
+**Conditional plugin loading:** Third-party plugins (DataTables, Select2, jQuery Validate) are loaded on demand via `$plugins` declared before `header.php`. Available plugins: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Example:
+
+```php
+$plugins = ['datatables', 'datatables-export'];
+$module_scripts = ['usuarios/index-usuarios'];
+require_once '../layouts/header.php';
+```
+
+**Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `controllers/usuarios/check_correo.php` or `check_documento.php`.
 
 ## Coding Conventions
 

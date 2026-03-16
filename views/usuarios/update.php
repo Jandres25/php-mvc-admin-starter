@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../config/config.php';
 
 requirePermiso('usuarios');
 
+$plugins = ['select2', 'validate'];
+
 // Incluir el encabezado
 include_once '../layouts/header.php';
 
@@ -202,7 +204,7 @@ $module_scripts = ['usuarios/update-usuario'];
                                                 <span class="input-group-text"><i class="fas fa-at"></i></span>
                                             </div>
                                             <input type="email" class="form-control" id="correo" name="correo"
-                                                placeholder="Ingrese el correo electrónico" value="<?= htmlspecialchars($usuario['correo']); ?>"
+                                                placeholder="Ingrese el correo electrónico" autocomplete="off" value="<?= htmlspecialchars($usuario['correo']); ?>"
                                                 required>
                                         </div>
                                     </div>
@@ -263,14 +265,14 @@ $module_scripts = ['usuarios/update-usuario'];
                                         <label for="clave">Nueva Contraseña</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="clave" name="clave"
-                                                placeholder="Dejar en blanco para mantener la actual" autocomplete="off" minlength="6">
+                                                placeholder="Dejar en blanco para mantener la actual" autocomplete="new-password" minlength="8">
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Mínimo 6 caracteres si decide cambiarla</small>
+                                        <small class="form-text text-muted">Mínimo 8 caracteres si decide cambiarla</small>
                                     </div>
                                 </div>
 
@@ -280,15 +282,12 @@ $module_scripts = ['usuarios/update-usuario'];
                                         <label for="confirmar_clave">Confirmar Nueva Contraseña</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="confirmar_clave" name="confirmar_clave"
-                                                placeholder="Confirme la nueva contraseña" autocomplete="off">
+                                                placeholder="Confirme la nueva contraseña" autocomplete="new-password">
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
-                                        </div>
-                                        <div class="invalid-feedback" id="password-error-message">
-                                            Las contraseñas no coinciden
                                         </div>
                                     </div>
                                 </div>

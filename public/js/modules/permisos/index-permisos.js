@@ -52,7 +52,7 @@ $(document).ready(function () {
             text: `El permiso será ${textoEstado}do.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: estadoActual == 1 ? '#d33' : '#3085d6',
+            confirmButtonColor: estadoActual == 1 ? '#d33' : '#28a745',
             cancelButtonColor: '#6c757d',
             confirmButtonText: `Sí, ${textoEstado}`,
             cancelButtonText: 'Cancelar'

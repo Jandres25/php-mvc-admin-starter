@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/config.php';
 
 requirePermiso('usuarios');
 
+$plugins = ['select2', 'validate'];
 $module_scripts = ['usuarios/create-usuario'];
 
 // Incluir el encabezado
@@ -230,14 +231,14 @@ include_once '../layouts/header.php';
                                         <label for="clave">Contraseña <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="clave" name="clave"
-                                                placeholder="Ingrese la contraseña" autocomplete="off" minlength="6" required>
+                                                placeholder="Ingrese la contraseña" autocomplete="off" minlength="8" required>
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Mínimo 6 caracteres</small>
+                                        <small class="form-text text-muted">Mínimo 8 caracteres</small>
                                     </div>
                                 </div>
 
@@ -253,9 +254,6 @@ include_once '../layouts/header.php';
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
-                                        </div>
-                                        <div class="invalid-feedback" id="password-error-message">
-                                            Las contraseñas no coinciden
                                         </div>
                                     </div>
                                 </div>

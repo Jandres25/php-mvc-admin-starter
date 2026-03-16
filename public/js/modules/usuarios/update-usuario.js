@@ -14,6 +14,93 @@ $(document).ready(function () {
     // Inicializar Select2
     initializeSelect2();
 
+    // ============= JQUERY VALIDATE =============
+
+    const idUsuario = $('input[name="idusuario"]').val() || '';
+
+    $('#formUsuario').validate({
+        rules: {
+            nombre:          { required: true },
+            apellidopaterno: { required: true },
+            tipodocumento:   { required: true },
+            numdocumento: {
+                required: true,
+                remote: {
+                    url: baseUrl + 'controllers/usuarios/check_documento.php',
+                    type: 'post',
+                    data: {
+                        tipodocumento: function () { return $('#tipodocumento').val(); },
+                        numdocumento:  function () { return $('#numdocumento').val(); },
+                        idusuario:     function () { return idUsuario; }
+                    }
+                }
+            },
+            correo: {
+                required: true,
+                email: true,
+                remote: {
+                    url: baseUrl + 'controllers/usuarios/check_correo.php',
+                    type: 'post',
+                    data: {
+                        correo:    function () { return $('#correo').val(); },
+                        idusuario: function () { return idUsuario; }
+                    }
+                }
+            },
+            cargo: { required: true },
+            clave: { minlength: 8 },
+            confirmar_clave: {
+                minlength: 8,
+                equalTo: {
+                    param: '#clave',
+                    depends: function () { return $('#clave').val().length > 0; }
+                }
+            },
+            imagen: { extension: 'jpg|jpeg|png|gif|webp' }
+        },
+        messages: {
+            nombre:          { required: 'El nombre es obligatorio.' },
+            apellidopaterno: { required: 'El apellido paterno es obligatorio.' },
+            tipodocumento:   { required: 'Seleccione un tipo de documento.' },
+            numdocumento: {
+                required: 'El número de documento es obligatorio.',
+                remote:   'Este documento ya está registrado.'
+            },
+            correo: {
+                required: 'El correo es obligatorio.',
+                email:    'Ingrese un correo electrónico válido.',
+                remote:   'Este correo ya está en uso.'
+            },
+            cargo:  { required: 'Seleccione un cargo.' },
+            clave: {
+                minlength: 'La contraseña debe tener al menos 8 caracteres.'
+            },
+            confirmar_clave: {
+                minlength: 'La contraseña debe tener al menos 8 caracteres.',
+                equalTo:   'Las contraseñas no coinciden.'
+            },
+            imagen: {
+                extension: 'Solo se permiten imágenes (jpg, png, gif, webp).'
+            }
+        },
+        submitHandler: function (form) {
+            const $btn = $(form).find('[type="submit"]');
+            $btn.prop('disabled', true)
+                .html('<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...');
+            form.submit();
+        }
+    });
+
+    // Revalidar selects de Select2 al cambiar
+    $('#tipodocumento, #cargo').on('change', function () {
+        $(this).valid();
+    });
+
+    // Revalidar documento al cambiar tipo (las reglas dinámicas cambian)
+    $('#tipodocumento').on('change', function () {
+        if ($('#numdocumento').val()) $('#numdocumento').valid();
+    });
+
     // ============= VALIDACIÓN DE CAMPOS =============
 
     // Actualizar etiqueta del archivo seleccionado
@@ -33,69 +120,6 @@ $(document).ready(function () {
             }
             reader.readAsDataURL(this.files[0]);
         }
-    });
-
-    // Validación de contraseñas mejorada
-    function validatePasswords() {
-        let clave = $('#clave').val();
-        let confirmar = $('#confirmar_clave').val();
-        let errorMessage = $('#password-error-message');
-
-        // Solo validar si ambos campos tienen contenido
-        if (clave.length > 0 || confirmar.length > 0) {
-            if (clave !== confirmar) {
-                $('#confirmar_clave').addClass('is-invalid');
-                errorMessage.show();
-                return false;
-            } else {
-                $('#confirmar_clave').removeClass('is-invalid').addClass('is-valid');
-                errorMessage.hide();
-                return true;
-            }
-        }
-
-        // Si ambos están vacíos, no se cambiará la contraseña
-        $('#confirmar_clave').removeClass('is-invalid').removeClass('is-valid');
-        errorMessage.hide();
-        return true;
-    }
-
-    // Validar contraseñas en tiempo real
-    $('#clave, #confirmar_clave').on('keyup', function () {
-        validatePasswords();
-    });
-
-    // Validación del formulario antes de enviar
-    $('#formUsuario').on('submit', function (e) {
-        let clave = $('#clave').val();
-        let isValid = true;
-
-        // Validar coincidencia de contraseñas (solo si se está cambiando)
-        if (clave.length > 0 || $('#confirmar_clave').val().length > 0) {
-            if (!validatePasswords()) {
-                isValid = false;
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Las contraseñas no coinciden'
-                });
-            }
-
-            // Validar longitud de contraseña solo si se está cambiando
-            if (clave.length > 0 && clave.length < 6) {
-                isValid = false;
-                e.preventDefault();
-                $('#clave').addClass('is-invalid');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'La contraseña debe tener al menos 6 caracteres'
-                });
-            }
-        }
-
-        return isValid;
     });
 
     // Validación de número de documento según tipo
@@ -214,6 +238,4 @@ $(document).ready(function () {
     // Inicializar tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
-    // Ocultar mensajes de error al inicio
-    $('#password-error-message').hide();
 });

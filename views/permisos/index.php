@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../config/config.php';
 
 requirePermiso('permisos');
 
+$plugins = ['datatables', 'datatables-export'];
+
 // Incluir el encabezado después de verificar permisos
 include_once '../layouts/header.php';
 

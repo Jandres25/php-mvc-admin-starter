@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-03-16
+
+### Added
+- Conditional plugin loading via `$plugins` array in views — DataTables, Select2, jQuery Validate and export libraries are only loaded on pages that declare them, eliminating ~20 unnecessary files from every page load
+- `public/js/core/common-validate.js` — global jQuery Validate configuration for Bootstrap 4: Bootstrap-compatible `errorPlacement`, `highlight`/`unhighlight`, `success` callback and `onkeyup: false`; reusable by any future module without extra config
+- Remote validation endpoints `controllers/usuarios/check_correo.php` and `controllers/usuarios/check_documento.php` — lightweight AJAX uniqueness checks against the DB for email and document number on create/update forms; exclude the current user on edit via `$id_excluir`
+
+### Changed
+- `header.php` and `footer.php` now conditionally load plugin CSS/JS based on the `$plugins` array declared at the top of each view; `common-datatable.js` is now part of the `datatables` plugin group
+- User create/update forms migrated to jQuery Validate with inline Bootstrap `is-invalid`/`is-valid` feedback, replacing manual `Swal.fire()` validation popups
+- Remote validation fires only on field blur and form submit (`onkeyup: false`) — no AJAX calls while the user is still typing
+
+### Fixed
+- Password minimum length mismatch between frontend (was 6) and backend `validarDatos()` (requires 8) — both now enforce 8 characters
+- Browser autofill in `update.php`: password fields changed to `autocomplete="new-password"` (Chrome ignores `autocomplete="off"` on `type="password"`), correo field set to `autocomplete="off"`
+
 ## [1.3.0] - 2026-03-15
 
 ### Added
@@ -118,7 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.1...v1.1.2

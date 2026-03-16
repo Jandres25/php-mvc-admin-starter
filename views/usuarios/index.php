@@ -4,6 +4,8 @@ require_once __DIR__ . '/../../config/config.php';
 
 requirePermiso('usuarios');
 
+$plugins = ['datatables', 'datatables-export'];
+
 include_once '../layouts/header.php';
 
 $controller = new \Controllers\Usuarios\UsuarioController();
