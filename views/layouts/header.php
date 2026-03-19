@@ -1,33 +1,25 @@
 <?php
-// Incluir el archivo de sesión
 require_once __DIR__ . '/session.php';
-
-// Incluir autoload antes de requireLogin() para que refreshPermisosIfStale() pueda usar modelos
 require_once __DIR__ . '/../../config/config.php';
 
-// Verificar si el usuario está autenticado
 requireLogin();
 
-// Obtener datos del usuario actual
 $currentUser = getCurrentUser();
-$idusuariosesion = $currentUser['id'];
 
-// Incluir el servicio de autorización
 $authService = new \Services\AuthorizationService();
 
-// Usar la variable global URL
 global $URL;
 
 ?>
 
 <!DOCTYPE html>
 
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistema Base MVC</title>
+    <title>Base System MVC</title>
 
     <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/bootstrap/bootstrap.min.css">
@@ -37,7 +29,7 @@ global $URL;
     <link rel="icon" type="image/png" href="<?= $URL; ?>public/img/e-commerce_logo.png">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/adminlte/adminlte.min.css">
-    <!-- Plugins condicionales CSS -->
+    <!-- Conditional plugin CSS -->
     <?php
     $plugin_css = [
         'datatables' => [
@@ -67,7 +59,7 @@ global $URL;
     <!-- jQuery -->
     <script src="<?= $URL; ?>public/js/lib/jquery/jquery.min.js"></script>
 
-    <!-- Estilos específicos por módulo -->
+    <!-- Module-specific styles -->
     <?php if (isset($module_styles) && is_array($module_styles)): ?>
         <?php foreach ($module_styles as $style): ?>
             <link rel="stylesheet" href="<?= $URL; ?>public/css/modules/<?= $style; ?>.css">
@@ -90,12 +82,12 @@ global $URL;
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
 
-                <!-- Logo visible solo en móvil -->
+                <!-- Logo visible only on mobile -->
                 <li class="nav-item d-sm-none">
                     <a href="<?= $URL; ?>" class="nav-link d-flex align-items-center">
-                        <img src="<?= $URL; ?>/public/img/e-commerce_logo.png" alt="Logo Hospital System" class="img-circle"
+                        <img src="<?= $URL; ?>/public/img/e-commerce_logo.png" alt="Logo" class="img-circle"
                             style="width: 25px; height: 25px; margin-right: 8px;">
-                        <span class="brand-text">Sistema Base</span>
+                        <span class="brand-text">Base System</span>
                     </a>
                 </li>
             </ul>
@@ -114,18 +106,18 @@ global $URL;
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <!-- User image -->
                         <li class="user-header">
-                            <img src="<?= $URL; ?>public/uploads/usuarios/<?= $currentUser['imagen']; ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
+                            <img src="<?= $URL; ?>public/uploads/users/<?= $currentUser['image']; ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
                             <p>
-                                <?= $currentUser['nombre']; ?>
-                                <small><?= $currentUser['cargo']; ?></small>
+                                <?= $currentUser['name']; ?>
+                                <small><?= $currentUser['position']; ?></small>
                             </p>
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
-                            <?php if ($authService->tienePermisoNombre($idusuariosesion, 'perfil')) : ?>
-                                <a href="<?= $URL; ?>views/usuarios/perfil.php?id=<?= $currentUser['id']; ?>" class="btn btn-default btn-flat">Perfil</a>
+                            <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'profile')) : ?>
+                                <a href="<?= $URL; ?>views/users/profile.php" class="btn btn-default btn-flat">Profile</a>
                             <?php endif; ?>
-                            <a href="<?= $URL; ?>controllers/auth/logout.php" class="btn btn-default btn-flat float-right">Cerrar Sesión</a>
+                            <a href="<?= $URL; ?>controllers/auth/logout.php" class="btn btn-default btn-flat float-right">Log Out</a>
                         </li>
                     </ul>
 
@@ -139,7 +131,7 @@ global $URL;
             <!-- Brand Logo -->
             <a href="<?= $URL; ?>" class="brand-link">
                 <img src="<?= $URL; ?>public/img/e-commerce_logo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
-                <span class="brand-text font-weight-light">Sistema Base</span>
+                <span class="brand-text font-weight-light">Base System</span>
             </a>
 
             <!-- Sidebar -->
@@ -157,30 +149,30 @@ global $URL;
                             </a>
                         </li>
 
-                        <!-- Administración -->
-                        <?php if ($authService->tienePermisoNombre($idusuariosesion, 'usuarios') || $authService->tienePermisoNombre($idusuariosesion, 'permisos')) : ?>
+                        <!-- Administration -->
+                        <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'users') || $authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) : ?>
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon fas fa-user-shield"></i>
                                     <p>
-                                        Administración
+                                        Administration
                                         <i class="right fas fa-angle-left"></i>
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <?php if ($authService->tienePermisoNombre($idusuariosesion, 'usuarios')) : ?>
+                                    <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'users')) : ?>
                                         <li class="nav-item">
-                                            <a href="<?= $URL; ?>views/usuarios" class="nav-link">
+                                            <a href="<?= $URL; ?>views/users" class="nav-link">
                                                 <i class="fas fa-user-alt nav-icon"></i>
-                                                <p>Usuarios</p>
+                                                <p>Users</p>
                                             </a>
                                         </li>
                                     <?php endif; ?>
-                                    <?php if ($authService->tienePermisoNombre($idusuariosesion, 'permisos')) : ?>
+                                    <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) : ?>
                                         <li class="nav-item">
-                                            <a href="<?= $URL; ?>views/permisos" class="nav-link">
+                                            <a href="<?= $URL; ?>views/permissions" class="nav-link">
                                                 <i class="fas fa-key nav-icon"></i>
-                                                <p>Permisos</p>
+                                                <p>Permissions</p>
                                             </a>
                                         </li>
                                     <?php endif; ?>
@@ -188,7 +180,7 @@ global $URL;
                             </li>
                         <?php endif; ?>
 
-                        <!-- Espacio para agregar nuevos módulos -->
+                        <!-- Space to add new modules -->
 
                     </ul>
                 </nav>

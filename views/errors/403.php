@@ -1,7 +1,6 @@
 <?php
 http_response_code(403);
 
-// Cuando se llama desde requirePermiso(), $URL ya existe en el scope global
 $app_url = $GLOBALS['URL'] ?? null;
 
 if (!$app_url) {
@@ -22,13 +21,12 @@ if (!$app_url) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>403 - Acceso denegado</title>
-    <!-- Bootstrap 4 -->
+    <title>403 - Access Denied</title>
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/adminlte/adminlte.min.css">
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/fontawesome/all.min.css">
@@ -48,10 +46,10 @@ if (!$app_url) {
 <body>
     <div class="text-center">
         <h1 class="display-1 font-weight-bold text-danger">403</h1>
-        <h3 class="mb-3">Acceso denegado</h3>
-        <p class="text-muted mb-4">No tienes permisos para acceder a esta sección.</p>
+        <h3 class="mb-3">Access Denied</h3>
+        <p class="text-muted mb-4">You do not have permission to access this section.</p>
         <a href="<?= $app_url ?>" class="btn btn-primary">
-            <i class="fas fa-home mr-1"></i> Volver al inicio
+            <i class="fas fa-home mr-1"></i> Back to Home
         </a>
     </div>
 </body>

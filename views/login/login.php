@@ -1,24 +1,21 @@
 <?php
-// Incluir archivo de sesión
 require_once __DIR__ . '/../../views/layouts/session.php';
 
-// Verificar si ya hay una sesión activa
 if (isAuthenticated()) {
     header('Location: ' . $URL);
     exit;
 }
 
-// Incluir la configuración
 require_once __DIR__ . '/../../config/config.php';
 ?>
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistema Base | Iniciar Sesión</title>
+    <title>Base System | Sign In</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -42,17 +39,16 @@ require_once __DIR__ . '/../../config/config.php';
     <div class="login-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <h1 class="h3">Sistema Base</h1>
+                <h1 class="h3">Base System</h1>
             </div>
             <div class="card-body login-card-body">
-                <p class="login-box-msg">Ingrese sus credenciales para acceder</p>
+                <p class="login-box-msg">Enter your credentials to sign in</p>
 
                 <form action="<?= $URL; ?>controllers/auth/login.php" method="post" id="login-form">
-                    <!-- Token CSRF para protección contra CSRF -->
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
                     <div class="input-group mb-3">
-                        <input type="text" name="identifier" class="form-control" placeholder="Email o Número de documento"
+                        <input type="text" name="identifier" class="form-control" placeholder="Email or document number"
                             autocomplete="username">
                         <div class="input-group-append">
                             <div class="input-group-text">
@@ -61,10 +57,10 @@ require_once __DIR__ . '/../../config/config.php';
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" name="clave" id="password-field" class="form-control" placeholder="Contraseña"
+                        <input type="password" name="password" id="password-field" class="form-control" placeholder="Password"
                             autocomplete="current-password">
                         <div class="input-group-append">
-                            <div class="input-group-text password-toggle" title="Mostrar/Ocultar contraseña">
+                            <div class="input-group-text password-toggle" title="Show/Hide password">
                                 <span class="fas fa-eye-slash toggle-password" id="toggle-password"></span>
                             </div>
                         </div>
@@ -72,7 +68,7 @@ require_once __DIR__ . '/../../config/config.php';
                     <div class="row">
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+                                <i class="fas fa-sign-in-alt mr-2"></i> Sign In
                             </button>
                         </div>
                     </div>
@@ -81,7 +77,7 @@ require_once __DIR__ . '/../../config/config.php';
         </div>
 
         <div class="login-footer text-center mt-3">
-            <p class="text-muted">&copy; <?= date('Y'); ?> Sistema Base. Todos los derechos reservados.</p>
+            <p class="text-muted">&copy; <?= date('Y'); ?> Base System. All rights reserved.</p>
         </div>
     </div>
 
@@ -92,10 +88,8 @@ require_once __DIR__ . '/../../config/config.php';
     <!-- AdminLTE App -->
     <script src="<?= $URL; ?>public/js/lib/adminlte/adminlte.min.js"></script>
 
-    <!-- Custom login script -->
     <script>
         $(document).ready(function() {
-            // Configuración de Toast para SweetAlert2
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -108,12 +102,10 @@ require_once __DIR__ . '/../../config/config.php';
                 }
             });
 
-            // Toggle password visibility
             $('#toggle-password').click(function() {
                 const passwordField = $('#password-field');
                 const passwordFieldType = passwordField.attr('type');
 
-                // Toggle password visibility
                 if (passwordFieldType === 'password') {
                     passwordField.attr('type', 'text');
                     $(this).removeClass('fa-eye-slash').addClass('fa-eye');
@@ -123,18 +115,15 @@ require_once __DIR__ . '/../../config/config.php';
                 }
             });
 
-            // Add subtle animation to login box
             $('.login-box').addClass('login-animation');
 
-            // Form submission with validation
             $('#login-form').on('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
+                e.preventDefault();
 
                 const identifier = $('input[name="identifier"]').val().trim();
-                const password = $('input[name="clave"]').val().trim();
+                const password = $('input[name="password"]').val().trim();
                 let isValid = true;
 
-                // Validar que los campos no estén vacíos
                 if (!identifier) {
                     $('input[name="identifier"]').addClass('is-invalid');
                     isValid = false;
@@ -143,49 +132,45 @@ require_once __DIR__ . '/../../config/config.php';
                 }
 
                 if (!password) {
-                    $('input[name="clave"]').addClass('is-invalid');
+                    $('input[name="password"]').addClass('is-invalid');
                     isValid = false;
                 } else {
-                    $('input[name="clave"]').removeClass('is-invalid');
+                    $('input[name="password"]').removeClass('is-invalid');
                 }
 
                 if (!isValid) {
                     Toast.fire({
                         icon: 'error',
-                        title: 'Por favor complete todos los campos'
+                        title: 'Please fill in all fields.'
                     });
                     return;
                 }
 
-                // Validar la longitud de la contraseña
                 if (password.length < 6) {
-                    $('input[name="clave"]').addClass('is-invalid');
+                    $('input[name="password"]').addClass('is-invalid');
                     Toast.fire({
                         icon: 'error',
-                        title: 'La contraseña debe tener al menos 6 caracteres'
+                        title: 'Password must be at least 6 characters.'
                     });
                     return;
                 }
 
-                // Show loading state
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
                     timer: 3000,
-                    title: 'Iniciando sesión...',
+                    title: 'Signing in...',
                     didOpen: () => {
                         Swal.showLoading();
                     }
                 });
 
-                // Submit the form after small delay to show loading
                 setTimeout(() => {
                     this.submit();
                 }, 1000);
             });
 
-            // Remove invalid class on input
             $('input').on('input', function() {
                 $(this).removeClass('is-invalid');
             });
@@ -193,7 +178,6 @@ require_once __DIR__ . '/../../config/config.php';
     </script>
 
     <?php
-    // Incluir mensajes
     require_once __DIR__ . '/../layouts/messages.php';
     ?>
 </body>

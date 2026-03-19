@@ -2,12 +2,11 @@
 require_once __DIR__ . '/../layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
-requirePermiso('usuarios');
+requirePermission('users');
 
 $plugins = ['select2', 'validate'];
-$module_scripts = ['usuarios/create-usuario'];
+$module_scripts = ['users/create-user'];
 
-// Incluir el encabezado
 include_once '../layouts/header.php';
 ?>
 
@@ -16,13 +15,13 @@ include_once '../layouts/header.php';
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <h1>Crear Usuario</h1>
+                <h1>Create User</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/usuarios"><i class="fas fa-users"></i> Usuarios</a></li>
-                    <li class="breadcrumb-item active">Crear Usuario</li>
+                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/users"><i class="fas fa-users"></i> Users</a></li>
+                    <li class="breadcrumb-item active">Create User</li>
                 </ol>
             </div>
         </div>
@@ -33,16 +32,15 @@ include_once '../layouts/header.php';
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <!-- Formulario Principal (8 columnas) -->
+            <!-- Main form (8 columns) -->
             <div class="col-md-8">
-                <!-- form start -->
-                <form action="<?= $URL; ?>controllers/usuarios/crear_usuario.php" method="POST" enctype="multipart/form-data" id="formUsuario">
+                <form action="<?= $URL; ?>controllers/users/create_user.php" method="POST" enctype="multipart/form-data" id="formUser">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
-                    <!-- Tarjeta de Información Personal -->
+                    <!-- Personal Information Card -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-address-card mr-2"></i>Información Personal</h3>
+                            <h3 class="card-title"><i class="fas fa-address-card mr-2"></i>Personal Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -51,86 +49,86 @@ include_once '../layouts/header.php';
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Nombre -->
+                                <!-- Name -->
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
+                                        <label for="name">Name <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="nombre" name="nombre"
-                                                placeholder="Ingrese el nombre" required>
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Enter name" required>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Apellido Paterno -->
+                                <!-- First Surname -->
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="apellidopaterno">Apellido Paterno <span class="text-danger">*</span></label>
+                                        <label for="first_surname">First Surname <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="apellidopaterno" name="apellidopaterno"
-                                                placeholder="Ingrese el apellido paterno" required>
+                                            <input type="text" class="form-control" id="first_surname" name="first_surname"
+                                                placeholder="Enter first surname" required>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Apellido Materno -->
+                                <!-- Second Surname -->
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="apellidomaterno">Apellido Materno</label>
+                                        <label for="second_surname">Second Surname</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="apellidomaterno" name="apellidomaterno"
-                                                placeholder="Ingrese el apellido materno">
+                                            <input type="text" class="form-control" id="second_surname" name="second_surname"
+                                                placeholder="Enter second surname">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <!-- Tipo de Documento -->
+                                <!-- Document Type -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="tipodocumento">Tipo de Documento <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="tipodocumento" name="tipodocumento" required>
-                                            <option value="">Seleccione un tipo de documento</option>
+                                        <label for="document_type">Document Type <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="document_type" name="document_type" required>
+                                            <option value="">Select a document type</option>
                                             <option value="DNI">DNI</option>
-                                            <option value="Pasaporte">Pasaporte</option>
-                                            <option value="CI">Cédula de Identidad</option>
+                                            <option value="Passport">Passport</option>
+                                            <option value="ID Card">ID Card</option>
                                             <option value="RUC">RUC</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <!-- Número de Documento -->
+                                <!-- Document Number -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="numdocumento">Número de Documento <span class="text-danger">*</span></label>
+                                        <label for="document_number">Document Number <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="numdocumento" name="numdocumento"
-                                                placeholder="Ingrese el número de documento" required>
+                                            <input type="text" class="form-control" id="document_number" name="document_number"
+                                                placeholder="Enter document number" required>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información Personal -->
+                    <!-- /Personal Information Card -->
 
-                    <!-- Tarjeta de Información de Contacto -->
+                    <!-- Contact Information Card -->
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Información de Contacto</h3>
+                            <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Contact Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -139,58 +137,58 @@ include_once '../layouts/header.php';
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Dirección -->
+                                <!-- Address -->
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="direccion">Dirección</label>
+                                        <label for="address">Address</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                                             </div>
-                                            <textarea class="form-control" id="direccion" name="direccion" rows="2"
-                                                placeholder="Ingrese la dirección"></textarea>
+                                            <textarea class="form-control" id="address" name="address" rows="2"
+                                                placeholder="Enter address"></textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <!-- Teléfono -->
+                                <!-- Phone -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="telefono">Teléfono</label>
+                                        <label for="phone">Phone</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                             </div>
-                                            <input type="tel" class="form-control" id="telefono" name="telefono"
-                                                placeholder="Ingrese el teléfono">
+                                            <input type="tel" class="form-control" id="phone" name="phone"
+                                                placeholder="Enter phone number">
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Correo -->
+                                <!-- Email -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
+                                        <label for="email">Email Address <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-at"></i></span>
                                             </div>
-                                            <input type="email" class="form-control" id="correo" name="correo"
-                                                placeholder="Ingrese el correo electrónico" required>
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                placeholder="Enter email address" required>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información de Contacto -->
+                    <!-- /Contact Information Card -->
 
-                    <!-- Tarjeta de Información de Cuenta -->
+                    <!-- Account Information Card -->
                     <div class="card card-outline card-warning">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-user-lock mr-2"></i>Información de Cuenta</h3>
+                            <h3 class="card-title"><i class="fas fa-user-lock mr-2"></i>Account Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -199,56 +197,56 @@ include_once '../layouts/header.php';
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Cargo -->
+                                <!-- Position -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="cargo">Cargo <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="cargo" name="cargo" required>
-                                            <option value="">Seleccione un cargo</option>
-                                            <option value="Administrador">Administrador</option>
-                                            <option value="Encargado">Encargado</option>
-                                            <option value="Vendedor">Vendedor</option>
+                                        <label for="position">Position <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="position" name="position" required>
+                                            <option value="">Select a position</option>
+                                            <option value="Administrator">Administrator</option>
+                                            <option value="Manager">Manager</option>
+                                            <option value="Salesperson">Salesperson</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <!-- Estado -->
+                                <!-- Status -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="estado">Estado</label>
-                                        <select class="form-control select2" id="estado" name="estado">
-                                            <option value="1" selected>Activo</option>
-                                            <option value="0">Inactivo</option>
+                                        <label for="status">Status</label>
+                                        <select class="form-control select2" id="status" name="status">
+                                            <option value="1" selected>Active</option>
+                                            <option value="0">Inactive</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <!-- Contraseña -->
+                                <!-- Password -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="clave">Contraseña <span class="text-danger">*</span></label>
+                                        <label for="password">Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="clave" name="clave"
-                                                placeholder="Ingrese la contraseña" autocomplete="off" minlength="8" required>
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                placeholder="Enter password" autocomplete="off" minlength="8" required>
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Mínimo 8 caracteres</small>
+                                        <small class="form-text text-muted">Minimum 8 characters</small>
                                     </div>
                                 </div>
 
-                                <!-- Confirmar Contraseña -->
+                                <!-- Confirm Password -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="confirmar_clave">Confirmar Contraseña <span class="text-danger">*</span></label>
+                                        <label for="confirm_password">Confirm Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="confirmar_clave" name="confirmar_clave"
-                                                placeholder="Confirme la contraseña" autocomplete="off" required>
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                                placeholder="Confirm password" autocomplete="off" required>
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                                     <i class="fas fa-eye"></i>
@@ -260,12 +258,12 @@ include_once '../layouts/header.php';
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información de Cuenta -->
+                    <!-- /Account Information Card -->
 
-                    <!-- Tarjeta de Imagen de Perfil -->
+                    <!-- Profile Image Card -->
                     <div class="card card-outline card-success">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-image mr-2"></i>Imagen de Perfil</h3>
+                            <h3 class="card-title"><i class="fas fa-image mr-2"></i>Profile Image</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -276,33 +274,32 @@ include_once '../layouts/header.php';
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="imagen">Seleccionar Imagen</label>
+                                        <label for="image">Select Image</label>
                                         <div class="input-group">
                                             <div class="custom-file">
-                                                <input type="file" class="custom-file-input" id="imagen" name="imagen"
+                                                <input type="file" class="custom-file-input" id="image" name="image"
                                                     accept="image/*">
-                                                <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
+                                                <label class="custom-file-label" for="image">Choose file</label>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF. Máximo 2MB</small>
+                                        <small class="form-text text-muted">Allowed formats: JPG, PNG, WEBP. Max 5 MB</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6 text-center">
-                                    <!-- Vista previa de imagen -->
                                     <div id="preview-container" style="display: none;">
-                                        <label>Vista Previa:</label><br>
-                                        <img id="preview-image" src="#" alt="Vista previa" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <label>Preview:</label><br>
+                                        <img id="preview-image" src="#" alt="Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Imagen de Perfil -->
+                    <!-- /Profile Image Card -->
 
-                    <!-- Tarjeta de Permisos -->
+                    <!-- Permissions Card -->
                     <div class="card card-outline card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Asignación de Permisos</h3>
+                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Permission Assignment</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -313,11 +310,11 @@ include_once '../layouts/header.php';
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="seleccionar-todos">
-                                            <i class="fas fa-check-square mr-1"></i> Seleccionar todos
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="select-all">
+                                            <i class="fas fa-check-square mr-1"></i> Select all
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="deseleccionar-todos">
-                                            <i class="fas fa-square mr-1"></i> Deseleccionar todos
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="deselect-all">
+                                            <i class="fas fa-square mr-1"></i> Deselect all
                                         </button>
                                     </div>
                                 </div>
@@ -325,21 +322,20 @@ include_once '../layouts/header.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label>Permisos disponibles:</label>
+                                        <label>Available permissions:</label>
                                         <div class="row">
                                             <?php
-                                            // Obtener todos los permisos disponibles
-                                            $permisos = $authService->obtenerTodosLosPermisos();
-                                            foreach ($permisos as $permiso) :
+                                            $allPermissions = $authService->getAllPermissions();
+                                            foreach ($allPermissions as $permission) :
                                             ?>
                                                 <div class="col-md-4">
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" class="custom-control-input"
-                                                            id="permiso_<?= $permiso['idpermiso'] ?>"
-                                                            name="permisos[]"
-                                                            value="<?= $permiso['idpermiso'] ?>">
-                                                        <label class="custom-control-label" for="permiso_<?= $permiso['idpermiso'] ?>">
-                                                            <?= htmlspecialchars($permiso['nombre']) ?>
+                                                            id="permission_<?= $permission['id'] ?>"
+                                                            name="permissions[]"
+                                                            value="<?= $permission['id'] ?>">
+                                                        <label class="custom-control-label" for="permission_<?= $permission['id'] ?>">
+                                                            <?= htmlspecialchars($permission['name']) ?>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -353,28 +349,27 @@ include_once '../layouts/header.php';
                             <div class="row">
                                 <div class="col-12 col-sm-auto mb-2 mb-sm-0">
                                     <button type="submit" class="btn btn-primary btn-block">
-                                        <i class="fas fa-save"></i> Guardar Usuario
+                                        <i class="fas fa-save"></i> Save User
                                     </button>
                                 </div>
                                 <div class="col-12 col-sm-auto">
-                                    <a href="<?= $URL; ?>views/usuarios" class="btn btn-default btn-block">
-                                        <i class="fas fa-times"></i> Cancelar
+                                    <a href="<?= $URL; ?>views/users" class="btn btn-default btn-block">
+                                        <i class="fas fa-times"></i> Cancel
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Permisos -->
+                    <!-- /Permissions Card -->
                 </form>
             </div>
-            <!-- Fin formulario principal -->
+            <!-- /Main form -->
 
-            <!-- Guía de ayuda (4 columnas) -->
+            <!-- Help guide (4 columns) -->
             <div class="col-md-4">
-                <!-- Acordeón de ayuda -->
                 <div class="card card-outline card-info">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-question-circle mr-1"></i> Guía para crear usuarios</h3>
+                        <h3 class="card-title"><i class="fas fa-question-circle mr-1"></i> Guide for creating users</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -383,12 +378,11 @@ include_once '../layouts/header.php';
                     </div>
                     <div class="card-body p-0">
                         <div class="accordion" id="accordionGuide">
-                            <!-- Guía de Información Personal -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingOne">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                            <i class="fas fa-address-card mr-1"></i> Información Personal
+                                            <i class="fas fa-address-card mr-1"></i> Personal Information
                                         </button>
                                     </h2>
                                 </div>
@@ -396,21 +390,20 @@ include_once '../layouts/header.php';
                                     <div class="card-body">
                                         <div class="callout callout-info">
                                             <ul class="mb-0">
-                                                <li>Complete todos los campos marcados con <span class="text-danger">*</span></li>
-                                                <li>El <strong>apellido materno</strong> es opcional</li>
-                                                <li>Verifique que el <strong>número de documento</strong> sea correcto</li>
+                                                <li>Fill in all fields marked with <span class="text-danger">*</span></li>
+                                                <li>The <strong>second surname</strong> is optional</li>
+                                                <li>Verify that the <strong>document number</strong> is correct</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Guía de Información de Contacto -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingTwo">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                            <i class="fas fa-envelope mr-1"></i> Información de Contacto
+                                            <i class="fas fa-envelope mr-1"></i> Contact Information
                                         </button>
                                     </h2>
                                 </div>
@@ -418,21 +411,20 @@ include_once '../layouts/header.php';
                                     <div class="card-body">
                                         <div class="callout callout-info">
                                             <ul class="mb-0">
-                                                <li>El <strong>correo electrónico</strong> debe ser único en el sistema</li>
-                                                <li>El <strong>teléfono</strong> debe incluir el código de país si es internacional</li>
-                                                <li>La <strong>dirección</strong> puede incluir referencias para facilitar la ubicación</li>
+                                                <li>The <strong>email address</strong> must be unique in the system</li>
+                                                <li>Include country code for international <strong>phone</strong> numbers</li>
+                                                <li>The <strong>address</strong> can include references for easier location</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Guía de Seguridad -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingThree">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                            <i class="fas fa-lock mr-1"></i> Seguridad
+                                            <i class="fas fa-lock mr-1"></i> Security
                                         </button>
                                     </h2>
                                 </div>
@@ -440,21 +432,20 @@ include_once '../layouts/header.php';
                                     <div class="card-body">
                                         <div class="callout callout-warning">
                                             <ul class="mb-0">
-                                                <li>La <strong>contraseña</strong> debe tener al menos 6 caracteres</li>
-                                                <li>Se recomienda usar letras, números y símbolos para mayor seguridad</li>
-                                                <li>El <strong>cargo</strong> determinará el nivel de acceso predeterminado</li>
+                                                <li>The <strong>password</strong> must have at least 6 characters</li>
+                                                <li>It is recommended to use letters, numbers and symbols for stronger security</li>
+                                                <li>The <strong>position</strong> will determine the default access level</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Guía de Permisos -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingFour">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                            <i class="fas fa-key mr-1"></i> Permisos
+                                            <i class="fas fa-key mr-1"></i> Permissions
                                         </button>
                                     </h2>
                                 </div>
@@ -462,9 +453,9 @@ include_once '../layouts/header.php';
                                     <div class="card-body">
                                         <div class="callout callout-info">
                                             <ul class="mb-0">
-                                                <li>Asigne los <strong>permisos</strong> según las funciones que realizará el usuario</li>
-                                                <li>Los usuarios con cargo <strong>Administrador</strong> pueden tener todos los permisos</li>
-                                                <li>Use los botones de selección rápida para facilitar la asignación</li>
+                                                <li>Assign <strong>permissions</strong> according to the user's functions</li>
+                                                <li>Users with position <strong>Administrator</strong> can have all permissions</li>
+                                                <li>Use the quick selection buttons to speed up assignment</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -473,12 +464,11 @@ include_once '../layouts/header.php';
                         </div>
                     </div>
                 </div>
-                <!-- Fin acordeón de ayuda -->
 
-                <!-- Tarjeta de vista previa -->
+                <!-- Profile preview card -->
                 <div class="card card-outline card-primary sticky-top">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-id-card mr-1"></i> Vista previa del perfil</h3>
+                        <h3 class="card-title"><i class="fas fa-id-card mr-1"></i> Profile preview</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -487,19 +477,19 @@ include_once '../layouts/header.php';
                     </div>
                     <div class="card-body text-center">
                         <div class="profile-preview">
-                            <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/usuarios/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
-                            <h5 id="profile-preview-name" class="mt-3">Nuevo Usuario</h5>
-                            <p id="profile-preview-role" class="text-muted">Cargo del usuario</p>
-                            <div id="profile-preview-badge" class="badge badge-success">Activo</div>
+                            <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                            <h5 id="profile-preview-name" class="mt-3">New User</h5>
+                            <p id="profile-preview-role" class="text-muted">User position</p>
+                            <div id="profile-preview-badge" class="badge badge-success">Active</div>
                         </div>
                         <div class="alert alert-light mt-3">
-                            <small><i class="fas fa-info-circle"></i> Esta es una vista previa de cómo se verá el perfil del usuario.</small>
+                            <small><i class="fas fa-info-circle"></i> This is a preview of how the user profile will look.</small>
                         </div>
                     </div>
                 </div>
-                <!-- Fin tarjeta de vista previa -->
+                <!-- /Profile preview card -->
             </div>
-            <!-- Fin guía de ayuda -->
+            <!-- /Help guide -->
         </div>
         <!-- /.row -->
     </div>

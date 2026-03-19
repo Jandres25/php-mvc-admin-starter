@@ -17,13 +17,12 @@ if (file_exists($env_file)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>404 - Página no encontrada</title>
-    <!-- Bootstrap 4 -->
+    <title>404 - Page Not Found</title>
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/adminlte/adminlte.min.css">
     <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/fontawesome/all.min.css">
@@ -43,10 +42,10 @@ if (file_exists($env_file)) {
 <body>
     <div class="text-center">
         <h1 class="display-1 font-weight-bold text-warning">404</h1>
-        <h3 class="mb-3">Página no encontrada</h3>
-        <p class="text-muted mb-4">La página que buscas no existe o fue movida.</p>
+        <h3 class="mb-3">Page Not Found</h3>
+        <p class="text-muted mb-4">The page you are looking for does not exist or has been moved.</p>
         <a href="<?= $app_url ?>" class="btn btn-primary">
-            <i class="fas fa-home mr-1"></i> Volver al inicio
+            <i class="fas fa-home mr-1"></i> Back to Home
         </a>
     </div>
 </body>

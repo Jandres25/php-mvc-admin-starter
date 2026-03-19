@@ -2,36 +2,32 @@
 require_once __DIR__ . '/../layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
-requirePermiso('usuarios');
+requirePermission('users');
 
 $plugins = ['select2', 'validate'];
 
-// Incluir el encabezado
 include_once '../layouts/header.php';
 
-// Verificar si se proporcionó un ID
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!$id) {
-    $_SESSION['mensaje'] = 'ID de usuario no válido';
-    $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . 'views/usuarios');
+    $_SESSION['message'] = 'Invalid user ID.';
+    $_SESSION['icon']    = 'error';
+    header('Location: ' . $URL . 'views/users');
     exit;
 }
 
-// Instanciar el controlador y obtener los datos del usuario
-$controller = new \Controllers\Usuarios\UsuarioController();
-$usuario = $controller->editar($id);
+$controller = new \Controllers\Users\UserController();
+$user       = $controller->edit($id);
 
-// Verificar si el usuario existe
-if (!$usuario) {
-    $_SESSION['mensaje'] = 'Usuario no encontrado';
-    $_SESSION['icono'] = 'error';
-    header('Location: ' . $URL . 'views/usuarios');
+if (!$user) {
+    $_SESSION['message'] = 'User not found.';
+    $_SESSION['icon']    = 'error';
+    header('Location: ' . $URL . 'views/users');
     exit;
 }
 
-$module_scripts = ['usuarios/update-usuario'];
+$module_scripts = ['users/update-user'];
 ?>
 
 <!-- Content Header (Page header) -->
@@ -39,13 +35,13 @@ $module_scripts = ['usuarios/update-usuario'];
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <h1>Editar Usuario</h1>
+                <h1>Edit User</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/usuarios"><i class="fas fa-users"></i> Usuarios</a></li>
-                    <li class="breadcrumb-item active">Editar Usuario</li>
+                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/users"><i class="fas fa-users"></i> Users</a></li>
+                    <li class="breadcrumb-item active">Edit User</li>
                 </ol>
             </div>
         </div>
@@ -56,17 +52,16 @@ $module_scripts = ['usuarios/update-usuario'];
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <!-- Formulario Principal (8 columnas) -->
+            <!-- Main form (8 columns) -->
             <div class="col-md-8">
-                <!-- form start -->
-                <form action="<?= $URL; ?>controllers/usuarios/actualizar_usuario.php" method="POST" enctype="multipart/form-data" id="formUsuario">
-                    <input type="hidden" name="idusuario" value="<?= $usuario['idusuario']; ?>">
+                <form action="<?= $URL; ?>controllers/users/update_user.php" method="POST" enctype="multipart/form-data" id="formUser">
+                    <input type="hidden" name="user_id" value="<?= $user['id']; ?>">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
-                    <!-- Tarjeta de Información Personal -->
+                    <!-- Personal Information Card -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-address-card mr-2"></i>Información Personal</h3>
+                            <h3 class="card-title"><i class="fas fa-address-card mr-2"></i>Personal Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -75,74 +70,74 @@ $module_scripts = ['usuarios/update-usuario'];
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Nombre -->
+                                <!-- Name -->
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
+                                        <label for="name">Name <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="nombre" name="nombre"
-                                                placeholder="Ingrese el nombre" value="<?= htmlspecialchars($usuario['nombre']); ?>" required>
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Enter name" value="<?= htmlspecialchars($user['name']); ?>" required>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Apellido Paterno -->
+                                <!-- First Surname -->
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="apellidopaterno">Apellido Paterno <span class="text-danger">*</span></label>
+                                        <label for="first_surname">First Surname <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="apellidopaterno" name="apellidopaterno"
-                                                placeholder="Ingrese el apellido paterno" value="<?= htmlspecialchars($usuario['apellidopaterno']); ?>" required>
+                                            <input type="text" class="form-control" id="first_surname" name="first_surname"
+                                                placeholder="Enter first surname" value="<?= htmlspecialchars($user['first_surname']); ?>" required>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Apellido Materno -->
+                                <!-- Second Surname -->
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="apellidomaterno">Apellido Materno</label>
+                                        <label for="second_surname">Second Surname</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="apellidomaterno" name="apellidomaterno"
-                                                placeholder="Ingrese el apellido materno" value="<?= htmlspecialchars($usuario['apellidomaterno'] ?? ''); ?>">
+                                            <input type="text" class="form-control" id="second_surname" name="second_surname"
+                                                placeholder="Enter second surname" value="<?= htmlspecialchars($user['second_surname'] ?? ''); ?>">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <!-- Tipo de Documento -->
+                                <!-- Document Type -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="tipodocumento">Tipo de Documento <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="tipodocumento" name="tipodocumento" required>
-                                            <option value="">Seleccione un tipo de documento</option>
-                                            <option value="DNI" <?= $usuario['tipodocumento'] == 'DNI' ? 'selected' : ''; ?>>DNI</option>
-                                            <option value="Pasaporte" <?= $usuario['tipodocumento'] == 'Pasaporte' ? 'selected' : ''; ?>>Pasaporte</option>
-                                            <option value="CI" <?= $usuario['tipodocumento'] == 'CI' ? 'selected' : ''; ?>>Cédula de Identidad</option>
-                                            <option value="RUC" <?= $usuario['tipodocumento'] == 'RUC' ? 'selected' : ''; ?>>RUC</option>
+                                        <label for="document_type">Document Type <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="document_type" name="document_type" required>
+                                            <option value="">Select a document type</option>
+                                            <option value="DNI" <?= $user['document_type'] == 'DNI' ? 'selected' : ''; ?>>DNI</option>
+                                            <option value="Passport" <?= $user['document_type'] == 'Passport' ? 'selected' : ''; ?>>Passport</option>
+                                            <option value="ID Card" <?= $user['document_type'] == 'ID Card' ? 'selected' : ''; ?>>ID Card</option>
+                                            <option value="RUC" <?= $user['document_type'] == 'RUC' ? 'selected' : ''; ?>>RUC</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <!-- Número de Documento -->
+                                <!-- Document Number -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="numdocumento">Número de Documento <span class="text-danger">*</span></label>
+                                        <label for="document_number">Document Number <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="numdocumento" name="numdocumento"
-                                                placeholder="Ingrese el número de documento" value="<?= htmlspecialchars($usuario['numdocumento']); ?>"
+                                            <input type="text" class="form-control" id="document_number" name="document_number"
+                                                placeholder="Enter document number" value="<?= htmlspecialchars($user['document_number']); ?>"
                                                 maxlength="25" required>
                                         </div>
                                     </div>
@@ -150,12 +145,12 @@ $module_scripts = ['usuarios/update-usuario'];
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información Personal -->
+                    <!-- /Personal Information Card -->
 
-                    <!-- Tarjeta de Información de Contacto -->
+                    <!-- Contact Information Card -->
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Información de Contacto</h3>
+                            <h3 class="card-title"><i class="fas fa-envelope mr-2"></i>Contact Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -164,47 +159,47 @@ $module_scripts = ['usuarios/update-usuario'];
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Dirección -->
+                                <!-- Address -->
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="direccion">Dirección</label>
+                                        <label for="address">Address</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                                             </div>
-                                            <textarea class="form-control" id="direccion" name="direccion" rows="2"
-                                                placeholder="Ingrese la dirección"><?= htmlspecialchars($usuario['direccion'] ?? ''); ?></textarea>
+                                            <textarea class="form-control" id="address" name="address" rows="2"
+                                                placeholder="Enter address"><?= htmlspecialchars($user['address'] ?? ''); ?></textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <!-- Teléfono -->
+                                <!-- Phone -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="telefono">Teléfono</label>
+                                        <label for="phone">Phone</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                             </div>
-                                            <input type="tel" class="form-control" id="telefono" name="telefono"
-                                                placeholder="Ingrese el teléfono" value="<?= htmlspecialchars($usuario['telefono'] ?? ''); ?>"
+                                            <input type="tel" class="form-control" id="phone" name="phone"
+                                                placeholder="Enter phone number" value="<?= htmlspecialchars($user['phone'] ?? ''); ?>"
                                                 maxlength="20">
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Correo -->
+                                <!-- Email -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
+                                        <label for="email">Email Address <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-at"></i></span>
                                             </div>
-                                            <input type="email" class="form-control" id="correo" name="correo"
-                                                placeholder="Ingrese el correo electrónico" autocomplete="off" value="<?= htmlspecialchars($usuario['correo']); ?>"
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                placeholder="Enter email address" autocomplete="off" value="<?= htmlspecialchars($user['email']); ?>"
                                                 required>
                                         </div>
                                     </div>
@@ -212,12 +207,12 @@ $module_scripts = ['usuarios/update-usuario'];
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información de Contacto -->
+                    <!-- /Contact Information Card -->
 
-                    <!-- Tarjeta de Información de Cuenta -->
+                    <!-- Account Information Card -->
                     <div class="card card-outline card-warning">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-user-lock mr-2"></i>Información de Cuenta</h3>
+                            <h3 class="card-title"><i class="fas fa-user-lock mr-2"></i>Account Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -226,28 +221,27 @@ $module_scripts = ['usuarios/update-usuario'];
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Cargo -->
+                                <!-- Position -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="cargo">Cargo <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="cargo" name="cargo" required>
-                                            <option value="">Seleccione un cargo</option>
-                                            <option value="Administrador" <?= $usuario['cargo'] == 'Administrador' ? 'selected' : ''; ?>>Administrador</option>
-                                            <option value="Encargado" <?= $usuario['cargo'] == 'Encargado' ? 'selected' : ''; ?>>Encargado</option>
-                                            <option value="Vendedor" <?= $usuario['cargo'] == 'Vendedor' ? 'selected' : ''; ?>>Vendedor</option>
+                                        <label for="position">Position <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="position" name="position" required>
+                                            <option value="">Select a position</option>
+                                            <option value="Administrator" <?= $user['position'] == 'Administrator' ? 'selected' : ''; ?>>Administrator</option>
+                                            <option value="Manager" <?= $user['position'] == 'Manager' ? 'selected' : ''; ?>>Manager</option>
+                                            <option value="Salesperson" <?= $user['position'] == 'Salesperson' ? 'selected' : ''; ?>>Salesperson</option>
                                         </select>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información de Cuenta -->
+                    <!-- /Account Information Card -->
 
-                    <!-- Tarjeta de Cambio de Contraseña -->
+                    <!-- Change Password Card (optional) -->
                     <div class="card card-outline card-danger collapsed-card">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Cambiar Contraseña (opcional)</h3>
+                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Change Password (optional)</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-plus"></i>
@@ -256,33 +250,33 @@ $module_scripts = ['usuarios/update-usuario'];
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle mr-1"></i> Deje estos campos en blanco si no desea cambiar la contraseña.
+                                <i class="fas fa-info-circle mr-1"></i> Leave these fields blank if you do not want to change the password.
                             </div>
                             <div class="row">
-                                <!-- Contraseña -->
+                                <!-- New Password -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="clave">Nueva Contraseña</label>
+                                        <label for="password">New Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="clave" name="clave"
-                                                placeholder="Dejar en blanco para mantener la actual" autocomplete="new-password" minlength="8">
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                placeholder="Leave blank to keep current" autocomplete="new-password" minlength="8">
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Mínimo 8 caracteres si decide cambiarla</small>
+                                        <small class="form-text text-muted">Minimum 8 characters if changing</small>
                                     </div>
                                 </div>
 
-                                <!-- Confirmar Contraseña -->
+                                <!-- Confirm New Password -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="confirmar_clave">Confirmar Nueva Contraseña</label>
+                                        <label for="confirm_password">Confirm New Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="confirmar_clave" name="confirmar_clave"
-                                                placeholder="Confirme la nueva contraseña" autocomplete="new-password">
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                                placeholder="Confirm new password" autocomplete="new-password">
                                             <div class="input-group-append">
                                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                                     <i class="fas fa-eye"></i>
@@ -294,12 +288,12 @@ $module_scripts = ['usuarios/update-usuario'];
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Cambio de Contraseña -->
+                    <!-- /Change Password Card -->
 
-                    <!-- Tarjeta de Imagen de Perfil -->
+                    <!-- Profile Image Card -->
                     <div class="card card-outline card-success">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-image mr-2"></i>Imagen de Perfil</h3>
+                            <h3 class="card-title"><i class="fas fa-image mr-2"></i>Profile Image</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -310,43 +304,41 @@ $module_scripts = ['usuarios/update-usuario'];
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="imagen">Seleccionar Nueva Imagen</label>
+                                        <label for="image">Select New Image</label>
                                         <div class="input-group">
                                             <div class="custom-file">
-                                                <input type="file" class="custom-file-input" id="imagen" name="imagen"
+                                                <input type="file" class="custom-file-input" id="image" name="image"
                                                     accept="image/*">
-                                                <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
+                                                <label class="custom-file-label" for="image">Choose file</label>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF, WEBP. Máximo 2MB</small>
+                                        <small class="form-text text-muted">Allowed formats: JPG, PNG, WEBP. Max 5 MB</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6 text-center">
-                                    <!-- Imagen actual -->
-                                    <label>Imagen Actual:</label><br>
-                                    <?php if (isset($usuario['imagen']) && !empty($usuario['imagen'])): ?>
-                                        <img src="<?= $URL; ?>public/uploads/usuarios/<?= $usuario['imagen']; ?>"
-                                            alt="Imagen actual" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                    <label>Current Image:</label><br>
+                                    <?php if (isset($user['image']) && !empty($user['image'])): ?>
+                                        <img src="<?= $URL; ?>public/uploads/users/<?= $user['image']; ?>"
+                                            alt="Current image" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
                                     <?php else: ?>
-                                        <img src="<?= $URL; ?>public/uploads/usuarios/user_default.jpg"
-                                            alt="Imagen por defecto" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <img src="<?= $URL; ?>public/uploads/users/user_default.jpg"
+                                            alt="Default image" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
                                     <?php endif; ?>
 
-                                    <!-- Vista previa de imagen nueva -->
                                     <div id="preview-container" style="display: none; margin-top: 10px;">
-                                        <label>Vista Previa Nueva Imagen:</label><br>
-                                        <img id="preview-image" src="#" alt="Vista previa" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <label>New Image Preview:</label><br>
+                                        <img id="preview-image" src="#" alt="Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Imagen de Perfil -->
+                    <!-- /Profile Image Card -->
 
-                    <!-- Tarjeta de Permisos -->
+                    <!-- Permissions Card -->
                     <div class="card card-outline card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Asignación de Permisos</h3>
+                            <h3 class="card-title"><i class="fas fa-key mr-2"></i>Permission Assignment</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -357,11 +349,11 @@ $module_scripts = ['usuarios/update-usuario'];
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="seleccionar-todos">
-                                            <i class="fas fa-check-square mr-1"></i> Seleccionar todos
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="select-all">
+                                            <i class="fas fa-check-square mr-1"></i> Select all
                                         </button>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="deseleccionar-todos">
-                                            <i class="fas fa-square mr-1"></i> Deseleccionar todos
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="deselect-all">
+                                            <i class="fas fa-square mr-1"></i> Deselect all
                                         </button>
                                     </div>
                                 </div>
@@ -369,24 +361,23 @@ $module_scripts = ['usuarios/update-usuario'];
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label>Permisos disponibles:</label>
+                                        <label>Available permissions:</label>
                                         <div class="row">
                                             <?php
-                                            // Obtener todos los permisos y los asignados en 2 queries (no N+1)
-                                            $permisos = $authService->obtenerTodosLosPermisos();
-                                            $permisosAsignados = $authService->obtenerPermisosAsignados($usuario['idusuario']);
-                                            foreach ($permisos as $permiso) :
-                                                $checked = in_array($permiso['idpermiso'], $permisosAsignados) ? 'checked' : '';
+                                            $allPermissions    = $authService->getAllPermissions();
+                                            $assignedPermissions = $authService->getAssignedPermissions($user['id']);
+                                            foreach ($allPermissions as $permission) :
+                                                $checked = in_array($permission['id'], $assignedPermissions) ? 'checked' : '';
                                             ?>
                                                 <div class="col-md-4">
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" class="custom-control-input"
-                                                            id="permiso_<?= $permiso['idpermiso'] ?>"
-                                                            name="permisos[]"
-                                                            value="<?= $permiso['idpermiso'] ?>"
+                                                            id="permission_<?= $permission['id'] ?>"
+                                                            name="permissions[]"
+                                                            value="<?= $permission['id'] ?>"
                                                             <?= $checked ?>>
-                                                        <label class="custom-control-label" for="permiso_<?= $permiso['idpermiso'] ?>">
-                                                            <?= htmlspecialchars($permiso['nombre']) ?>
+                                                        <label class="custom-control-label" for="permission_<?= $permission['id'] ?>">
+                                                            <?= htmlspecialchars($permission['name']) ?>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -397,12 +388,12 @@ $module_scripts = ['usuarios/update-usuario'];
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Permisos -->
+                    <!-- /Permissions Card -->
 
-                    <!-- Tarjeta de Información del Sistema -->
+                    <!-- System Info Card -->
                     <div class="card card-outline card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-history mr-2"></i>Información del Sistema</h3>
+                            <h3 class="card-title"><i class="fas fa-history mr-2"></i>System Information</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -413,17 +404,17 @@ $module_scripts = ['usuarios/update-usuario'];
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label><i class="far fa-calendar-plus mr-1"></i> Fecha de Creación:</label>
+                                        <label><i class="far fa-calendar-plus mr-1"></i> Created At:</label>
                                         <p class="form-control bg-light">
-                                            <?= isset($usuario['fechacreacion']) ? date('d/m/Y H:i', strtotime($usuario['fechacreacion'])) : 'No disponible'; ?>
+                                            <?= isset($user['created_at']) ? date('m/d/Y H:i', strtotime($user['created_at'])) : 'N/A'; ?>
                                         </p>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label><i class="fas fa-sync-alt mr-1"></i> Última Actualización:</label>
+                                        <label><i class="fas fa-sync-alt mr-1"></i> Last Updated:</label>
                                         <p class="form-control bg-light">
-                                            <?= isset($usuario['fechaactualizacion']) ? date('d/m/Y H:i', strtotime($usuario['fechaactualizacion'])) : 'No disponible'; ?>
+                                            <?= isset($user['updated_at']) ? date('m/d/Y H:i', strtotime($user['updated_at'])) : 'N/A'; ?>
                                         </p>
                                     </div>
                                 </div>
@@ -433,28 +424,27 @@ $module_scripts = ['usuarios/update-usuario'];
                             <div class="row">
                                 <div class="col-12 col-sm-auto mb-2 mb-sm-0 mr-sm-2">
                                     <button type="submit" class="btn btn-warning btn-block">
-                                        <i class="fas fa-save mr-1"></i> Actualizar Usuario
+                                        <i class="fas fa-save mr-1"></i> Update User
                                     </button>
                                 </div>
                                 <div class="col-12 col-sm-auto">
-                                    <a href="<?= $URL; ?>views/usuarios" class="btn btn-default btn-block">
-                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    <a href="<?= $URL; ?>views/users" class="btn btn-default btn-block">
+                                        <i class="fas fa-times mr-1"></i> Cancel
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin Tarjeta Información del Sistema -->
+                    <!-- /System Info Card -->
                 </form>
             </div>
-            <!-- Fin formulario principal -->
+            <!-- /Main form -->
 
-            <!-- Guía de ayuda (4 columnas) -->
+            <!-- Help guide (4 columns) -->
             <div class="col-md-4">
-                <!-- Acordeón de ayuda -->
                 <div class="card card-outline card-info">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-question-circle mr-1"></i> Guía para actualizar usuarios</h3>
+                        <h3 class="card-title"><i class="fas fa-question-circle mr-1"></i> Guide for updating users</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -463,12 +453,11 @@ $module_scripts = ['usuarios/update-usuario'];
                     </div>
                     <div class="card-body p-0">
                         <div class="accordion" id="accordionGuide">
-                            <!-- Guía de Información Personal -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingOne">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                            <i class="fas fa-address-card mr-1"></i> Información Personal
+                                            <i class="fas fa-address-card mr-1"></i> Personal Information
                                         </button>
                                     </h2>
                                 </div>
@@ -476,21 +465,20 @@ $module_scripts = ['usuarios/update-usuario'];
                                     <div class="card-body">
                                         <div class="callout callout-info">
                                             <ul class="mb-0">
-                                                <li>Complete todos los campos marcados con <span class="text-danger">*</span></li>
-                                                <li>El <strong>apellido materno</strong> es opcional</li>
-                                                <li>Verifique que el <strong>número de documento</strong> sea correcto</li>
+                                                <li>Fill in all fields marked with <span class="text-danger">*</span></li>
+                                                <li>The <strong>second surname</strong> is optional</li>
+                                                <li>Verify that the <strong>document number</strong> is correct</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Guía de Cambio de Contraseña -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingTwo">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                            <i class="fas fa-key mr-1"></i> Cambio de Contraseña
+                                            <i class="fas fa-key mr-1"></i> Password Change
                                         </button>
                                     </h2>
                                 </div>
@@ -498,22 +486,21 @@ $module_scripts = ['usuarios/update-usuario'];
                                     <div class="card-body">
                                         <div class="callout callout-warning">
                                             <ul class="mb-0">
-                                                <li>Deje ambos campos en blanco si <strong>no desea cambiar</strong> la contraseña</li>
-                                                <li>Si decide cambiarla, la <strong>contraseña</strong> debe tener al menos 6 caracteres</li>
-                                                <li>Se recomienda usar letras, números y símbolos para mayor seguridad</li>
-                                                <li>Ambas contraseñas deben coincidir</li>
+                                                <li>Leave both fields blank if you <strong>do not want to change</strong> the password</li>
+                                                <li>If changing, the <strong>password</strong> must have at least 6 characters</li>
+                                                <li>It is recommended to use letters, numbers and symbols</li>
+                                                <li>Both passwords must match</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Guía de Permisos -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingThree">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                            <i class="fas fa-shield-alt mr-1"></i> Permisos
+                                            <i class="fas fa-shield-alt mr-1"></i> Permissions
                                         </button>
                                     </h2>
                                 </div>
@@ -521,21 +508,20 @@ $module_scripts = ['usuarios/update-usuario'];
                                     <div class="card-body">
                                         <div class="callout callout-info">
                                             <ul class="mb-0">
-                                                <li>Asigne los <strong>permisos</strong> según las funciones que realizará el usuario</li>
-                                                <li>Los usuarios con cargo <strong>Administrador</strong> pueden tener todos los permisos</li>
-                                                <li>Use los botones de selección rápida para facilitar la asignación</li>
+                                                <li>Assign <strong>permissions</strong> according to the user's functions</li>
+                                                <li>Users with position <strong>Administrator</strong> can have all permissions</li>
+                                                <li>Use the quick selection buttons to speed up assignment</li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Guía de Imagen -->
                             <div class="card mb-0 border-0">
                                 <div class="card-header" id="headingFour">
                                     <h2 class="mb-0">
                                         <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                            <i class="fas fa-image mr-1"></i> Imagen de Perfil
+                                            <i class="fas fa-image mr-1"></i> Profile Image
                                         </button>
                                     </h2>
                                 </div>
@@ -543,10 +529,10 @@ $module_scripts = ['usuarios/update-usuario'];
                                     <div class="card-body">
                                         <div class="callout callout-success">
                                             <ul class="mb-0">
-                                                <li>Seleccione una nueva imagen <strong>solo si desea cambiarla</strong></li>
-                                                <li>Formatos recomendados: JPG, PNG</li>
-                                                <li>Tamaño recomendado: cuadrada de 500x500 píxeles</li>
-                                                <li>Si no sube una nueva imagen, se mantendrá la actual</li>
+                                                <li>Select a new image <strong>only if you want to change it</strong></li>
+                                                <li>Recommended formats: JPG, PNG</li>
+                                                <li>Recommended size: square 500×500 pixels</li>
+                                                <li>If no new image is uploaded, the current one is kept</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -555,12 +541,11 @@ $module_scripts = ['usuarios/update-usuario'];
                         </div>
                     </div>
                 </div>
-                <!-- Fin acordeón de ayuda -->
 
-                <!-- Tarjeta de vista previa -->
+                <!-- Profile preview card -->
                 <div class="card card-outline card-warning sticky-top">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-id-card mr-1"></i> Vista previa del perfil</h3>
+                        <h3 class="card-title"><i class="fas fa-id-card mr-1"></i> Profile preview</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -569,26 +554,26 @@ $module_scripts = ['usuarios/update-usuario'];
                     </div>
                     <div class="card-body text-center">
                         <div class="profile-preview">
-                            <?php if (isset($usuario['imagen']) && !empty($usuario['imagen'])): ?>
-                                <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/usuarios/<?= $usuario['imagen']; ?>" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                            <?php if (isset($user['image']) && !empty($user['image'])): ?>
+                                <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/users/<?= $user['image']; ?>" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
                             <?php else: ?>
-                                <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/usuarios/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
                             <?php endif; ?>
-                            <h5 id="profile-preview-name" class="mt-3"><?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidopaterno'] . ' ' . $usuario['apellidomaterno']); ?></h5>
-                            <p id="profile-preview-role" class="text-muted"><?= htmlspecialchars($usuario['cargo']); ?></p>
-                            <?php if ($usuario['estado'] == 1): ?>
-                                <div id="profile-preview-badge" class="badge badge-success">Activo</div>
+                            <h5 id="profile-preview-name" class="mt-3"><?= htmlspecialchars($user['name'] . ' ' . $user['first_surname'] . ' ' . $user['second_surname']); ?></h5>
+                            <p id="profile-preview-role" class="text-muted"><?= htmlspecialchars($user['position']); ?></p>
+                            <?php if ($user['status'] == 1): ?>
+                                <div id="profile-preview-badge" class="badge badge-success">Active</div>
                             <?php else: ?>
-                                <div id="profile-preview-badge" class="badge badge-danger">Inactivo</div>
+                                <div id="profile-preview-badge" class="badge badge-danger">Inactive</div>
                             <?php endif; ?>
                         </div>
                         <div class="alert alert-light mt-3">
-                            <small><i class="fas fa-info-circle"></i> Esta es una vista previa de cómo se verá el perfil del usuario.</small>
+                            <small><i class="fas fa-info-circle"></i> This is a preview of how the user profile will look.</small>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Fin guía de ayuda -->
+            <!-- /Help guide -->
 
         </div>
         <!-- /.row -->
