@@ -8,6 +8,8 @@
 Thumbs.db
 bash.exe.stackdump
 .env
+/public/uploads/usuarios/*
+!/public/uploads/usuarios/user_default.jpg
 /public/uploads/users/*
 !/public/uploads/users/user_default.jpg
 
