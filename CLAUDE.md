@@ -9,17 +9,18 @@ PHP MVC admin starter with authentication, user management, and permission-based
 ## Setup
 
 ```bash
-# 1. Import database schema
-mysql -u root -p < auth_base.sql
+# 1. Import database schema and seed data
+mysql -u root -p < database/schema.sql
+mysql -u root -p < database/seeder.sql
 
 # 2. Configure environment
 cp .env.example .env
 # Edit .env: DB_HOST, DB_NAME, DB_USER, DB_PASS, APP_URL, TIMEZONE
 
 # 3. Create upload directory and set write permissions
-mkdir -p public/uploads/usuarios
-cp public/img/user_default.jpg public/uploads/usuarios/
-chmod 777 public/uploads/usuarios/
+mkdir -p public/uploads/users
+cp public/img/user_default.jpg public/uploads/users/
+chmod 777 public/uploads/users/
 ```
 
 > **Note:** Apache runs as `daemon` on LAMPP. The uploads directory must be world-writable (`777`) or owned by the web server user, otherwise `move_uploaded_file()` silently fails.
@@ -41,7 +42,7 @@ This is a pure PHP application. There are no npm, Composer, Makefile, or test su
 There is no router. Controllers are accessed directly via URL paths:
 - `/index.php` — dashboard
 - `/controllers/auth/login.php` — login page
-- `/controllers/usuarios/crear_usuario.php` — create user action
+- `/controllers/users/create_user.php` — create user action
 
 `views/layouts/session.php` is included at the top of every protected page. It loads the `.env`, validates the session, and defines `requireLogin()` and `getCurrentUser()` global functions.
 
@@ -49,9 +50,10 @@ There is no router. Controllers are accessed directly via URL paths:
 
 ```
 config/         # Bootstrap: autoloader, env loader, DB singleton, config array
-models/         # Data access + sanitization (Usuario.php, Permiso.php)
-services/       # Business logic (AuthorizationService.php, ImagenService.php)
-controllers/    # One file per action (e.g., crear_usuario.php, login.php)
+database/       # Schema (schema.sql) and seed data (seeder.sql)
+models/         # Data access + sanitization (User.php, Permission.php)
+services/       # Business logic (AuthorizationService.php, ImageService.php)
+controllers/    # One file per action (e.g., create_user.php, login.php)
 views/          # PHP templates; layouts/header.php pulls in all CSS/JS
 public/         # Static assets organized as lib/, core/, plugins/, modules/
 libs/           # Vendored libraries (TCPDF)
@@ -59,7 +61,7 @@ libs/           # Vendored libraries (TCPDF)
 
 ### Custom Autoloader
 
-`config/autoload.php` implements PSR-4: namespace separators map to lowercase directory paths relative to the project root. Register once in `config/config.php`. Example: `Controllers\Usuarios\UsuarioController` → `controllers/usuarios/UsuarioController.php`.
+`config/autoload.php` implements PSR-4: namespace separators map to lowercase directory paths relative to the project root. Register once in `config/config.php`. Example: `Controllers\Users\UserController` → `controllers/users/UserController.php`.
 
 ### Database Connection
 
@@ -67,17 +69,17 @@ libs/           # Vendored libraries (TCPDF)
 
 ### Permissions
 
-`services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'usuarios'`, `'permisos'`, `'admin'`). Use `$authService->tienePermisoNombre($idUsuario, 'permiso_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
+`services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'users'`, `'permissions'`, `'admin'`). Use `$authService->hasPermissionByName($userId, 'permission_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
 
-Permission names are checked against `$_SESSION['usuario_permisos']` (cached at login). The cache is automatically refreshed by `refreshPermisosIfStale()` in `session.php` — called on every page load — which compares `$_SESSION['permisos_ts']` against the `permisos_updated_at` column in `usuarios`. Call `$modeloUsuario->actualizarPermisosTimestamp($idusuario)` after any permission change so the affected user's cache is regenerated on their next page load.
+Permission names are checked against `$_SESSION['user_permissions']` (cached at login). The cache is automatically refreshed by `refreshPermissionsIfStale()` in `session.php` — called on every page load — which compares `$_SESSION['permissions_ts']` against the `permissions_updated_at` column in `users`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
 
-`AuthorizationService::esAdministrador()` is memoized per-request via `static array $adminCache` — safe to call multiple times in the same request without extra DB queries.
+`AuthorizationService::isAdmin()` is memoized per-request via `static array $adminCache` — safe to call multiple times in the same request without extra DB queries.
 
 ### AJAX Pattern
 
-Action controllers (e.g., `crear_usuario.php`, `ajax_cambiar_clave.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated via `generateCSRFToken()` (global in `session.php`) and validated with `verifyCSRFToken()`; call `regenerateCSRFToken()` after every successful POST.
+Action controllers (e.g., `create_user.php`, `ajax_change_password.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated via `generateCSRFToken()` (global in `session.php`) and validated with `verifyCSRFToken()`; call `regenerateCSRFToken()` after every successful POST.
 
-When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['mensaje']` and `$_SESSION['icono']` in the PHP endpoint before echoing the JSON — `mensajes.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
+When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` in the PHP endpoint before echoing the JSON — `mensajes.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
 
 ### Frontend Modules
 
@@ -91,19 +93,19 @@ Similarly, register page-specific CSS via `$module_styles = ['feature/file']` at
 
 ```php
 $plugins = ['datatables', 'datatables-export'];
-$module_scripts = ['usuarios/index-usuarios'];
+$module_scripts = ['users/index-users'];
 require_once '../layouts/header.php';
 ```
 
-**Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `controllers/usuarios/check_correo.php` or `check_documento.php`.
+**Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `controllers/users/check_email.php` or `check_document.php`.
 
 ## Coding Conventions
 
-- **Namespaces:** `Controllers\Auth`, `Controllers\Usuarios`, `Models`, `Services` — match directory structure in lowercase.
+- **Namespaces:** `Controllers\Auth`, `Controllers\Users`, `Controllers\Permissions`, `Models`, `Services` — match directory structure in lowercase.
 - **CSRF:** Generate token with `generateCSRFToken()`, validate with `verifyCSRFToken()` (global functions in `session.php`). Call `regenerateCSRFToken()` after every successful POST validation to prevent replay attacks.
-- **Input sanitization:** Use `trim()` at the model layer (`sanitizarDatos()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
+- **Input sanitization:** Use `trim()` at the model layer (`sanitizeData()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
-- **Images:** Route all upload/resize/delete through `ImagenService`.
+- **Images:** Route all upload/resize/delete through `ImageService`.
 - **JS:** ES6+ with JSDoc comments. Use `SweetAlert2` for confirmations, `DataTables` for lists, `Select2` for dropdowns.
 - **Select2 in modals:** When a Select2 element lives inside a Bootstrap modal, initialize it with `initializeSelect2('#selectId', { dropdownParent: $('#modalId') })` instead of the generic `initializeSelect2()`. Without `dropdownParent`, Bootstrap's focus trap closes the dropdown immediately. Populate options from PHP `<option>` elements (server-side) rather than AJAX to avoid re-initialization conflicts.
 - **AdminLTE cards:** `card-outline card-{color}` classes go on the outer `div.card`, **never** on `div.card-header`. Adding them to the header instead of the card silently breaks the colored left border style.

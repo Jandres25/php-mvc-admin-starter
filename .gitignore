@@ -1,23 +1,24 @@
-# Archivos de caché y temporales
+# Cache and temporary files
 *.log
 *.tmp
 
-# Archivos del sistema
+# System files
 /vendor/
 .DS_Store
 Thumbs.db
 bash.exe.stackdump
 .env
-/public/uploads/usuarios/*
-!/public/uploads/usuarios/user_default.jpg
+/public/uploads/users/*
+!/public/uploads/users/user_default.jpg
 
-# IDEs y editores
+# IDEs and editors
 .idea/
 .vscode/
 *.sublime-project
 *.sublime-workspace
 *.code-workspace
 
-# Respaldos de base de datos
+# Database backups
 *.sql
-!auth_base.sql
+!database/schema.sql
+!database/seeder.sql

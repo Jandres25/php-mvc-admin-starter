@@ -37,15 +37,16 @@ git clone https://github.com/Jandres25/php-mvc-admin-starter.git
 cd php-mvc-admin-starter
 
 # 2. Import the database
-mysql -u root -p < auth_base.sql
+mysql -u root -p < database/schema.sql
+mysql -u root -p < database/seeder.sql
 
 # 3. Set up the environment
 cp .env.example .env
 # Edit .env with your credentials (see Configuration section)
 
 # 4. Create the uploads directory
-mkdir -p public/uploads/usuarios
-cp public/img/user_default.jpg public/uploads/usuarios/
+mkdir -p public/uploads/users
+cp public/img/user_default.jpg public/uploads/users/
 ```
 
 Open `http://localhost/php-mvc-admin-starter/` in your browser.
