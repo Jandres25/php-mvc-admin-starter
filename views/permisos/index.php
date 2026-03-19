@@ -123,6 +123,7 @@ $module_scripts = ['permisos/modal-permiso', 'permisos/index-permisos'];
                                                     <button type="button" class="btn btn-warning btn-sm btn-editar"
                                                         data-id="<?= $permiso['idpermiso']; ?>"
                                                         data-nombre="<?= htmlspecialchars($permiso['nombre']); ?>"
+                                                        data-descripcion="<?= htmlspecialchars($permiso['descripcion'] ?? ''); ?>"
                                                         title="Editar">
                                                         <i class="fas fa-edit"></i>
                                                     </button>

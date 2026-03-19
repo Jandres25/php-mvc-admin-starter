@@ -67,11 +67,17 @@ libs/           # Vendored libraries (TCPDF)
 
 ### Permissions
 
-`services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'usuarios'`, `'permisos'`, `'admin'`). Use `$authService->tienePermiso($idUsuario, 'permiso_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
+`services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'usuarios'`, `'permisos'`, `'admin'`). Use `$authService->tienePermisoNombre($idUsuario, 'permiso_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
+
+Permission names are checked against `$_SESSION['usuario_permisos']` (cached at login). The cache is automatically refreshed by `refreshPermisosIfStale()` in `session.php` — called on every page load — which compares `$_SESSION['permisos_ts']` against the `permisos_updated_at` column in `usuarios`. Call `$modeloUsuario->actualizarPermisosTimestamp($idusuario)` after any permission change so the affected user's cache is regenerated on their next page load.
+
+`AuthorizationService::esAdministrador()` is memoized per-request via `static array $adminCache` — safe to call multiple times in the same request without extra DB queries.
 
 ### AJAX Pattern
 
-Action controllers (e.g., `crear_usuario.php`, `ajax_cambiar_clave.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated in `AuthController` and validated on form submission.
+Action controllers (e.g., `crear_usuario.php`, `ajax_cambiar_clave.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated via `generateCSRFToken()` (global in `session.php`) and validated with `verifyCSRFToken()`; call `regenerateCSRFToken()` after every successful POST.
+
+When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['mensaje']` and `$_SESSION['icono']` in the PHP endpoint before echoing the JSON — `mensajes.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
 
 ### Frontend Modules
 
@@ -99,5 +105,6 @@ require_once '../layouts/header.php';
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImagenService`.
 - **JS:** ES6+ with JSDoc comments. Use `SweetAlert2` for confirmations, `DataTables` for lists, `Select2` for dropdowns.
+- **Select2 in modals:** When a Select2 element lives inside a Bootstrap modal, initialize it with `initializeSelect2('#selectId', { dropdownParent: $('#modalId') })` instead of the generic `initializeSelect2()`. Without `dropdownParent`, Bootstrap's focus trap closes the dropdown immediately. Populate options from PHP `<option>` elements (server-side) rather than AJAX to avoid re-initialization conflicts.
 - **AdminLTE cards:** `card-outline card-{color}` classes go on the outer `div.card`, **never** on `div.card-header`. Adding them to the header instead of the card silently breaks the colored left border style.
 - **Commits:** Follow Conventional Commits (`feat:`, `fix:`, `docs:`, etc.).

@@ -56,7 +56,8 @@ class PermisoController
 
         // Preparar datos del permiso
         $datos = [
-            'nombre' => isset($_POST['nombre']) ? trim($_POST['nombre']) : ''
+            'nombre'      => isset($_POST['nombre']) ? trim($_POST['nombre']) : '',
+            'descripcion' => isset($_POST['descripcion']) ? trim($_POST['descripcion']) : null,
         ];
 
         // Sanitizar los datos
@@ -127,7 +128,8 @@ class PermisoController
 
         // Preparar datos del permiso
         $datos = [
-            'nombre' => isset($_POST['nombre']) ? trim($_POST['nombre']) : $permiso_actual['nombre']
+            'nombre'      => isset($_POST['nombre']) ? trim($_POST['nombre']) : $permiso_actual['nombre'],
+            'descripcion' => isset($_POST['descripcion']) ? trim($_POST['descripcion']) : $permiso_actual['descripcion'],
         ];
 
         // Sanitizar los datos
@@ -203,13 +205,24 @@ class PermisoController
 
     /**
      * Obtiene los usuarios que tienen asignado un permiso específico
-     * 
+     *
      * @param int $idPermiso ID del permiso
      * @return array Lista de usuarios
      */
     public function getUsuariosPorPermiso($idPermiso)
     {
         return $this->modelo->getUsuariosPorPermiso($idPermiso);
+    }
+
+    /**
+     * Obtiene usuarios activos sin un permiso específico (para modal de asignación)
+     *
+     * @param int $idPermiso ID del permiso
+     * @return array Lista de usuarios sin el permiso
+     */
+    public function getUsuariosSinPermiso($idPermiso)
+    {
+        return $this->modelo->getUsuariosSinPermiso($idPermiso);
     }
 
     /**

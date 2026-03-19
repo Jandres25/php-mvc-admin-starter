@@ -150,6 +150,9 @@ function requireLogin($redirect_url = null)
         header('Location: ' . $redirect_url);
         exit;
     }
+
+    // Verificar si los permisos en sesión están desactualizados
+    refreshPermisosIfStale();
 }
 
 /**
@@ -233,6 +236,31 @@ function regenerateCSRFToken()
 {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     return $_SESSION['csrf_token'];
+}
+
+/**
+ * Refresca el cache de permisos de sesión si un admin modificó los permisos del usuario.
+ * Compara el timestamp guardado en sesión con el almacenado en la BD.
+ * Se llama automáticamente desde requireLogin() en cada carga de página.
+ */
+function refreshPermisosIfStale(): void
+{
+    $idusuario = $_SESSION['usuario_id'] ?? null;
+    if (!$idusuario || !isset($_SESSION['usuario_permisos'])) {
+        return;
+    }
+
+    $modeloUsuario = new \Models\Usuario();
+    $dbTimestamp = $modeloUsuario->getPermisosTimestamp($idusuario);
+
+    // Si hay un timestamp en BD y es más reciente que el guardado en sesión, refrescar
+    $sessionTs = $_SESSION['permisos_ts'] ?? null;
+    if ($dbTimestamp && (!$sessionTs || $dbTimestamp > $sessionTs)) {
+        $authService = new \Services\AuthorizationService();
+        $permisos = $authService->obtenerPermisosUsuario($idusuario);
+        $_SESSION['usuario_permisos'] = array_column($permisos, 'nombre');
+        $_SESSION['permisos_ts'] = $dbTimestamp;
+    }
 }
 
 /**

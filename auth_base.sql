@@ -6,6 +6,7 @@ USE auth_base;
 CREATE TABLE permiso (
   idpermiso int PRIMARY KEY AUTO_INCREMENT,
   nombre varchar(255) NOT NULL,
+  descripcion TEXT NULL,
   fechacreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
   fechaactualizacion DATETIME ON UPDATE CURRENT_TIMESTAMP,
   estado tinyint(1) DEFAULT 1
@@ -28,6 +29,7 @@ CREATE TABLE usuarios (
   fechacreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
   fechaactualizacion DATETIME ON UPDATE CURRENT_TIMESTAMP,
   estado tinyint(1) DEFAULT 1,
+  permisos_updated_at DATETIME NULL DEFAULT NULL,
   UNIQUE KEY (correo),
   UNIQUE KEY (tipodocumento, numdocumento)
 );

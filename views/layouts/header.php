@@ -2,15 +2,15 @@
 // Incluir el archivo de sesión
 require_once __DIR__ . '/session.php';
 
+// Incluir autoload antes de requireLogin() para que refreshPermisosIfStale() pueda usar modelos
+require_once __DIR__ . '/../../config/config.php';
+
 // Verificar si el usuario está autenticado
 requireLogin();
 
 // Obtener datos del usuario actual
 $currentUser = getCurrentUser();
 $idusuariosesion = $currentUser['id'];
-
-// Incluir autoload
-require_once __DIR__ . '/../../config/config.php';
 
 // Incluir el servicio de autorización
 $authService = new \Services\AuthorizationService();
@@ -135,7 +135,7 @@ global $URL;
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-2">
+        <aside class="main-sidebar sidebar-light-primary elevation-2">
             <!-- Brand Logo -->
             <a href="<?= $URL; ?>" class="brand-link">
                 <img src="<?= $URL; ?>public/img/e-commerce_logo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">

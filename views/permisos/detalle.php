@@ -25,7 +25,7 @@ if (!$permiso) {
     exit;
 }
 
-$plugins = ['datatables'];
+$plugins = ['datatables', 'select2'];
 
 // Incluir el encabezado
 include_once '../layouts/header.php';
@@ -34,6 +34,9 @@ $module_scripts = ['permisos/modal-permiso', 'permisos/detalle-permiso'];
 
 // Obtener usuarios con este permiso
 $usuarios = $permiso['usuarios'];
+
+// Obtener usuarios que NO tienen este permiso (para el modal de asignación)
+$usuariosSinPermiso = $controller->getUsuariosSinPermiso($id);
 ?>
 
 <!-- Content Header (Page header) -->
@@ -71,6 +74,10 @@ $usuarios = $permiso['usuarios'];
                             <p class="text-muted">#<?= $permiso['idpermiso']; ?></p>
                         </div>
 
+                        <?php if (!empty($permiso['descripcion'])): ?>
+                            <p class="text-muted text-center mb-3"><?= htmlspecialchars($permiso['descripcion']); ?></p>
+                        <?php endif; ?>
+
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
                                 <b><i class="fas fa-toggle-on mr-1"></i> Estado</b>
@@ -85,7 +92,7 @@ $usuarios = $permiso['usuarios'];
                             <li class="list-group-item">
                                 <b><i class="fas fa-users mr-1"></i> Usuarios asignados</b>
                                 <span class="float-right">
-                                    <span class="badge badge-info badge-pill p-2"><?= count($usuarios); ?></span>
+                                    <span class="badge badge-info badge-pill p-2" id="contadorUsuarios"><?= count($usuarios); ?></span>
                                 </span>
                             </li>
                         </ul>
@@ -96,7 +103,8 @@ $usuarios = $permiso['usuarios'];
                             </a>
                             <button type="button" class="btn btn-warning btn-editar"
                                 data-id="<?= $permiso['idpermiso']; ?>"
-                                data-nombre="<?= htmlspecialchars($permiso['nombre']); ?>">
+                                data-nombre="<?= htmlspecialchars($permiso['nombre']); ?>"
+                                data-descripcion="<?= htmlspecialchars($permiso['descripcion'] ?? ''); ?>">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
                         </div>
@@ -110,6 +118,9 @@ $usuarios = $permiso['usuarios'];
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-users mr-1"></i> Usuarios con este Permiso</h3>
                         <div class="card-tools">
+                            <button type="button" class="btn btn-success btn-sm mr-2" id="btnAsignarUsuario">
+                                <i class="fas fa-user-plus"></i> Asignar Usuario
+                            </button>
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
@@ -134,9 +145,17 @@ $usuarios = $permiso['usuarios'];
                                         <td><?= htmlspecialchars($usuario['correo']); ?></td>
                                         <td><?= htmlspecialchars($usuario['cargo']); ?></td>
                                         <td class="text-center">
-                                            <a href="<?= $URL; ?>views/usuarios/show.php?id=<?= $usuario['idusuario']; ?>" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                            <div class="btn-group">
+                                                <a href="<?= $URL; ?>views/usuarios/show.php?id=<?= $usuario['idusuario']; ?>" class="btn btn-info btn-sm" title="Ver usuario">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-danger btn-sm btn-revocar"
+                                                    data-idusuario="<?= $usuario['idusuario']; ?>"
+                                                    data-nombre="<?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidopaterno']); ?>"
+                                                    title="Revocar permiso">
+                                                    <i class="fas fa-user-minus"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -150,6 +169,45 @@ $usuarios = $permiso['usuarios'];
 </section>
 
 <?php include '_modal_permiso.php'; ?>
+
+<!-- Modal Asignar Usuario -->
+<div class="modal fade" id="modalAsignarUsuario" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title"><i class="fas fa-user-plus mr-1"></i> Asignar Usuario al Permiso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="selectUsuario">Seleccionar Usuario <span class="text-danger">*</span></label>
+                    <select class="form-control select2" id="selectUsuario">
+                        <option value=""></option>
+                        <?php foreach ($usuariosSinPermiso as $u): ?>
+                            <option value="<?= $u['idusuario']; ?>">
+                                <?= htmlspecialchars(trim($u['nombre'] . ' ' . $u['apellidopaterno'] . ' ' . ($u['apellidomaterno'] ?? '')) . ($u['cargo'] ? ' — ' . $u['cargo'] : '')); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="btnConfirmarAsignacion">
+                    <i class="fas fa-user-plus"></i> Asignar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const idPermiso = <?= $id; ?>;
+</script>
 
 <?php
 include_once '../layouts/mensajes.php';

@@ -26,6 +26,12 @@ class AuthorizationService
     private $conexion;
 
     /**
+     * Cache de resultados de esAdministrador() por request
+     * @var array<int, bool>
+     */
+    private static array $adminCache = [];
+
+    /**
      * Constructor de la clase
      */
     public function __construct()
@@ -97,6 +103,10 @@ class AuthorizationService
      */
     public function esAdministrador($idusuario)
     {
+        if (isset(self::$adminCache[$idusuario])) {
+            return self::$adminCache[$idusuario];
+        }
+
         try {
             $query = "SELECT cargo FROM usuarios WHERE idusuario = :idusuario AND estado = 1";
             $stmt = $this->conexion->prepare($query);
@@ -105,7 +115,7 @@ class AuthorizationService
 
             $cargo = $stmt->fetchColumn();
 
-            return strtolower($cargo) === 'administrador';
+            return self::$adminCache[$idusuario] = strtolower($cargo) === 'administrador';
         } catch (PDOException $e) {
             error_log('Error al verificar si es administrador: ' . $e->getMessage());
             return false;

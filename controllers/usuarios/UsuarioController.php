@@ -385,10 +385,14 @@ class UsuarioController
             }
         }
 
-        // Si se modificaron los permisos del usuario en sesión, refrescar el cache
+        // Actualizar timestamp para invalidar el cache de sesión del usuario afectado
+        $this->modelo->actualizarPermisosTimestamp($idusuario);
+
+        // Si se modificaron los permisos del usuario en sesión, refrescar el cache inmediatamente
         if ($idusuario === ($_SESSION['usuario_id'] ?? null)) {
             $permisos = $authService->obtenerPermisosUsuario($idusuario);
             $_SESSION['usuario_permisos'] = array_column($permisos, 'nombre');
+            $_SESSION['permisos_ts'] = date('Y-m-d H:i:s');
         }
     }
 }

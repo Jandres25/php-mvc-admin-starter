@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-19
+
+### Added
+- `descripcion` field on the `permiso` table (TEXT NULL) — editable via the create/edit modal in the permissions index and detail views
+- User assignment and revocation directly from the permission detail view: new AJAX endpoints `asignar_usuario_permiso_ajax.php` and `revocar_usuario_permiso_ajax.php` with CSRF validation and permission guard
+- `refreshPermisosIfStale()` in `session.php` — called automatically from `requireLogin()` on every page load; compares `$_SESSION['permisos_ts']` against the `permisos_updated_at` column in `usuarios` and regenerates the session permission cache only when stale (1 extra DB query per load vs. always querying)
+- `permisos_updated_at DATETIME NULL` column on `usuarios` table — updated by `actualizarPermisosTimestamp()` whenever a user's permissions change (assign, revoke, or bulk update)
+- `actualizarPermisosTimestamp()` and `getPermisosTimestamp()` on `Usuario` model — used by the cache invalidation mechanism
+
+### Changed
+- Permission detail view (`views/permisos/detalle.php`): redesigned with an "Asignar Usuario" modal (Select2 populated from PHP server-side) and per-row revoke buttons with SweetAlert2 confirmation
+- Users without a permission now loaded from PHP `<option>` elements instead of AJAX, avoiding the Bootstrap modal + Select2 focus-trap conflict that caused the dropdown to close immediately
+- `AuthorizationService::esAdministrador()` now memoizes its result per-request via `private static array $adminCache` — eliminates repeated DB queries when the method is called multiple times for the same user in a single request
+- `views/layouts/header.php`: `require_once config.php` moved before `requireLogin()` so the PSR-4 autoloader is registered before `refreshPermisosIfStale()` instantiates `\Models\Usuario`
+
+### Fixed
+- Fatal 500 on dashboard (`index.php`): `requireLogin()` → `refreshPermisosIfStale()` tried to instantiate `\Models\Usuario` before `config.php` registered the autoloader
+- `Uncaught SyntaxError: redeclaration of const csrfToken` in `views/permisos/detalle.php`: removed redundant `const csrfToken` declaration (already defined globally in `header.php`)
+
 ## [1.4.0] - 2026-03-16
 
 ### Added
@@ -134,7 +153,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.1.2...v1.2.0

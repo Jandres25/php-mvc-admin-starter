@@ -756,4 +756,45 @@ class Usuario
             return false;
         }
     }
+
+    /**
+     * Actualiza el timestamp de modificación de permisos del usuario.
+     * Llamar cada vez que se modifiquen los permisos de un usuario para
+     * invalidar el cache de sesión en su próxima carga de página.
+     *
+     * @param int $idusuario ID del usuario
+     * @return bool True si se actualizó correctamente
+     */
+    public function actualizarPermisosTimestamp($idusuario)
+    {
+        try {
+            $query = "UPDATE {$this->tabla} SET permisos_updated_at = NOW() WHERE idusuario = :id";
+            $stmt = $this->conexion->prepare($query);
+            $stmt->bindParam(':id', $idusuario, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene el timestamp de modificación de permisos del usuario.
+     *
+     * @param int $idusuario ID del usuario
+     * @return string|null Timestamp en formato 'Y-m-d H:i:s' o null
+     */
+    public function getPermisosTimestamp($idusuario)
+    {
+        try {
+            $query = "SELECT permisos_updated_at FROM {$this->tabla} WHERE idusuario = :id";
+            $stmt = $this->conexion->prepare($query);
+            $stmt->bindParam(':id', $idusuario, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchColumn() ?: null;
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return null;
+        }
+    }
 }

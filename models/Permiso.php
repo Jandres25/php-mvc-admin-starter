@@ -163,10 +163,12 @@ class Permiso
                 return false;
             }
 
-            $query = "INSERT INTO {$this->tabla} (nombre) VALUES (:nombre)";
+            $descripcion = $datos['descripcion'] ?? null;
+            $query = "INSERT INTO {$this->tabla} (nombre, descripcion) VALUES (:nombre, :descripcion)";
 
             $stmt = $this->conexion->prepare($query);
             $stmt->bindParam(':nombre', $datos['nombre'], PDO::PARAM_STR);
+            $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
 
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -191,10 +193,12 @@ class Permiso
                 return false;
             }
 
-            $query = "UPDATE {$this->tabla} SET nombre = :nombre WHERE idpermiso = :id";
+            $descripcion = $datos['descripcion'] ?? null;
+            $query = "UPDATE {$this->tabla} SET nombre = :nombre, descripcion = :descripcion WHERE idpermiso = :id";
 
             $stmt = $this->conexion->prepare($query);
             $stmt->bindParam(':nombre', $datos['nombre'], PDO::PARAM_STR);
+            $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             return $stmt->execute();
@@ -287,6 +291,34 @@ class Permiso
                      FROM usuarios u
                      INNER JOIN permisousuario pu ON u.idusuario = pu.idusuario
                      WHERE pu.idpermiso = :idpermiso
+                     ORDER BY u.nombre, u.apellidopaterno";
+
+            $stmt = $this->conexion->prepare($query);
+            $stmt->bindParam(':idpermiso', $idPermiso, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene usuarios activos que NO tienen asignado un permiso específico
+     *
+     * @param int $idPermiso ID del permiso
+     * @return array Lista de usuarios sin el permiso
+     */
+    public function getUsuariosSinPermiso($idPermiso)
+    {
+        try {
+            $query = "SELECT u.idusuario, u.nombre, u.apellidopaterno, u.apellidomaterno, u.cargo
+                     FROM usuarios u
+                     WHERE u.estado = 1
+                       AND u.idusuario NOT IN (
+                           SELECT idusuario FROM permisousuario WHERE idpermiso = :idpermiso
+                       )
                      ORDER BY u.nombre, u.apellidopaterno";
 
             $stmt = $this->conexion->prepare($query);

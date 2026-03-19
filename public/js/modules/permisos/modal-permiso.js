@@ -16,10 +16,12 @@ $(document).ready(function () {
     $(document).on('click', '.btn-editar', function () {
         const id = $(this).data('id');
         const nombre = $(this).data('nombre');
+        const descripcion = $(this).data('descripcion') || '';
 
         $('#permisoAction').val('edit');
         $('#idPermiso').val(id);
         $('#nombre').val(nombre);
+        $('#descripcion').val(descripcion);
 
         $('#modalPermisoHeader').removeClass('bg-primary').addClass('bg-warning');
         $('#modalPermisoLabel').text('Editar Permiso');

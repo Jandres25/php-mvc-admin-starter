@@ -19,6 +19,10 @@
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
                         <small class="form-text text-muted">Nombre único para el permiso</small>
                     </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="¿Para qué sirve este permiso?"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">

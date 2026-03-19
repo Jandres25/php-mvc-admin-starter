@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.4.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -80,7 +80,7 @@ This project is designed to be extended. To add a module (e.g. `Products`):
 6. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
 
 ```php
-<?php if ($authService->tienePermiso($usuario['idusuario'], 'products')): ?>
+<?php if ($authService->tienePermisoNombre($usuario['idusuario'], 'products')): ?>
     <li class="nav-item">
         <a href="<?= $URL ?>/views/products/index.php" class="nav-link">Products</a>
     </li>
