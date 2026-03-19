@@ -1,9 +1,9 @@
 /**
- * common-datatable.js - Utilidades comunes para DataTables
- * 
- * Este archivo proporciona funciones de ayuda para la configuración de DataTables
- * sin interferir con las configuraciones existentes.
- * 
+ * common-datatable.js - Common DataTables utilities
+ *
+ * Provides helper functions for DataTables configuration
+ * without interfering with existing configurations.
+ *
  * @package ProyectoBase
  * @subpackage JavaScript\Core
  * @author Jandres25
@@ -11,36 +11,13 @@
  */
 
 /**
- * Objeto con configuraciones predefinidas para DataTables
+ * Object with predefined DataTables configurations
  */
 const DataTableUtils = {
     /**
-     * Configuración básica de idioma español para DataTables
+     * Base language configuration for DataTables (English default)
      */
-    languageConfig: {
-        "sProcessing": "Procesando...",
-        "sLengthMenu": "Mostrar _MENU_ registros",
-        "sZeroRecords": "No se encontraron resultados",
-        "sEmptyTable": "Ningún dato disponible en esta tabla",
-        "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-        "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-        "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-        "sInfoPostFix": "",
-        "sSearch": "Buscar:",
-        "sUrl": "",
-        "sInfoThousands": ",",
-        "sLoadingRecords": "Cargando...",
-        "oPaginate": {
-            "sFirst": "Primero",
-            "sLast": "Último",
-            "sNext": "Siguiente",
-            "sPrevious": "Anterior"
-        },
-        "oAria": {
-            "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-        }
-    },
+    languageConfig: {},
 
     /**
      * Configuración común para botones de exportación
@@ -49,17 +26,17 @@ const DataTableUtils = {
      * @param {Array|null} exportColumns - Columnas a exportar
      */
     getExportButtonsConfig: function (title, filename, exportColumns = null) {
-        const fecha = new Date().toISOString().slice(0, 10);
-        const systemName = 'Sistema Base MVC';
+        const date       = new Date().toISOString().slice(0, 10);
+        const systemName = 'Base MVC System';
 
         return [
             {
                 extend: 'collection',
-                text: 'Reportes',
+                text: 'Reports',
                 buttons: [
                     {
                         extend: 'copy',
-                        text: 'Copiar',
+                        text: 'Copy',
                         exportOptions: {
                             columns: exportColumns
                         }
@@ -68,9 +45,9 @@ const DataTableUtils = {
                         extend: 'excel',
                         text: 'Excel',
                         title: title,
-                        messageTop: `Registro de ${title.toLowerCase()}`,
-                        messageBottom: 'Documento generado el ' + new Date().toLocaleDateString('es-BO'),
-                        filename: `${filename}_${fecha}`,
+                        messageTop: `Record of ${title.toLowerCase()}`,
+                        messageBottom: 'Document generated on ' + new Date().toLocaleDateString('en-US'),
+                        filename: `${filename}_${date}`,
                         exportOptions: {
                             columns: exportColumns
                         }
@@ -79,19 +56,18 @@ const DataTableUtils = {
                         extend: 'pdf',
                         text: 'PDF',
                         title: title,
-                        filename: `${filename}_${fecha}`,
+                        filename: `${filename}_${date}`,
                         pageSize: 'LETTER',
                         exportOptions: {
                             columns: exportColumns
                         },
                         customize: function (doc) {
-                            // Estilo básico
                             doc.defaultStyle.fontSize = 10;
                             doc.styles.tableHeader.fontSize = 11;
                             doc.styles.tableHeader.fillColor = '#4b545c';
                             doc.styles.tableHeader.color = '#ffffff';
 
-                            // Título principal
+                            // Main title
                             doc.content.splice(0, 1, {
                                 text: title.toUpperCase(),
                                 style: {
@@ -102,9 +78,9 @@ const DataTableUtils = {
                                 }
                             });
 
-                            // Subtítulo
+                            // Subtitle
                             doc.content.splice(1, 0, {
-                                text: `Registro de ${title.toLowerCase()}`,
+                                text: `Record of ${title.toLowerCase()}`,
                                 style: {
                                     fontSize: 11,
                                     alignment: 'center',
@@ -113,9 +89,9 @@ const DataTableUtils = {
                                 }
                             });
 
-                            // Fecha de generación
+                            // Generation date
                             doc.content.splice(2, 0, {
-                                text: 'Generado el: ' + new Date().toLocaleString('es-BO'),
+                                text: 'Generated on: ' + new Date().toLocaleString('en-US'),
                                 style: {
                                     fontSize: 9,
                                     alignment: 'right',
@@ -123,24 +99,13 @@ const DataTableUtils = {
                                 }
                             });
 
-                            // Pie de página
+                            // Footer
                             doc.footer = function (currentPage, pageCount) {
                                 return {
-                                    columns: [{
-                                        text: systemName,
-                                        alignment: 'left',
-                                        fontSize: 8
-                                    },
-                                    {
-                                        text: 'Página ' + currentPage + ' de ' + pageCount,
-                                        alignment: 'center',
-                                        fontSize: 8
-                                    },
-                                    {
-                                        text: 'Confidencial',
-                                        alignment: 'right',
-                                        fontSize: 8
-                                    }
+                                    columns: [
+                                        { text: systemName, alignment: 'left',   fontSize: 8 },
+                                        { text: 'Page ' + currentPage + ' of ' + pageCount, alignment: 'center', fontSize: 8 },
+                                        { text: 'Confidential', alignment: 'right', fontSize: 8 }
                                     ],
                                     margin: [40, 0]
                                 };
@@ -156,9 +121,9 @@ const DataTableUtils = {
                     },
                     {
                         extend: 'print',
-                        text: 'Imprimir',
+                        text: 'Print',
                         title: title,
-                        messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                        messageTop: 'Report generated on ' + new Date().toLocaleDateString('en-US'),
                         exportOptions: {
                             columns: exportColumns
                         },
@@ -172,15 +137,15 @@ const DataTableUtils = {
             },
             {
                 extend: 'colvis',
-                text: 'Visualización de columnas'
+                text: 'Column visibility'
             }
         ];
     },
 
     /**
-     * Configuración base para DataTables (sin inicializar)
-     * @param {Object} customOptions - Opciones personalizadas a combinar
-     * @returns {Object} Objeto de configuración
+     * Base DataTables configuration
+     * @param {Object} customOptions - Custom options to merge
+     * @returns {Object} Configuration object
      */
     getBaseConfig: function (customOptions = {}) {
         const baseConfig = {
@@ -201,28 +166,25 @@ const DataTableUtils = {
     },
 
     /**
-     * Personaliza el mensaje de información para una entidad específica
-     * @param {string} entityName - Nombre de la entidad (ej: 'Usuarios', 'Permisos')
-     * @returns {Object} Configuración de idioma personalizada
+     * Customizes the info message for a specific entity
+     * @param {string} entityName - Entity name (e.g. 'Users', 'Permissions')
+     * @returns {Object} Customized language configuration
      */
     customizeLanguageFor: function (entityName) {
-        // Crear una copia profunda para no modificar el original
         const customLanguage = $.extend(true, {}, this.languageConfig);
 
-        // Personalizar mensajes específicos
-        customLanguage.sInfo = `Mostrando registros del _START_ al _END_ de un total de _TOTAL_ ${entityName}`;
-        customLanguage.sInfoEmpty = `Mostrando registros del 0 al 0 de un total de 0 ${entityName}`;
-        customLanguage.sInfoFiltered = `(filtrado de un total de _MAX_ ${entityName})`;
+        customLanguage.sInfo          = `Showing _START_ to _END_ of _TOTAL_ ${entityName}`;
+        customLanguage.sInfoEmpty     = `Showing 0 to 0 of 0 ${entityName}`;
+        customLanguage.sInfoFiltered  = `(filtered from _MAX_ total ${entityName})`;
 
         return customLanguage;
     }
 };
 
 /**
- * Aplica una configuración base de DataTables a una tabla ya inicializada
- * Útil para aplicar configuraciones sin reinicializar la tabla
- * @param {Object} table - Instancia de DataTable
- * @param {Object} options - Opciones para aplicar
+ * Applies a base DataTables configuration to an already-initialized table
+ * @param {Object} table - DataTable instance
+ * @param {Object} options - Options to apply
  */
 function enhanceDataTable(table, options = {}) {
     // Aplicar opciones específicas a la tabla ya inicializada
@@ -239,23 +201,21 @@ function enhanceDataTable(table, options = {}) {
 }
 
 /**
- * Crea una configuración para DataTables personalizada para una entidad
- * @param {string} entityName - Nombre de la entidad (ej: 'Usuarios', 'Permisos')
- * @param {Array|null} exportColumns - Columnas a exportar
- * @param {Object} customOptions - Opciones adicionales
- * @returns {Object} Configuración completa para DataTables
+ * Creates a customized DataTables configuration for an entity
+ * @param {string} entityName - Entity name (e.g. 'Users', 'Permissions')
+ * @param {Array|null} exportColumns - Columns to export
+ * @param {Object} customOptions - Additional options
+ * @returns {Object} Complete DataTables configuration
  */
 function createTableConfig(entityName, exportColumns = null, customOptions = {}) {
-    // Convertir a formato correcto si es necesario
     const formattedEntityName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
     const filename = entityName.toLowerCase();
 
-    // Crear configuración base
     const config = DataTableUtils.getBaseConfig({
         language: DataTableUtils.customizeLanguageFor(formattedEntityName),
         buttons: DataTableUtils.getExportButtonsConfig(
-            `${formattedEntityName} del Sistema`,
-            `${filename}_sistema`,
+            `${formattedEntityName}`,
+            `${filename}_system`,
             exportColumns
         )
     });

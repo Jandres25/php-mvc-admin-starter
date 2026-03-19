@@ -1,4 +1,4 @@
-/* Pestañas de detalle de usuario */
+/* User detail tabs */
 #user-tabs .nav-link:not(.active) {
     color: #17a2b8;
 }

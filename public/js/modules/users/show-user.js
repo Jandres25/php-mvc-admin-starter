@@ -1,24 +1,24 @@
 /**
- * Módulo JS para la vista de detalle de usuario
+ * show-user.js - User detail page module
  */
 
-// Restaurar la última pestaña activa
+// Restore last active tab
 var lastTab = localStorage.getItem('lastUserDetailTab');
 if (lastTab && $('a[href="' + lastTab + '"]').length) {
     $('a[href="' + lastTab + '"]').tab('show');
 }
 
-// Guardar la pestaña activa al cambiar
+// Save active tab on change
 $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
     localStorage.setItem('lastUserDetailTab', $(e.target).attr('href'));
 });
 
-// Mostrar imagen ampliada al hacer clic
+// Show enlarged image on click
 $('.profile-user-img').on('click', function () {
     Swal.fire({
         imageUrl: $(this).attr('src'),
-        imageAlt: 'Imagen de perfil',
-        confirmButtonText: 'Cerrar',
+        imageAlt: 'Profile image',
+        confirmButtonText: 'Close',
         customClass: { image: 'img-fluid' }
     });
 });
