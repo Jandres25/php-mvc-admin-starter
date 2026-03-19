@@ -315,6 +315,6 @@ $permisos_usuario = $authService->obtenerPermisosUsuario($usuario['idusuario']);
 </section>
 
 <?php
-include_once '../layouts/mensajes.php';
+include_once '../layouts/messages.php';
 include_once '../layouts/footer.php';
 ?>

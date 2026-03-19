@@ -110,6 +110,6 @@ require_once 'views/layouts/header.php';
 <!-- /.content -->
 
 <?php
-include_once 'views/layouts/mensajes.php';
+include_once 'views/layouts/messages.php';
 require_once 'views/layouts/footer.php';
 ?>

@@ -134,6 +134,6 @@ $module_scripts = ['usuarios/index-usuarios'];
 <!-- /.content -->
 
 <?php
-include_once '../layouts/mensajes.php';
+include_once '../layouts/messages.php';
 include_once '../layouts/footer.php';
 ?>

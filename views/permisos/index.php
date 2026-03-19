@@ -151,6 +151,6 @@ $module_scripts = ['permisos/modal-permiso', 'permisos/index-permisos'];
 <?php include '_modal_permiso.php'; ?>
 
 <?php
-include_once '../layouts/mensajes.php';
+include_once '../layouts/messages.php';
 include_once '../layouts/footer.php';
 ?>

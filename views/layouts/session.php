@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Gestión de Sesiones
- * 
- * Este archivo verifica si el usuario está autenticado y gestiona la sesión
- * 
+ * Session Management
+ *
+ * Loaded at the top of every protected page. Validates the session and
+ * defines the global helper functions used throughout the application.
+ *
  * @package ProyectoBase
  * @subpackage Views\Layouts
  * @author Jandres25
  * @version 1.0
  */
 
-// Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.cookie_samesite', 'Lax');
@@ -19,92 +19,84 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Cargar configuración desde .env
+// Load configuration from .env
 try {
-    // Cargar variables de entorno desde .env
     $env_file = __DIR__ . '/../../.env';
 
     if (!file_exists($env_file)) {
-        die("Error: Archivo .env no encontrado. Por favor, configure el archivo .env con APP_URL y otras variables necesarias.");
+        die('Error: .env file not found. Please create a .env file with APP_URL and other required variables.');
     }
 
     $env_lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($env_lines as $line) {
-        // Ignorar comentarios y líneas vacías
         if (strpos(trim($line), '#') === 0 || empty(trim($line))) {
             continue;
         }
 
         if (strpos($line, '=') !== false) {
             list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
+            $name  = trim($name);
             $value = trim($value, " \t\n\r\0\x0B\"'");
             $_ENV[$name] = $value;
             putenv("$name=$value");
         }
     }
 
-    // Obtener URL de la aplicación desde .env
     $app_url = $_ENV['APP_URL'] ?? getenv('APP_URL');
 
     if (empty($app_url)) {
-        die("Error: APP_URL no está configurada en el archivo .env. Por favor, añada APP_URL=su_dominio_aqui/ en el archivo .env");
+        die('Error: APP_URL is not set in .env. Please add APP_URL=your_domain/ to the .env file.');
     }
 
-    // Asegurar que termine con barra
     if (substr($app_url, -1) !== '/') {
         $app_url .= '/';
     }
 
-    // Definir URL base global
     $GLOBALS['URL'] = $app_url;
     $URL = $GLOBALS['URL'];
 
-    // Definir versión de la aplicación
     $GLOBALS['APP_VERSION'] = $_ENV['APP_VERSION'] ?? getenv('APP_VERSION') ?: '1.0.0';
     $APP_VERSION = $GLOBALS['APP_VERSION'];
 } catch (Exception $e) {
-    die("Error al cargar la configuración: " . $e->getMessage() . ". Verifique que el archivo .env esté configurado correctamente.");
+    die('Error loading configuration: ' . $e->getMessage() . '. Please check that .env is configured correctly.');
 }
 
 /**
- * Verificar si el usuario está autenticado
- * 
- * @return bool True si está autenticado, False en caso contrario
+ * Returns true if the current request has an authenticated session.
+ *
+ * @return bool
  */
 function isAuthenticated()
 {
-    return isset($_SESSION['autenticado']) && $_SESSION['autenticado'] === true;
+    return isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
 }
 
 /**
- * Verificar tiempo de inactividad
- * 
- * @param int $timeout Tiempo de inactividad en segundos (por defecto 86400 = 1 día)
- * @return bool True si la sesión sigue activa, False si ha expirado
+ * Checks for session inactivity and destroys the session if it has expired.
+ *
+ * @param int $timeout  Inactivity timeout in seconds (default: 86400 = 1 day)
+ * @return bool  True if the session is still active, false if it expired
  */
 function checkSessionTimeout($timeout = 86400)
 {
-    if (isset($_SESSION['ultimo_acceso'])) {
-        $inactivo = time() - $_SESSION['ultimo_acceso'];
+    if (isset($_SESSION['last_access'])) {
+        $inactive = time() - $_SESSION['last_access'];
 
-        if ($inactivo >= $timeout) {
-            // Sesión expirada, destruir sesión
+        if ($inactive >= $timeout) {
             session_unset();
             session_destroy();
             return false;
         }
     }
 
-    // Actualizar tiempo de último acceso
-    $_SESSION['ultimo_acceso'] = time();
+    $_SESSION['last_access'] = time();
     return true;
 }
 
 /**
- * Verificar posible secuestro de sesión
- * 
- * @return bool True si la sesión es segura, False si se detectó posible secuestro
+ * Detects possible session hijacking by comparing IP and user-agent.
+ *
+ * @return bool  True if the session is secure, false if hijacking is suspected
  */
 function checkSessionSecurity()
 {
@@ -113,7 +105,6 @@ function checkSessionSecurity()
             $_SESSION['ip'] !== $_SERVER['REMOTE_ADDR'] ||
             $_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']
         ) {
-            // Posible session hijacking, destruir sesión
             session_unset();
             session_destroy();
             return false;
@@ -123,89 +114,84 @@ function checkSessionSecurity()
 }
 
 /**
- * Requerir inicio de sesión para acceder a una página
- * 
- * @param string $redirect_url URL a la que redirigir si no hay sesión
+ * Redirects to the login page if the user is not authenticated.
+ *
+ * @param string|null $redirectUrl  Override the default login URL
  */
-function requireLogin($redirect_url = null)
+function requireLogin($redirectUrl = null)
 {
     global $URL;
 
-    if (!$redirect_url) {
-        $redirect_url = $URL . 'views/login/login.php';
+    if (!$redirectUrl) {
+        $redirectUrl = $URL . 'views/login/login.php';
     }
 
     if (!isAuthenticated() || !checkSessionTimeout() || !checkSessionSecurity()) {
-        // Guardar mensaje de sesión expirada
         if (isset($_SESSION)) {
             if (!isAuthenticated()) {
-                $_SESSION['mensaje'] = 'Debe iniciar sesión para acceder a esta página.';
+                $_SESSION['message'] = 'You must log in to access this page.';
             } else {
-                $_SESSION['mensaje'] = 'Sesión expirada por inactividad. Por favor inicie sesión nuevamente.';
+                $_SESSION['message'] = 'Session expired due to inactivity. Please log in again.';
             }
-            $_SESSION['icono'] = 'warning';
+            $_SESSION['icon'] = 'warning';
         }
 
-        // Redirigir al login
-        header('Location: ' . $redirect_url);
+        header('Location: ' . $redirectUrl);
         exit;
     }
 
-    // Verificar si los permisos en sesión están desactualizados
-    refreshPermisosIfStale();
+    refreshPermissionsIfStale();
 }
 
 /**
- * Requerir un rol específico para acceder a una página
- * 
- * @param array $roles_permitidos Roles que pueden acceder
- * @param string $redirect_url URL a la que redirigir si no tiene permiso
+ * Redirects to the dashboard if the user does not have one of the required roles.
+ *
+ * @param array       $allowedRoles
+ * @param string|null $redirectUrl
  */
-function requireRole($roles_permitidos, $redirect_url = null)
+function requireRole($allowedRoles, $redirectUrl = null)
 {
     global $URL;
 
-    if (!$redirect_url) {
-        $redirect_url = $URL . 'index.php';
+    if (!$redirectUrl) {
+        $redirectUrl = $URL . 'index.php';
     }
 
-    // Primero verificar que haya sesión
     requireLogin();
 
-    // Verificar rol
-    $rol_usuario = $_SESSION['usuario_cargo'] ?? '';
+    $userPosition = $_SESSION['user_position'] ?? '';
 
-    if (!in_array($rol_usuario, $roles_permitidos)) {
-        $_SESSION['mensaje'] = 'No tiene permisos para acceder a esta sección.';
-        $_SESSION['icono'] = 'error';
-        header('Location: ' . $redirect_url);
+    if (!in_array($userPosition, $allowedRoles)) {
+        $_SESSION['message'] = 'You do not have permission to access this section.';
+        $_SESSION['icon']    = 'error';
+        header('Location: ' . $redirectUrl);
         exit;
     }
 }
 
 /**
- * Obtener datos del usuario actual
- * 
- * @return array|null Datos del usuario o null si no hay sesión
+ * Returns the current authenticated user's data, or null if not logged in.
+ *
+ * @return array|null  Keys: id, name, email, position, image
  */
 function getCurrentUser()
 {
     if (isAuthenticated()) {
         return [
-            'id' => $_SESSION['usuario_id'] ?? null,
-            'nombre' => $_SESSION['usuario_nombre'] ?? null,
-            'correo' => $_SESSION['usuario_correo'] ?? null,
-            'cargo' => $_SESSION['usuario_cargo'] ?? null,
-            'imagen' => $_SESSION['usuario_imagen'] ?? 'public/img/user_default.jpg',
+            'id'       => $_SESSION['user_id']       ?? null,
+            'name'     => $_SESSION['user_name']      ?? null,
+            'email'    => $_SESSION['user_email']     ?? null,
+            'position' => $_SESSION['user_position']  ?? null,
+            'image'    => $_SESSION['user_image']     ?? 'public/img/user_default.jpg',
         ];
     }
     return null;
 }
 
 /**
- * Generar un token CSRF para proteger formularios
- * 
- * @return string Token CSRF
+ * Generates (or returns the existing) CSRF token for the current session.
+ *
+ * @return string
  */
 function generateCSRFToken()
 {
@@ -216,10 +202,10 @@ function generateCSRFToken()
 }
 
 /**
- * Verificar si un token CSRF es válido
- * 
- * @param string $token Token a verificar
- * @return bool True si es válido, False en caso contrario
+ * Returns true if the given token matches the session CSRF token.
+ *
+ * @param string $token
+ * @return bool
  */
 function verifyCSRFToken($token)
 {
@@ -230,7 +216,9 @@ function verifyCSRFToken($token)
 }
 
 /**
- * Regenerar el token CSRF (útil después de usarlo)
+ * Replaces the session CSRF token with a fresh one (call after every successful POST).
+ *
+ * @return string  The new token
  */
 function regenerateCSRFToken()
 {
@@ -239,41 +227,40 @@ function regenerateCSRFToken()
 }
 
 /**
- * Refresca el cache de permisos de sesión si un admin modificó los permisos del usuario.
- * Compara el timestamp guardado en sesión con el almacenado en la BD.
- * Se llama automáticamente desde requireLogin() en cada carga de página.
+ * Refreshes the session permission cache if an admin has changed the user's permissions.
+ * Compares the session timestamp against the value stored in the DB.
+ * Called automatically by requireLogin() on every page load.
  */
-function refreshPermisosIfStale(): void
+function refreshPermissionsIfStale(): void
 {
-    $idusuario = $_SESSION['usuario_id'] ?? null;
-    if (!$idusuario || !isset($_SESSION['usuario_permisos'])) {
+    $userId = $_SESSION['user_id'] ?? null;
+    if (!$userId || !isset($_SESSION['user_permissions'])) {
         return;
     }
 
-    $modeloUsuario = new \Models\Usuario();
-    $dbTimestamp = $modeloUsuario->getPermisosTimestamp($idusuario);
+    $userModel   = new \Models\User();
+    $dbTimestamp = $userModel->getPermissionsTimestamp($userId);
 
-    // Si hay un timestamp en BD y es más reciente que el guardado en sesión, refrescar
-    $sessionTs = $_SESSION['permisos_ts'] ?? null;
+    $sessionTs = $_SESSION['permissions_ts'] ?? null;
     if ($dbTimestamp && (!$sessionTs || $dbTimestamp > $sessionTs)) {
         $authService = new \Services\AuthorizationService();
-        $permisos = $authService->obtenerPermisosUsuario($idusuario);
-        $_SESSION['usuario_permisos'] = array_column($permisos, 'nombre');
-        $_SESSION['permisos_ts'] = $dbTimestamp;
+        $permissions = $authService->getUserPermissions($userId);
+        $_SESSION['user_permissions'] = array_column($permissions, 'name');
+        $_SESSION['permissions_ts']   = $dbTimestamp;
     }
 }
 
 /**
- * Requerir un permiso específico para acceder a una página
+ * Renders the 403 error page and exits if the user lacks the required permission.
  *
- * @param string $permiso Nombre del permiso requerido
+ * @param string $permission  Permission name required to access the page
  */
-function requirePermiso(string $permiso): void
+function requirePermission(string $permission): void
 {
-    $idusuario = $_SESSION['usuario_id'] ?? null;
+    $userId      = $_SESSION['user_id'] ?? null;
     $authService = new \Services\AuthorizationService();
 
-    if (!$authService->tienePermisoNombre($idusuario, $permiso)) {
+    if (!$authService->hasPermissionByName($userId, $permission)) {
         require __DIR__ . '/../errors/403.php';
         exit;
     }

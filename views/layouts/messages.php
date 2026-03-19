@@ -1,8 +1,8 @@
 <?php
 
-if ((isset($_SESSION['mensaje'])) && (isset($_SESSION['icono']))) {
-    $respuesta = $_SESSION['mensaje'];
-    $icono = $_SESSION['icono']; ?>
+if ((isset($_SESSION['message'])) && (isset($_SESSION['icon']))) {
+    $message = $_SESSION['message'];
+    $icon    = $_SESSION['icon']; ?>
     <script>
         const Toast = Swal.mixin({
             toast: true,
@@ -16,11 +16,11 @@ if ((isset($_SESSION['mensaje'])) && (isset($_SESSION['icono']))) {
             }
         });
         Toast.fire({
-            icon: "<?php echo $icono; ?>",
-            title: "<?php echo $respuesta; ?>"
+            icon: "<?php echo $icon; ?>",
+            title: "<?php echo $message; ?>"
         });
     </script>
 <?php
-    unset($_SESSION['mensaje']);
-    unset($_SESSION['icono']);
+    unset($_SESSION['message']);
+    unset($_SESSION['icon']);
 } ?>

@@ -242,6 +242,6 @@ $imagen_src = $URL . 'public/uploads/usuarios/' . (!empty($usuario['imagen']) ? 
 </section>
 
 <?php
-include_once '../layouts/mensajes.php';
+include_once '../layouts/messages.php';
 include_once '../layouts/footer.php';
 ?>

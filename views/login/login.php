@@ -194,7 +194,7 @@ require_once __DIR__ . '/../../config/config.php';
 
     <?php
     // Incluir mensajes
-    require_once __DIR__ . '/../layouts/mensajes.php';
+    require_once __DIR__ . '/../layouts/messages.php';
     ?>
 </body>
 

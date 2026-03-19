@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Servicio de Autorización
- * 
- * Gestiona los permisos y autorización de usuarios
- * 
+ * Authorization Service
+ *
+ * Manages user permissions and authorization.
+ *
  * @package ProyectoBase
  * @subpackage Services
  * @author Jandres25
@@ -20,20 +20,17 @@ use PDOException;
 class AuthorizationService
 {
     /**
-     * Conexión a la base de datos
+     * Database connection
      * @var PDO
      */
     private $conexion;
 
     /**
-     * Cache de resultados de esAdministrador() por request
+     * Per-request cache for isAdmin() results
      * @var array<int, bool>
      */
     private static array $adminCache = [];
 
-    /**
-     * Constructor de la clase
-     */
     public function __construct()
     {
         require_once __DIR__ . '/../config/conexion.php';
@@ -41,297 +38,292 @@ class AuthorizationService
     }
 
     /**
-     * Verifica si un usuario tiene un permiso específico
-     * 
-     * @param int $idusuario ID del usuario
-     * @param int $idpermiso ID del permiso a verificar
-     * @return bool True si tiene permiso, False en caso contrario
+     * Checks whether a user has a specific permission by ID.
+     *
+     * @param int $userId
+     * @param int $permissionId
+     * @return bool
      */
-    public function tienePermiso($idusuario, $idpermiso)
+    public function hasPermission($userId, $permissionId)
     {
-        if ($this->esAdministrador($idusuario)) {
+        if ($this->isAdmin($userId)) {
             return true;
         }
 
-        return $this->tienePermisoAsignado($idusuario, $idpermiso);
+        return $this->hasPermissionAssigned($userId, $permissionId);
     }
 
     /**
-     * Verifica si un usuario tiene un permiso por su nombre
-     * 
-     * @param int $idusuario ID del usuario
-     * @param string $nombre_permiso Nombre del permiso a verificar
-     * @return bool True si tiene permiso, False en caso contrario
+     * Checks whether a user has a permission by name.
+     * Uses the session cache when available to avoid extra queries per page load.
+     *
+     * @param int    $userId
+     * @param string $permissionName
+     * @return bool
      */
-    public function tienePermisoNombre($idusuario, $nombre_permiso)
+    public function hasPermissionByName($userId, $permissionName)
     {
-        // Usar cache de sesión si está disponible (evita queries en cada carga de página)
-        if (isset($_SESSION['usuario_permisos'])) {
-            return in_array('*', $_SESSION['usuario_permisos']) ||
-                   in_array($nombre_permiso, $_SESSION['usuario_permisos']);
+        if (isset($_SESSION['user_permissions'])) {
+            return in_array('*', $_SESSION['user_permissions']) ||
+                   in_array($permissionName, $_SESSION['user_permissions']);
         }
 
         try {
-            // Sin cache: consultar la BD (fallback para contextos fuera de sesión)
-            if ($this->esAdministrador($idusuario)) {
+            if ($this->isAdmin($userId)) {
                 return true;
             }
 
-            $query = "SELECT idpermiso FROM permiso WHERE nombre = :nombre AND estado = 1";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':nombre', $nombre_permiso, PDO::PARAM_STR);
+            $stmt = $this->conexion->prepare(
+                "SELECT id FROM permissions WHERE name = :name AND status = 1"
+            );
+            $stmt->bindParam(':name', $permissionName, PDO::PARAM_STR);
             $stmt->execute();
 
-            $idpermiso = $stmt->fetchColumn();
+            $permissionId = $stmt->fetchColumn();
 
-            if (!$idpermiso) {
+            if (!$permissionId) {
                 return false;
             }
 
-            return $this->tienePermiso($idusuario, $idpermiso);
+            return $this->hasPermission($userId, $permissionId);
         } catch (PDOException $e) {
-            error_log('Error al verificar permiso por nombre: ' . $e->getMessage());
+            error_log('Error checking permission by name: ' . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Verifica si un usuario es administrador
-     * 
-     * @param int $idusuario ID del usuario
-     * @return bool True si es administrador, False en caso contrario
+     * Checks whether a user has the Administrator position.
+     * Result is memoized per-request.
+     *
+     * @param int $userId
+     * @return bool
      */
-    public function esAdministrador($idusuario)
+    public function isAdmin($userId)
     {
-        if (isset(self::$adminCache[$idusuario])) {
-            return self::$adminCache[$idusuario];
+        if (isset(self::$adminCache[$userId])) {
+            return self::$adminCache[$userId];
         }
 
         try {
-            $query = "SELECT cargo FROM usuarios WHERE idusuario = :idusuario AND estado = 1";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare(
+                "SELECT position FROM users WHERE id = :id AND status = 1"
+            );
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
             $stmt->execute();
 
-            $cargo = $stmt->fetchColumn();
+            $position = $stmt->fetchColumn();
 
-            return self::$adminCache[$idusuario] = strtolower($cargo) === 'administrador';
+            return self::$adminCache[$userId] = strtolower($position) === 'administrator';
         } catch (PDOException $e) {
-            error_log('Error al verificar si es administrador: ' . $e->getMessage());
+            error_log('Error checking admin status: ' . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Obtiene todos los permisos de un usuario
-     * 
-     * @param int $idusuario ID del usuario
-     * @return array Lista de permisos
+     * Returns all permissions assigned to a user.
+     * Administrators receive all active permissions.
+     *
+     * @param int $userId
+     * @return array  Each row: [id, name]
      */
-    public function obtenerPermisosUsuario($idusuario)
+    public function getUserPermissions($userId)
     {
         try {
-            // Si es administrador, devolver todos los permisos
-            if ($this->esAdministrador($idusuario)) {
-                $query = "SELECT idpermiso, nombre FROM permiso WHERE estado = 1";
-                $stmt = $this->conexion->prepare($query);
+            if ($this->isAdmin($userId)) {
+                $stmt = $this->conexion->prepare(
+                    "SELECT id, name FROM permissions WHERE status = 1"
+                );
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
-            // Obtener permisos específicos del usuario
-            $query = "SELECT p.idpermiso, p.nombre 
-                     FROM permisousuario pu 
-                     JOIN permiso p ON pu.idpermiso = p.idpermiso 
-                     WHERE pu.idusuario = :idusuario AND p.estado = 1";
-
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare("
+                SELECT p.id, p.name
+                FROM user_permissions up
+                JOIN permissions p ON up.permission_id = p.id
+                WHERE up.user_id = :user_id AND p.status = 1
+            ");
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
-
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // Registrar error
-            error_log('Error al obtener permisos: ' . $e->getMessage());
+            error_log('Error fetching user permissions: ' . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * Asigna un permiso a un usuario
-     * 
-     * @param int $idusuario ID del usuario
-     * @param int $idpermiso ID del permiso
-     * @return bool True si se asignó correctamente, False en caso contrario
+     * Assigns a permission to a user (idempotent).
+     *
+     * @param int $userId
+     * @param int $permissionId
+     * @return bool
      */
-    public function asignarPermiso($idusuario, $idpermiso)
+    public function assignPermission($userId, $permissionId)
     {
         try {
-            // Verificar si ya existe la asignación
-            $query = "SELECT COUNT(*) FROM permisousuario 
-                     WHERE idusuario = :idusuario AND idpermiso = :idpermiso";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
-            $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare("
+                SELECT COUNT(*) FROM user_permissions
+                WHERE user_id = :user_id AND permission_id = :permission_id
+            ");
+            $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
 
             if ($stmt->fetchColumn() > 0) {
-                // Ya existe, no hacer nada
-                return true;
-            } else {
-                // No existe, crear nueva asignación
-                $query = "INSERT INTO permisousuario (idpermiso, idusuario) 
-                         VALUES (:idpermiso, :idusuario)";
-                $stmt = $this->conexion->prepare($query);
-                $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
-                $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
-                return $stmt->execute();
+                return true; // Already assigned
             }
+
+            $stmt = $this->conexion->prepare("
+                INSERT INTO user_permissions (permission_id, user_id) VALUES (:permission_id, :user_id)
+            ");
+            $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
+            return $stmt->execute();
         } catch (PDOException $e) {
-            error_log('Error al asignar permiso: ' . $e->getMessage());
+            error_log('Error assigning permission: ' . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Revoca un permiso a un usuario
-     * 
-     * @param int $idusuario ID del usuario
-     * @param int $idpermiso ID del permiso
-     * @return bool True si se revocó correctamente, False en caso contrario
+     * Revokes a permission from a user (idempotent).
+     *
+     * @param int $userId
+     * @param int $permissionId
+     * @return bool
      */
-    public function revocarPermiso($idusuario, $idpermiso)
+    public function revokePermission($userId, $permissionId)
     {
         try {
-            // Verificar si existe la asignación
-            $query = "SELECT COUNT(*) FROM permisousuario 
-                     WHERE idusuario = :idusuario AND idpermiso = :idpermiso";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
-            $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare("
+                SELECT COUNT(*) FROM user_permissions
+                WHERE user_id = :user_id AND permission_id = :permission_id
+            ");
+            $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
 
             if ($stmt->fetchColumn() > 0) {
-                // Si existe, eliminar la asignación
-                $query = "DELETE FROM permisousuario 
-                         WHERE idusuario = :idusuario AND idpermiso = :idpermiso";
-                $stmt = $this->conexion->prepare($query);
-                $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
-                $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
+                $stmt = $this->conexion->prepare("
+                    DELETE FROM user_permissions
+                    WHERE user_id = :user_id AND permission_id = :permission_id
+                ");
+                $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
+                $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
                 return $stmt->execute();
             }
 
-            return true; // Si no existe, no hay que revocar nada
+            return true; // Nothing to revoke
         } catch (PDOException $e) {
-            error_log('Error al revocar permiso: ' . $e->getMessage());
+            error_log('Error revoking permission: ' . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Obtiene todos los permisos disponibles en el sistema
-     * 
-     * @return array Lista de todos los permisos
+     * Returns all active permissions in the system.
+     *
+     * @return array  Each row: [id, name]
      */
-    public function obtenerTodosLosPermisos()
+    public function getAllPermissions()
     {
         try {
-            $query = "SELECT idpermiso, nombre FROM permiso WHERE estado = 1";
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->conexion->prepare(
+                "SELECT id, name FROM permissions WHERE status = 1"
+            );
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log('Error al obtener todos los permisos: ' . $e->getMessage());
+            error_log('Error fetching all permissions: ' . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * Verifica si un usuario tiene asignado un permiso específico
-     * 
-     * @param int $idusuario ID del usuario
-     * @param int $idpermiso ID del permiso
-     * @return bool True si tiene el permiso asignado, False en caso contrario
+     * Checks whether a specific permission is assigned to a user.
+     *
+     * @param int $userId
+     * @param int $permissionId
+     * @return bool
      */
-    public function tienePermisoAsignado($idusuario, $idpermiso)
+    public function hasPermissionAssigned($userId, $permissionId)
     {
         try {
-            $query = "SELECT COUNT(*) FROM permisousuario 
-                     WHERE idusuario = :idusuario AND idpermiso = :idpermiso";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
-            $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare("
+                SELECT COUNT(*) FROM user_permissions
+                WHERE user_id = :user_id AND permission_id = :permission_id
+            ");
+            $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
-
             return $stmt->fetchColumn() > 0;
         } catch (PDOException $e) {
-            error_log('Error al verificar permiso asignado: ' . $e->getMessage());
+            error_log('Error checking assigned permission: ' . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Actualiza los permisos de un usuario (elimina todos y asigna los nuevos)
-     * 
-     * @param int $idusuario ID del usuario
-     * @param array $permisos Lista de IDs de permisos a asignar
-     * @return bool True si se actualizaron correctamente, False en caso contrario
+     * Replaces all permissions for a user (delete + re-insert in a transaction).
+     *
+     * @param int   $userId
+     * @param array $permissionIds  Array of permission IDs to assign
+     * @return bool
      */
-    public function actualizarPermisosUsuario($idusuario, $permisos)
+    public function updateUserPermissions($userId, $permissionIds)
     {
         try {
-            // Iniciar transacción
             $this->conexion->beginTransaction();
 
-            // Eliminar todos los permisos actuales del usuario
-            $query = "DELETE FROM permisousuario WHERE idusuario = :idusuario";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare(
+                "DELETE FROM user_permissions WHERE user_id = :user_id"
+            );
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
 
-            // Asignar los nuevos permisos
-            foreach ($permisos as $idpermiso) {
-                $query = "INSERT INTO permisousuario (idpermiso, idusuario) 
-                         VALUES (:idpermiso, :idusuario)";
-                $stmt = $this->conexion->prepare($query);
-                $stmt->bindParam(':idpermiso', $idpermiso, PDO::PARAM_INT);
-                $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
+            foreach ($permissionIds as $permissionId) {
+                $stmt = $this->conexion->prepare("
+                    INSERT INTO user_permissions (permission_id, user_id) VALUES (:permission_id, :user_id)
+                ");
+                $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
+                $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
                 $stmt->execute();
             }
 
-            // Confirmar transacción
             $this->conexion->commit();
             return true;
         } catch (PDOException $e) {
-            // Revertir cambios en caso de error
             $this->conexion->rollBack();
-            error_log('Error al actualizar permisos de usuario: ' . $e->getMessage());
+            error_log('Error updating user permissions: ' . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Obtiene los permisos asignados a un usuario específico
-     * 
-     * @param int $idusuario ID del usuario
-     * @return array Lista de IDs de permisos asignados
+     * Returns the IDs of all permissions assigned to a user.
+     *
+     * @param int $userId
+     * @return array  List of permission IDs
      */
-    public function obtenerPermisosAsignados($idusuario)
+    public function getAssignedPermissions($userId)
     {
         try {
-            $query = "SELECT idpermiso FROM permisousuario WHERE idusuario = :idusuario";
-            $stmt = $this->conexion->prepare($query);
-            $stmt->bindParam(':idusuario', $idusuario, PDO::PARAM_INT);
+            $stmt = $this->conexion->prepare(
+                "SELECT permission_id FROM user_permissions WHERE user_id = :user_id"
+            );
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
 
-            $permisos = [];
+            $ids = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $permisos[] = $row['idpermiso'];
+                $ids[] = $row['permission_id'];
             }
-
-            return $permisos;
+            return $ids;
         } catch (PDOException $e) {
-            error_log('Error al obtener permisos asignados: ' . $e->getMessage());
+            error_log('Error fetching assigned permissions: ' . $e->getMessage());
             return [];
         }
     }
