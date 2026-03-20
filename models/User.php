@@ -13,11 +13,11 @@
 
 namespace Models;
 
-use Config\Conexion;
+use Config\Connection;
 use PDO;
 use PDOException;
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/connection.php';
 
 class User
 {
@@ -25,7 +25,7 @@ class User
      * Database connection
      * @var PDO
      */
-    private $conexion;
+    private $connection;
 
     /**
      * Users table name
@@ -41,7 +41,7 @@ class User
 
     public function __construct()
     {
-        $this->conexion = Conexion::getInstance()->getConnection();
+        $this->connection = Connection::getInstance()->getConnection();
     }
 
     /**
@@ -77,7 +77,7 @@ class User
     public function getAll()
     {
         try {
-            $stmt = $this->conexion->prepare("SELECT * FROM {$this->tabla} ORDER BY id DESC");
+            $stmt = $this->connection->prepare("SELECT * FROM {$this->tabla} ORDER BY id DESC");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -95,7 +95,7 @@ class User
     public function getById($id)
     {
         try {
-            $stmt = $this->conexion->prepare("SELECT * FROM {$this->tabla} WHERE id = :id");
+            $stmt = $this->connection->prepare("SELECT * FROM {$this->tabla} WHERE id = :id");
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -123,7 +123,7 @@ class User
                         (:name, :first_surname, :second_surname, :document_type, :document_number,
                          :address, :phone, :email, :position, :password, :image, :status)";
 
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':name',            $data['name'],            PDO::PARAM_STR);
             $stmt->bindParam(':first_surname',   $data['first_surname'],   PDO::PARAM_STR);
             $stmt->bindParam(':second_surname',  $data['second_surname'],  PDO::PARAM_STR);
@@ -194,7 +194,7 @@ class User
                         status          = :status
                       WHERE id = :id";
 
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':name',            $data['name'],            PDO::PARAM_STR);
             $stmt->bindParam(':first_surname',   $data['first_surname'],   PDO::PARAM_STR);
             $stmt->bindParam(':second_surname',  $data['second_surname'],  PDO::PARAM_STR);
@@ -252,7 +252,7 @@ class User
     {
         try {
             $query = "UPDATE {$this->tabla} SET phone = :phone, address = :address, image = :image WHERE id = :id";
-            $stmt  = $this->conexion->prepare($query);
+            $stmt  = $this->connection->prepare($query);
 
             if (empty($data['phone'])) {
                 $stmt->bindValue(':phone', null, PDO::PARAM_NULL);
@@ -291,7 +291,7 @@ class User
     {
         try {
             $hash  = password_hash($password, PASSWORD_DEFAULT);
-            $stmt  = $this->conexion->prepare(
+            $stmt  = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET password = :password WHERE id = :id"
             );
             $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
@@ -313,7 +313,7 @@ class User
     public function updateStatus($id, $status)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
@@ -359,12 +359,12 @@ class User
         try {
             if ($excludeId) {
                 $query = "SELECT COUNT(*) FROM {$this->tabla} WHERE email = :email AND id != :id";
-                $stmt  = $this->conexion->prepare($query);
+                $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':email', $email,     PDO::PARAM_STR);
                 $stmt->bindParam(':id',    $excludeId, PDO::PARAM_INT);
             } else {
                 $query = "SELECT COUNT(*) FROM {$this->tabla} WHERE email = :email";
-                $stmt  = $this->conexion->prepare($query);
+                $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             }
             $stmt->execute();
@@ -384,7 +384,7 @@ class User
     public function getStatusByEmail($email)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT status FROM {$this->tabla} WHERE email = :email"
             );
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
@@ -405,7 +405,7 @@ class User
     public function documentNumberExists($documentNumber)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT COUNT(*) FROM {$this->tabla} WHERE document_number = :document_number"
             );
             $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
@@ -426,7 +426,7 @@ class User
     public function getIdByDocumentNumber($documentNumber)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT id FROM {$this->tabla} WHERE document_number = :document_number"
             );
             $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
@@ -447,7 +447,7 @@ class User
     public function getIdByEmail($email)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT id FROM {$this->tabla} WHERE email = :email"
             );
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
@@ -468,7 +468,7 @@ class User
     public function getStatusById($id)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT status FROM {$this->tabla} WHERE id = :id"
             );
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -490,7 +490,7 @@ class User
     public function loginByEmail($email, $password)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT * FROM {$this->tabla} WHERE email = :email"
             );
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
@@ -517,7 +517,7 @@ class User
     public function loginByDocumentNumber($documentNumber, $password)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT * FROM {$this->tabla} WHERE document_number = :document_number"
             );
             $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
@@ -550,14 +550,14 @@ class User
                           WHERE document_type = :document_type
                             AND document_number = :document_number
                             AND id != :id";
-                $stmt  = $this->conexion->prepare($query);
+                $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':document_type',   $documentType,   PDO::PARAM_STR);
                 $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
                 $stmt->bindParam(':id',              $excludeId,      PDO::PARAM_INT);
             } else {
                 $query = "SELECT COUNT(*) FROM {$this->tabla}
                           WHERE document_type = :document_type AND document_number = :document_number";
-                $stmt  = $this->conexion->prepare($query);
+                $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':document_type',   $documentType,   PDO::PARAM_STR);
                 $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
             }
@@ -659,7 +659,7 @@ class User
     public function getLastInsertId()
     {
         try {
-            return $this->conexion->lastInsertId();
+            return $this->connection->lastInsertId();
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return 0;
@@ -676,7 +676,7 @@ class User
     public function updateImage($id, $image)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET image = :image WHERE id = :id"
             );
             if ($image === null) {
@@ -702,7 +702,7 @@ class User
     public function verifyCurrentPassword($id, $currentPassword)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT password FROM {$this->tabla} WHERE id = :id"
             );
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -725,7 +725,7 @@ class User
     public function updatePermissionsTimestamp($userId)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET permissions_updated_at = NOW() WHERE id = :id"
             );
             $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
@@ -745,7 +745,7 @@ class User
     public function getPermissionsTimestamp($userId)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT permissions_updated_at FROM {$this->tabla} WHERE id = :id"
             );
             $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
@@ -754,6 +754,59 @@ class User
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return null;
+        }
+    }
+
+    /**
+     * Returns total, active and inactive user counts.
+     *
+     * @return array{total: int, active: int, inactive: int}
+     */
+    public function getStatistics()
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
+                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive
+                FROM {$this->tabla}
+            ");
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                'total'    => (int) $row['total'],
+                'active'   => (int) $row['active'],
+                'inactive' => (int) $row['inactive'],
+            ];
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return ['total' => 0, 'active' => 0, 'inactive' => 0];
+        }
+    }
+
+    /**
+     * Returns the most recently registered users.
+     *
+     * @param int $limit Number of users to return
+     * @return array
+     */
+    public function getRecent($limit = 5)
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT id, name, first_surname, email, status, created_at
+                FROM {$this->tabla}
+                ORDER BY created_at DESC, id DESC
+                LIMIT :limit
+            ");
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
         }
     }
 }

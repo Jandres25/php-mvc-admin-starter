@@ -77,11 +77,11 @@ This project is designed to be extended. To add a module (e.g. `Products`):
 2. **Model** — Create `models/Product.php` with namespace `Models`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
 4. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
-5. **Permission** — Insert the permission into the `permiso` table in the database
+5. **Permission** — Insert the permission into the `permissions` table in the database
 6. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
 
 ```php
-<?php if ($authService->tienePermisoNombre($usuario['idusuario'], 'products')): ?>
+<?php if ($authService->hasPermissionByName($usuario['id'], 'products')): ?>
     <li class="nav-item">
         <a href="<?= $URL ?>/views/products/index.php" class="nav-link">Products</a>
     </li>
@@ -96,7 +96,7 @@ The autoloader automatically resolves any class whose namespace matches the dire
 config/         # PSR-4 autoloader, PDO singleton, .env helpers
 controllers/    # One file per action (no central router)
 models/         # Data access + input sanitization
-services/       # Reusable business logic (AuthorizationService, ImagenService)
+services/       # Reusable business logic (AuthorizationService, ImageService)
 views/          # PHP templates; layouts/session.php validates the session
 public/         # Static assets organized into lib/, core/, plugins/, modules/
 libs/           # Vendored libraries (TCPDF)

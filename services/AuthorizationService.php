@@ -13,7 +13,7 @@
 
 namespace Services;
 
-use Config\Conexion;
+use Config\Connection;
 use PDO;
 use PDOException;
 
@@ -23,7 +23,7 @@ class AuthorizationService
      * Database connection
      * @var PDO
      */
-    private $conexion;
+    private $connection;
 
     /**
      * Per-request cache for isAdmin() results
@@ -33,8 +33,8 @@ class AuthorizationService
 
     public function __construct()
     {
-        require_once __DIR__ . '/../config/conexion.php';
-        $this->conexion = Conexion::getInstance()->getConnection();
+        require_once __DIR__ . '/../config/connection.php';
+        $this->connection = Connection::getInstance()->getConnection();
     }
 
     /**
@@ -73,7 +73,7 @@ class AuthorizationService
                 return true;
             }
 
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT id FROM permissions WHERE name = :name AND status = 1"
             );
             $stmt->bindParam(':name', $permissionName, PDO::PARAM_STR);
@@ -106,7 +106,7 @@ class AuthorizationService
         }
 
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT position FROM users WHERE id = :id AND status = 1"
             );
             $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
@@ -132,14 +132,14 @@ class AuthorizationService
     {
         try {
             if ($this->isAdmin($userId)) {
-                $stmt = $this->conexion->prepare(
+                $stmt = $this->connection->prepare(
                     "SELECT id, name FROM permissions WHERE status = 1"
                 );
                 $stmt->execute();
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
-            $stmt = $this->conexion->prepare("
+            $stmt = $this->connection->prepare("
                 SELECT p.id, p.name
                 FROM user_permissions up
                 JOIN permissions p ON up.permission_id = p.id
@@ -164,7 +164,7 @@ class AuthorizationService
     public function assignPermission($userId, $permissionId)
     {
         try {
-            $stmt = $this->conexion->prepare("
+            $stmt = $this->connection->prepare("
                 SELECT COUNT(*) FROM user_permissions
                 WHERE user_id = :user_id AND permission_id = :permission_id
             ");
@@ -176,7 +176,7 @@ class AuthorizationService
                 return true; // Already assigned
             }
 
-            $stmt = $this->conexion->prepare("
+            $stmt = $this->connection->prepare("
                 INSERT INTO user_permissions (permission_id, user_id) VALUES (:permission_id, :user_id)
             ");
             $stmt->bindParam(':user_id',       $userId,       PDO::PARAM_INT);
@@ -198,7 +198,7 @@ class AuthorizationService
     public function revokePermission($userId, $permissionId)
     {
         try {
-            $stmt = $this->conexion->prepare("
+            $stmt = $this->connection->prepare("
                 SELECT COUNT(*) FROM user_permissions
                 WHERE user_id = :user_id AND permission_id = :permission_id
             ");
@@ -207,7 +207,7 @@ class AuthorizationService
             $stmt->execute();
 
             if ($stmt->fetchColumn() > 0) {
-                $stmt = $this->conexion->prepare("
+                $stmt = $this->connection->prepare("
                     DELETE FROM user_permissions
                     WHERE user_id = :user_id AND permission_id = :permission_id
                 ");
@@ -231,7 +231,7 @@ class AuthorizationService
     public function getAllPermissions()
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT id, name FROM permissions WHERE status = 1"
             );
             $stmt->execute();
@@ -252,7 +252,7 @@ class AuthorizationService
     public function hasPermissionAssigned($userId, $permissionId)
     {
         try {
-            $stmt = $this->conexion->prepare("
+            $stmt = $this->connection->prepare("
                 SELECT COUNT(*) FROM user_permissions
                 WHERE user_id = :user_id AND permission_id = :permission_id
             ");
@@ -276,16 +276,16 @@ class AuthorizationService
     public function updateUserPermissions($userId, $permissionIds)
     {
         try {
-            $this->conexion->beginTransaction();
+            $this->connection->beginTransaction();
 
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "DELETE FROM user_permissions WHERE user_id = :user_id"
             );
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
 
             foreach ($permissionIds as $permissionId) {
-                $stmt = $this->conexion->prepare("
+                $stmt = $this->connection->prepare("
                     INSERT INTO user_permissions (permission_id, user_id) VALUES (:permission_id, :user_id)
                 ");
                 $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
@@ -293,10 +293,10 @@ class AuthorizationService
                 $stmt->execute();
             }
 
-            $this->conexion->commit();
+            $this->connection->commit();
             return true;
         } catch (PDOException $e) {
-            $this->conexion->rollBack();
+            $this->connection->rollBack();
             error_log('Error updating user permissions: ' . $e->getMessage());
             return false;
         }
@@ -311,7 +311,7 @@ class AuthorizationService
     public function getAssignedPermissions($userId)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT permission_id FROM user_permissions WHERE user_id = :user_id"
             );
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);

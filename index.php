@@ -1,11 +1,21 @@
 <?php
 require_once 'views/layouts/header.php';
+
+$userModel       = new \Models\User();
+$permissionModel = new \Models\Permission();
+
+$userStats  = $userModel->getStatistics();
+$permStats  = $permissionModel->getStatistics();
+$recentUsers = $userModel->getRecent(5);
+
+$canManageUsers       = $authService->hasPermissionByName($_SESSION['user_id'], 'users');
+$canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 'permissions');
 ?>
 
-<!-- Content Header (Page header) -->
+<!-- Content Header -->
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row ">
+        <div class="row">
             <div class="col-sm-6">
                 <h1 class="m-0">Dashboard</h1>
             </div>
@@ -18,93 +28,134 @@ require_once 'views/layouts/header.php';
         </div>
     </div>
 </section>
-<!-- /.content-header -->
 
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
+
+        <!-- Stats widgets -->
         <div class="row">
-            <div class="col-md-12">
-                <div class="p-5 mb-4 bg-white rounded-3 shadow-sm">
-                    <div class="container-fluid py-5">
-                        <h1 class="display-5 fw-bold">Welcome to the Base System - <?= $_SESSION['user_position']; ?></h1>
-                        <p class="col-md-8 fs-4">
-                            This base system lets you quickly build applications with a complete authentication system,
-                            permission management, and an organized MVC structure.
-                        </p>
-                        <div class="mt-4 d-flex gap-2 flex-wrap">
-                            <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'users')) : ?>
-                                <a href="<?= $URL; ?>views/users" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-users"></i> Manage Users
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3><?= $userStats['total']; ?></h3>
+                        <p>Total Users</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                    <?php if ($canManageUsers): ?>
+                        <a href="<?= $URL; ?>views/users" class="small-box-footer">
+                            Manage <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    <?php else: ?>
+                        <span class="small-box-footer">&nbsp;</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3><?= $userStats['active']; ?></h3>
+                        <p>Active Users</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-user-check"></i></div>
+                    <span class="small-box-footer">
+                        <?= $userStats['inactive']; ?> inactive
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3><?= $permStats['total']; ?></h3>
+                        <p>Total Permissions</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-key"></i></div>
+                    <?php if ($canManagePermissions): ?>
+                        <a href="<?= $URL; ?>views/permissions" class="small-box-footer">
+                            Manage <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    <?php else: ?>
+                        <span class="small-box-footer">&nbsp;</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3><?= $permStats['active']; ?></h3>
+                        <p>Active Permissions</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                    <span class="small-box-footer">
+                        <?= $permStats['inactive']; ?> inactive
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- /.row stats -->
+
+        <!-- Recent Users -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-clock mr-1"></i> Recently Registered Users
+                        </h3>
+                        <?php if ($canManageUsers): ?>
+                            <div class="card-tools">
+                                <a href="<?= $URL; ?>views/users" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-users mr-1"></i> View All
                                 </a>
-                            <?php endif; ?>
-                            <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) : ?>
-                                <a href="<?= $URL; ?>views/permissions" class="btn btn-warning btn-lg">
-                                    <i class="fas fa-key"></i> Manage Permissions
-                                </a>
-                            <?php endif; ?>
-                        </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="card-body p-0">
+                        <?php if (empty($recentUsers)): ?>
+                            <p class="text-muted text-center py-4">No users registered yet.</p>
+                        <?php else: ?>
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Registered</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recentUsers as $user): ?>
+                                        <tr>
+                                            <td>
+                                                <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($user['email']); ?></td>
+                                            <td>
+                                                <?php if ((int)$user['status'] === 1): ?>
+                                                    <span class="badge badge-success">Active</span>
+                                                <?php else: ?>
+                                                    <span class="badge badge-danger">Inactive</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?= $user['created_at']
+                                                    ? date('m/d/Y', strtotime($user['created_at']))
+                                                    : '—'; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- /.row recent users -->
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-list"></i> Project Structure</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-folder mr-2"></i> config/ - Configuration
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-folder mr-2"></i> controllers/ - Controllers
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-folder mr-2"></i> models/ - Models
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-folder mr-2"></i> services/ - Services
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-folder mr-2"></i> views/ - Views
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-cogs"></i> Features</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-lock mr-2"></i> Authentication system
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-key mr-2"></i> Permission management
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-layer-group mr-2"></i> MVC architecture
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-shield-alt mr-2"></i> CSRF protection
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-image mr-2"></i> Image handling
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- /.row -->
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->

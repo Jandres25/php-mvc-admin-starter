@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Clase Conexion
- * 
- * Maneja la conexión a la base de datos utilizando el patrón Singleton
- * para asegurar una única instancia de conexión durante toda la aplicación.
- * 
+ * Connection class
+ *
+ * Manages the database connection using the Singleton pattern
+ * to ensure a single connection instance throughout the application.
+ *
  * @package ProyectoBase
  * @subpackage Config
  * @author Jandres25
@@ -20,53 +20,53 @@ use Exception;
 use DateTime;
 use DateTimeZone;
 
-class Conexion
+class Connection
 {
     /**
-     * Instancia única de la clase Conexion
-     * 
-     * @var Conexion
+     * Unique instance of the Connection class
+     *
+     * @var Connection
      */
     private static $instance = null;
 
     /**
-     * Objeto PDO para la conexión a la base de datos
-     * 
+     * PDO object for the database connection
+     *
      * @var PDO
      */
     private $connection;
 
     /**
-     * Constructor privado para evitar la creación directa de objetos
+     * Private constructor to prevent direct object creation
      */
     private function __construct()
     {
         try {
-            // Intentar cargar la configuración desde config.php
+            // Attempt to load the configuration from config.php
             $config_file = __DIR__ . '/config.php';
 
             if (!file_exists($config_file)) {
-                throw new Exception("El archivo de configuración no existe");
+                throw new Exception("The configuration file does not exist");
             }
 
             $config = require $config_file;
 
-            // Verificar si la configuración es válida
+            // Validate the configuration
             if (!is_array($config) || !isset($config['database']) || !is_array($config['database'])) {
-                throw new Exception("La configuración de la base de datos no es válida");
+                throw new Exception("The database configuration is not valid");
             }
 
             $db_config = $config['database'];
 
-            // Verificar que todos los parámetros necesarios estén presentes
+            // Ensure all required parameters are present
             if (
                 !isset($db_config['host']) || !isset($db_config['name']) ||
                 !isset($db_config['user']) || !isset($db_config['pass'])
             ) {
-                throw new Exception("Faltan parámetros de configuración de la base de datos");
+                throw new Exception("Missing database configuration parameters");
             }
 
-            // Usar utf8 en lugar de utf8mb4 para evitar problemas de compatibilidad
+            // Use utf8 instead of utf8mb4 to avoid compatibility issues
             $dsn = "mysql:host={$db_config['host']};dbname={$db_config['name']};charset=utf8";
 
             $options = [
@@ -77,30 +77,30 @@ class Conexion
 
             $this->connection = new PDO($dsn, $db_config['user'], $db_config['pass'], $options);
 
-            // Obtener zona horaria desde la configuración de la app
+            // Get the timezone from the app configuration
             $timezone = isset($config['app']['timezone']) ? $config['app']['timezone'] : 'America/La_Paz';
 
-            // Establecer la zona horaria de MariaDB basada en la configuración
+            // Set the MariaDB timezone based on the app configuration
             $timezone_offset = $this->getTimezoneOffset($timezone);
             $this->connection->exec("SET time_zone = '{$timezone_offset}'");
 
-            // Verificación opcional (se puede eliminar en producción)
+            // Optional verification (can be removed in production)
             $stmt = $this->connection->query("SELECT @@session.time_zone");
             $set_tz = $stmt->fetchColumn();
             if ($set_tz !== $timezone_offset) {
-                error_log("Advertencia: No se pudo establecer correctamente la zona horaria de MariaDB. Solicitada: {$timezone_offset}, Actual: {$set_tz}");
+                error_log("Warning: Could not correctly set the MariaDB timezone. Requested: {$timezone_offset}, Current: {$set_tz}");
             }
         } catch (Exception $e) {
-            die("Error de configuración: " . $e->getMessage());
+            die("Configuration error: " . $e->getMessage());
         } catch (PDOException $e) {
-            die("Error de conexión a la base de datos: " . $e->getMessage());
+            die("Database connection error: " . $e->getMessage());
         }
     }
 
     /**
-     * Obtiene la instancia única de la clase Conexion
-     * 
-     * @return Conexion Instancia de la conexión
+     * Returns the unique instance of the Connection class
+     *
+     * @return Connection The connection instance
      */
     public static function getInstance()
     {
@@ -111,9 +111,9 @@ class Conexion
     }
 
     /**
-     * Obtiene el objeto PDO de conexión
-     * 
-     * @return PDO Objeto de conexión PDO
+     * Returns the PDO connection object
+     *
+     * @return PDO The PDO connection object
      */
     public function getConnection()
     {
@@ -121,11 +121,11 @@ class Conexion
     }
 
     /**
-     * Ejecuta una consulta SQL y devuelve el resultado
-     * 
-     * @param string $sql Consulta SQL a ejecutar
-     * @param array $params Parámetros para la consulta preparada
-     * @return PDOStatement Resultado de la consulta
+     * Executes an SQL query and returns the result
+     *
+     * @param string $sql    SQL query to execute
+     * @param array  $params Parameters for the prepared statement
+     * @return \PDOStatement Query result
      */
     public function query($sql, $params = [])
     {
@@ -135,10 +135,10 @@ class Conexion
     }
 
     /**
-     * Convierte el nombre de zona horaria a formato de offset para MariaDB
-     * 
-     * @param string $timezone Nombre de la zona horaria (ej. America/La_Paz)
-     * @return string Offset en formato '+HH:MM' o '-HH:MM'
+     * Converts a timezone name to an offset string for MariaDB
+     *
+     * @param string $timezone Timezone name (e.g. America/La_Paz)
+     * @return string Offset in '+HH:MM' or '-HH:MM' format
      */
     private function getTimezoneOffset($timezone)
     {
@@ -147,15 +147,15 @@ class Conexion
             $dateTime = new DateTime('now', $dateTimeZone);
             $offset = $dateTimeZone->getOffset($dateTime);
 
-            // Convertir segundos a formato +/-HH:MM
+            // Convert seconds to +/-HH:MM format
             $hours = intval(abs($offset) / 3600);
             $minutes = intval((abs($offset) % 3600) / 60);
             $sign = $offset < 0 ? '-' : '+';
 
             return $sign . sprintf('%02d:%02d', $hours, $minutes);
         } catch (Exception $e) {
-            error_log("Error al calcular offset de zona horaria: " . $e->getMessage());
-            return '-04:00'; // Valor por defecto para Bolivia en caso de error
+            error_log("Error calculating timezone offset: " . $e->getMessage());
+            return '-04:00'; // Default value for Bolivia on error
         }
     }
 }

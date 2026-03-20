@@ -13,11 +13,11 @@
 
 namespace Models;
 
-use Config\Conexion;
+use Config\Connection;
 use PDO;
 use PDOException;
 
-require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../config/connection.php';
 
 class Permission
 {
@@ -25,7 +25,7 @@ class Permission
      * Database connection
      * @var PDO
      */
-    private $conexion;
+    private $connection;
 
     /**
      * Permissions table name
@@ -41,7 +41,7 @@ class Permission
 
     public function __construct()
     {
-        $this->conexion = Conexion::getInstance()->getConnection();
+        $this->connection = Connection::getInstance()->getConnection();
     }
 
     /**
@@ -84,7 +84,7 @@ class Permission
             }
             $query .= " ORDER BY name";
 
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->connection->prepare($query);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -110,7 +110,7 @@ class Permission
                       GROUP BY p.id
                       ORDER BY p.name";
 
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->connection->prepare($query);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -128,7 +128,7 @@ class Permission
     public function getById($id)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT * FROM {$this->tabla} WHERE id = :id"
             );
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -155,7 +155,7 @@ class Permission
             }
 
             $description = $data['description'] ?? null;
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "INSERT INTO {$this->tabla} (name, description) VALUES (:name, :description)"
             );
             $stmt->bindParam(':name',        $data['name'],  PDO::PARAM_STR);
@@ -183,7 +183,7 @@ class Permission
             }
 
             $description = $data['description'] ?? null;
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET name = :name, description = :description WHERE id = :id"
             );
             $stmt->bindParam(':name',        $data['name'], PDO::PARAM_STR);
@@ -206,7 +206,7 @@ class Permission
     public function updateStatus($id, $status)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
@@ -230,12 +230,12 @@ class Permission
         try {
             if ($excludeId) {
                 $query = "SELECT COUNT(*) FROM {$this->tabla} WHERE name = :name AND id != :id";
-                $stmt  = $this->conexion->prepare($query);
+                $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':name', $name,      PDO::PARAM_STR);
                 $stmt->bindParam(':id',   $excludeId, PDO::PARAM_INT);
             } else {
                 $query = "SELECT COUNT(*) FROM {$this->tabla} WHERE name = :name";
-                $stmt  = $this->conexion->prepare($query);
+                $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':name', $name, PDO::PARAM_STR);
             }
             $stmt->execute();
@@ -255,7 +255,7 @@ class Permission
     public function countUsers($permissionId)
     {
         try {
-            $stmt = $this->conexion->prepare(
+            $stmt = $this->connection->prepare(
                 "SELECT COUNT(*) FROM user_permissions WHERE permission_id = :id"
             );
             $stmt->bindParam(':id', $permissionId, PDO::PARAM_INT);
@@ -282,7 +282,7 @@ class Permission
                       WHERE up.permission_id = :permission_id
                       ORDER BY u.name, u.first_surname";
 
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -309,7 +309,7 @@ class Permission
                         )
                       ORDER BY u.name, u.first_surname";
 
-            $stmt = $this->conexion->prepare($query);
+            $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':permission_id', $permissionId, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -327,7 +327,7 @@ class Permission
     public function getStatistics()
     {
         try {
-            $stmt = $this->conexion->prepare("
+            $stmt = $this->connection->prepare("
                 SELECT
                     COUNT(*) AS total,
                     SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
@@ -337,7 +337,7 @@ class Permission
             $stmt->execute();
             $counts = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $stmt2 = $this->conexion->prepare("
+            $stmt2 = $this->connection->prepare("
                 SELECT p.id, p.name, COUNT(up.user_id) AS total_users
                 FROM permissions p
                 LEFT JOIN user_permissions up ON p.id = up.permission_id
@@ -368,7 +368,7 @@ class Permission
     public function getLastInsertId()
     {
         try {
-            return $this->conexion->lastInsertId();
+            return $this->connection->lastInsertId();
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return 0;

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Sistema de Autoload Manual
- * 
- * Carga automáticamente las clases basándose en su namespace y estructura de carpetas
- * 
+ * Manual Autoload System
+ *
+ * Automatically loads classes based on their namespace and directory structure.
+ *
  * @package ProyectoBase
  * @subpackage Config
  * @author Jandres25
@@ -12,32 +12,32 @@
  */
 
 /**
- * Función de autoload personalizada
- * 
- * @param string $class Nombre completo de la clase con namespace
+ * Custom autoload function
+ *
+ * @param string $class Fully qualified class name with namespace
  */
 function customAutoload($class)
 {
-    // Separar namespace (directorios) del nombre de clase
+    // Split namespace (directories) from the class name
     $parts = explode('\\', $class);
     $className = array_pop($parts);
 
-    // Los namespaces se mapean a directorios en minúsculas; el nombre de clase conserva su capitalización
+    // Namespaces map to lowercase directories; the class name retains its capitalization
     $directory = strtolower(implode(DIRECTORY_SEPARATOR, $parts));
 
-    // Construir la ruta del archivo basándose en el namespace
+    // Build the file path based on the namespace
     $file = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $className . '.php';
 
-    // Verificar si el archivo existe y cargarlo
+    // Check if the file exists and load it
     if (file_exists($file)) {
         require_once $file;
         return;
     }
 
-    // Si no se encuentra, intentar buscar directamente por el nombre de clase
-    // Esto es útil para casos especiales como Config\Conexion
+    // If not found, fall back to searching by class name directly
+    // Useful for special cases like Config\Connection
 
-    // Buscar en config/ si es del namespace Config
+    // Search in config/ if the namespace is Config
     if ($parts[0] === 'Config') {
         $configFile = __DIR__ . DIRECTORY_SEPARATOR . strtolower($className) . '.php';
         if (file_exists($configFile)) {
@@ -46,5 +46,5 @@ function customAutoload($class)
     }
 }
 
-// Registrar la función de autoload
+// Register the autoload function
 spl_autoload_register('customAutoload');

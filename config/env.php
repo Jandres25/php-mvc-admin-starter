@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Funciones para manejar variables de entorno
- * 
- * Este archivo proporciona funciones para cargar y acceder a
- * variables de entorno desde un archivo .env
- * 
+ * Environment variable helpers
+ *
+ * Provides functions to load and access environment variables
+ * from a .env file.
+ *
  * @package ProyectoBase
  * @subpackage Config
  * @author Jandres25
@@ -13,24 +13,24 @@
  */
 
 /**
- * Carga las variables de entorno desde un archivo .env
- * 
- * Lee el archivo .env línea por línea y establece las variables
- * de entorno utilizando putenv() y $_ENV.
- * 
- * @param string $path Ruta al archivo .env
- * @throws Exception Si el archivo .env no existe
+ * Loads environment variables from a .env file
+ *
+ * Reads the .env file line by line and sets environment variables
+ * using putenv() and $_ENV.
+ *
+ * @param string $path Path to the .env file
+ * @throws Exception If the .env file does not exist
  * @return void
  */
 function loadEnv($path)
 {
     if (!file_exists($path)) {
-        throw new Exception("El archivo .env no existe. Crea uno basado en .env.example");
+        throw new Exception("The .env file does not exist. Create one based on .env.example");
     }
 
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        // Ignorar comentarios
+        // Skip comments
         if (strpos(trim($line), '#') === 0) {
             continue;
         }
@@ -39,7 +39,7 @@ function loadEnv($path)
         $name = trim($name);
         $value = trim($value);
 
-        // Eliminar comillas si existen
+        // Strip surrounding quotes if present
         if (!empty($value)) {
             $value = trim($value, '"');
             $value = trim($value, "'");
@@ -51,14 +51,14 @@ function loadEnv($path)
 }
 
 /**
- * Obtiene el valor de una variable de entorno
- * 
- * Recupera el valor de una variable de entorno y maneja
- * conversiones de tipos para valores booleanos, nulos y vacíos.
- * 
- * @param string $key Nombre de la variable de entorno
- * @param mixed $default Valor por defecto si la variable no existe
- * @return mixed El valor de la variable de entorno o el valor por defecto
+ * Gets the value of an environment variable
+ *
+ * Retrieves an environment variable value and handles type
+ * conversions for boolean, null, and empty values.
+ *
+ * @param string $key     Environment variable name
+ * @param mixed  $default Default value if the variable does not exist
+ * @return mixed The environment variable value or the default
  */
 function env($key, $default = null)
 {
@@ -68,7 +68,7 @@ function env($key, $default = null)
         return $default;
     }
 
-    // Manejar valores booleanos
+    // Handle boolean values
     switch (strtolower($value)) {
         case 'true':
         case '(true)':
@@ -87,9 +87,9 @@ function env($key, $default = null)
     return $value;
 }
 
-// Cargar variables de entorno
+// Load environment variables
 try {
     loadEnv(__DIR__ . '/../.env');
 } catch (Exception $e) {
-    die('Error al cargar el archivo .env: ' . $e->getMessage());
+    die('Error loading the .env file: ' . $e->getMessage());
 }

@@ -7,15 +7,15 @@
     <div class="float-right d-none d-sm-inline">
         <div class="text-muted">
             <small>
-                <i class="fas fa-tag"></i> Versión <?= $APP_VERSION; ?>
+                <i class="fas fa-tag"></i> Version <?= $APP_VERSION; ?>
             </small>
         </div>
     </div>
     <div class="footer-content">
         <strong>Copyright &copy; <?= date('Y'); ?>
-            <a href="#" class="text-decoration-none">ProyectoBase</a>
+            <a href="#" class="text-decoration-none">BaseProject</a>
         </strong>
-        - Sistema Base
+        - Base System
     </div>
 </footer>
 </div>
@@ -27,10 +27,10 @@
 <!-- AdminLTE App -->
 <script src="<?= $URL; ?>public/js/lib/adminlte/adminlte.min.js"></script>
 
-<!-- Scripts principales de la aplicación -->
+<!-- Main application scripts -->
 <script src="<?= $URL; ?>public/js/core/common-utils.js"></script>
 
-<!-- Plugins condicionales JS -->
+<!-- Conditional JS plugins -->
 <?php
 $plugin_js = [
     'datatables' => [
@@ -73,7 +73,7 @@ if (isset($plugins) && is_array($plugins)):
 endif;
 ?>
 
-<!-- Scripts específicos por módulo -->
+<!-- Module-specific scripts -->
 <?php if (isset($module_scripts) && is_array($module_scripts)): ?>
     <?php foreach ($module_scripts as $script): ?>
         <script src="<?= $URL; ?>public/js/modules/<?= $script; ?>.js"></script>

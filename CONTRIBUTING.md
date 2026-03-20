@@ -194,14 +194,14 @@ When adding new features, follow the existing project structure:
 ```
 ├── controllers/           # MVC Controllers
 │   ├── auth/             # Authentication related
-│   ├── usuarios/         # User management
-│   └── permisos/         # Permission management
+│   ├── users/            # User management
+│   └── permissions/      # Permission management
 ├── models/               # Data models
 ├── services/             # Business logic services
 ├── views/                # View templates
 │   ├── layouts/          # Layout components
-│   ├── usuarios/         # User views
-│   └── permisos/         # Permission views
+│   ├── users/            # User views
+│   └── permissions/      # Permission views
 ├── public/
 │   ├── js/
 │   │   ├── core/         # Core JavaScript utilities

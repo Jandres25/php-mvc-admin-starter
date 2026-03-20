@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Procesador de Login
- * 
- * Este archivo procesa el formulario de login
- * 
+ * Login Processor
+ *
+ * Processes the login form submission.
+ *
  * @package ProyectoBase
  * @subpackage Controllers\Auth
  * @author Jandres25
  * @version 1.0
  */
 
-// Incluir sesión (inicia sesión, carga .env, define funciones globales de auth y CSRF)
+// Include session (starts session, loads .env, defines global auth and CSRF functions)
 require_once __DIR__ . '/../../views/layouts/session.php';
 
-// Incluir autoload y configuración
+// Include autoloader and configuration
 require_once __DIR__ . '/../../config/config.php';
 
-// Crear instancia del controlador
+// Instantiate the controller
 $authController = new \Controllers\Auth\AuthController();
 
-// Procesar login
+// Process login
 $authController->login();

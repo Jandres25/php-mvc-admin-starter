@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Procesador de Logout
- * 
- * Este archivo procesa el cierre de sesión
- * 
+ * Logout Processor
+ *
+ * Processes the session termination.
+ *
  * @package ProyectoBase
  * @subpackage Controllers\Auth
  * @author Jandres25
  * @version 1.0
  */
 
-// Incluir sesión (inicia sesión, carga .env, define $URL y funciones globales)
+// Include session (starts session, loads .env, defines $URL and global functions)
 require_once __DIR__ . '/../../views/layouts/session.php';
 
-// Incluir autoload y configuración
+// Include autoloader and configuration
 require_once __DIR__ . '/../../config/config.php';
 
-// Crear instancia del controlador
+// Instantiate the controller
 $authController = new \Controllers\Auth\AuthController();
 
-// Procesar logout
+// Process logout
 $authController->logout();
