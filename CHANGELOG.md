@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-03-19
+
 ### Changed
 - Full codebase translation from Spanish to English: DB schema/columns, model/service/controller class and method names, session keys, file and directory names (`usuarios/` → `users/`, `permisos/` → `permissions/`), all UI strings, JS modules, and documentation
 - `config/conexion.php` renamed to `config/connection.php`; class `Conexion` renamed to `Connection`; property `$conexion` renamed to `$connection` in all models and services
+- Dashboard (`index.php`): replaced placeholder cards with 4 AdminLTE stat widgets (total/active users and permissions pulled from the DB) and a recent users table; table hides Email on xs and Registered on xs/sm for better mobile responsiveness
+
+### Added
+- `User::getStatistics()` — returns total, active and inactive user counts in a single query
+- `User::getRecent($limit)` — returns the most recently registered users
 
 ## [1.5.0] - 2026-03-19
 
@@ -157,7 +164,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.5.0...2.0.0
 [1.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.2.0...v1.3.0

@@ -35,7 +35,7 @@ $canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 
 
         <!-- Stats widgets -->
         <div class="row">
-            <div class="col-lg-3 col-6">
+            <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box bg-primary">
                     <div class="inner">
                         <h3><?= $userStats['total']; ?></h3>
@@ -52,7 +52,7 @@ $canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 
                 </div>
             </div>
 
-            <div class="col-lg-3 col-6">
+            <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box bg-success">
                     <div class="inner">
                         <h3><?= $userStats['active']; ?></h3>
@@ -65,7 +65,7 @@ $canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 
                 </div>
             </div>
 
-            <div class="col-lg-3 col-6">
+            <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
                         <h3><?= $permStats['total']; ?></h3>
@@ -82,7 +82,7 @@ $canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 
                 </div>
             </div>
 
-            <div class="col-lg-3 col-6">
+            <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box bg-info">
                     <div class="inner">
                         <h3><?= $permStats['active']; ?></h3>
@@ -117,38 +117,42 @@ $canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 
                         <?php if (empty($recentUsers)): ?>
                             <p class="text-muted text-center py-4">No users registered yet.</p>
                         <?php else: ?>
-                            <table class="table table-hover mb-0">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Status</th>
-                                        <th>Registered</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($recentUsers as $user): ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="thead-light">
                                         <tr>
-                                            <td>
-                                                <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($user['email']); ?></td>
-                                            <td>
-                                                <?php if ((int)$user['status'] === 1): ?>
-                                                    <span class="badge badge-success">Active</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-danger">Inactive</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <?= $user['created_at']
-                                                    ? date('m/d/Y', strtotime($user['created_at']))
-                                                    : '—'; ?>
-                                            </td>
+                                            <th>Name</th>
+                                            <th class="d-none d-sm-table-cell">Email</th>
+                                            <th>Status</th>
+                                            <th class="d-none d-md-table-cell">Registered</th>
                                         </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($recentUsers as $user): ?>
+                                            <tr>
+                                                <td>
+                                                    <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>
+                                                </td>
+                                                <td class="d-none d-sm-table-cell">
+                                                    <?= htmlspecialchars($user['email']); ?>
+                                                </td>
+                                                <td>
+                                                    <?php if ((int)$user['status'] === 1): ?>
+                                                        <span class="badge badge-success">Active</span>
+                                                    <?php else: ?>
+                                                        <span class="badge badge-danger">Inactive</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="d-none d-md-table-cell">
+                                                    <?= $user['created_at']
+                                                        ? date('m/d/Y', strtotime($user['created_at']))
+                                                        : '—'; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
