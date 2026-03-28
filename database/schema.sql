@@ -9,7 +9,8 @@ CREATE TABLE permissions (
   description TEXT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
-  status tinyint(1) DEFAULT 1
+  status tinyint(1) DEFAULT 1,
+  UNIQUE KEY (name)
 );
 
 -- Users table

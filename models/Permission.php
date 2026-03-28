@@ -162,7 +162,11 @@ class Permission
             $stmt->bindParam(':description', $description,   PDO::PARAM_STR);
             return $stmt->execute();
         } catch (PDOException $e) {
-            $this->lastError = $e->getMessage();
+            if ($e->getCode() == 23000) {
+                $this->lastError = 'A permission with this name already exists.';
+            } else {
+                $this->lastError = $e->getMessage();
+            }
             return false;
         }
     }
@@ -191,7 +195,11 @@ class Permission
             $stmt->bindParam(':id',          $id,           PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            $this->lastError = $e->getMessage();
+            if ($e->getCode() == 23000) {
+                $this->lastError = 'A permission with this name already exists.';
+            } else {
+                $this->lastError = $e->getMessage();
+            }
             return false;
         }
     }

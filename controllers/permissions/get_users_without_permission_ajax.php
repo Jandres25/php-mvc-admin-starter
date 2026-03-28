@@ -43,8 +43,8 @@ $controller = new \Controllers\Permissions\PermissionController();
 $users      = $controller->getUsersWithoutPermission($permissionId);
 
 $result = array_map(function ($u) {
-    $name     = htmlspecialchars($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? ''));
-    $position = $u['position'] ? ' — ' . htmlspecialchars($u['position']) : '';
+    $name     = htmlspecialchars($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $position = $u['position'] ? ' — ' . htmlspecialchars($u['position'], ENT_QUOTES, 'UTF-8') : '';
     return ['id' => $u['id'], 'text' => trim($name) . $position];
 }, $users);
 
