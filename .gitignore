@@ -10,6 +10,8 @@ bash.exe.stackdump
 .env
 /public/uploads/users/*
 !/public/uploads/users/user_default.jpg
+.mcp.json
+.claude
 
 # IDEs and editors
 .idea/
