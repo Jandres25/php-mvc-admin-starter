@@ -60,7 +60,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Server communication error.' });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'A communication error occurred with the server.' });
                 $btn.prop('disabled', false).html('<i class="fas fa-user-plus mr-1"></i> Assign');
             }
         });
@@ -75,6 +75,7 @@ $(document).ready(function () {
     $(document).on('click', '.btn-revoke', function () {
         const userId = $(this).data('user-id');
         const name   = $(this).data('name');
+        const $btn   = $(this);
 
         Swal.fire({
             title: 'Revoke permission?',
@@ -88,6 +89,8 @@ $(document).ready(function () {
         }).then((result) => {
             if (!result.isConfirmed) return;
 
+            $btn.prop('disabled', true);
+
             $.ajax({
                 url: `${baseUrl}controllers/permissions/revoke_user_permission_ajax.php`,
                 type: 'POST',
@@ -98,10 +101,12 @@ $(document).ready(function () {
                         location.reload();
                     } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                        $btn.prop('disabled', false);
                     }
                 },
                 error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Server communication error.' });
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'A communication error occurred with the server.' });
+                    $btn.prop('disabled', false);
                 }
             });
         });
