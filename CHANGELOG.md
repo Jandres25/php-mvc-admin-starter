@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-03-29
+
+### Fixed
+- **Permissions — duplicate name**: Added `UNIQUE KEY (name)` to the `permissions` table in `schema.sql`; `Permission::create()` and `Permission::update()` now catch SQLSTATE `23000` and return a user-friendly message instead of exposing the raw PDO exception
+- **Permissions — inactive guard**: The "Assign User" button is now hidden and a contextual warning banner is displayed when viewing the detail of an inactive permission, preventing assignments that would silently fail
+- **Permissions — revoke double-submit**: The revoke button in `detail-permission.js` is now disabled immediately after the SweetAlert2 confirmation, preventing concurrent AJAX calls on rapid clicks; re-enabled on server error
+- **Permissions — session self-assign**: `assign_user_permission_ajax.php` no longer re-fetches all user permissions on self-assign; it appends the single new permission via `Permission::getById()`, saving a full JOIN query
+- **JS error messages**: Normalized both network-error strings in `detail-permission.js` to match the rest of the modules: `'A communication error occurred with the server.'`
+
+### Security
+- **XSS in `get_users_without_permission_ajax.php`**: Both `htmlspecialchars()` calls now use `ENT_QUOTES, 'UTF-8'` flags, preventing attribute-context injection for user names and positions
+
 ## [2.0.0] - 2026-03-19
 
 ### Changed
@@ -164,7 +176,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.5.0...2.0.0
 [1.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.3.0...v1.4.0

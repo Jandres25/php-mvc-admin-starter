@@ -65,7 +65,7 @@ libs/           # Vendored libraries (TCPDF)
 
 ### Database Connection
 
-`config/conexion.php` exposes a singleton `Conexion::getInstance()` returning a configured PDO object. All queries use prepared statements.
+`config/connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements.
 
 ### Permissions
 
@@ -79,7 +79,7 @@ Permission names are checked against `$_SESSION['user_permissions']` (cached at 
 
 Action controllers (e.g., `create_user.php`, `ajax_change_password.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated via `generateCSRFToken()` (global in `session.php`) and validated with `verifyCSRFToken()`; call `regenerateCSRFToken()` after every successful POST.
 
-When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` in the PHP endpoint before echoing the JSON — `mensajes.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
+When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` in the PHP endpoint before echoing the JSON — `messages.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
 
 ### Frontend Modules
 
