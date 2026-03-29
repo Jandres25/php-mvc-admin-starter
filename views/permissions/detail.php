@@ -23,6 +23,8 @@ if (!$permission) {
     exit;
 }
 
+$isInactive = $permission['status'] == 0;
+
 $plugins = ['datatables', 'select2'];
 
 include_once '../layouts/header.php';
@@ -112,15 +114,23 @@ $usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-users mr-1"></i> Users with this Permission</h3>
                         <div class="card-tools">
+                            <?php if (!$isInactive): ?>
                             <button type="button" class="btn btn-success btn-sm mr-2" id="btnAssignUser">
                                 <i class="fas fa-user-plus"></i> Assign User
                             </button>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
                         </div>
                     </div>
                     <div class="card-body">
+                        <?php if ($isInactive): ?>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            This permission is <strong>inactive</strong>. No new users can be assigned until it is reactivated.
+                        </div>
+                        <?php endif; ?>
                         <table id="tablePermissionDetail" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
                             <thead>
                                 <tr>

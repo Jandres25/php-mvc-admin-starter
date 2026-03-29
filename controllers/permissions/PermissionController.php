@@ -74,7 +74,7 @@ class PermissionController
             ];
         }
 
-        return ['success' => false, 'message' => 'Error creating permission: ' . $this->model->getLastError()];
+        return ['success' => false, 'message' => $this->model->getLastError()];
     }
 
     /**
@@ -139,7 +139,7 @@ class PermissionController
             ];
         }
 
-        return ['success' => false, 'message' => 'Error updating permission: ' . $this->model->getLastError()];
+        return ['success' => false, 'message' => $this->model->getLastError()];
     }
 
     /**

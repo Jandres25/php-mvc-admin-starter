@@ -54,9 +54,12 @@ if ($result) {
     $userModel->updatePermissionsTimestamp($userId);
 
     if ($userId === $_SESSION['user_id']) {
-        $permissions                    = $authService->getUserPermissions($userId);
-        $_SESSION['user_permissions']   = array_column($permissions, 'name');
-        $_SESSION['permissions_ts']     = date('Y-m-d H:i:s');
+        $permModel = new \Models\Permission();
+        $perm      = $permModel->getById($permissionId);
+        if ($perm && !in_array($perm['name'], $_SESSION['user_permissions'])) {
+            $_SESSION['user_permissions'][] = $perm['name'];
+            $_SESSION['permissions_ts']     = date('Y-m-d H:i:s');
+        }
     }
 
     $_SESSION['message'] = 'User assigned successfully.';
