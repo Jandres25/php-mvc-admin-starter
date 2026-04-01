@@ -44,8 +44,8 @@ $module_scripts = ['users/index-users'];
                                 <a href="<?= $URL; ?>views/users/create.php" class="btn btn-primary btn-sm">
                                     <i class="fas fa-user-plus"></i> New User
                                 </a>
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-minus"></i>
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Collapse">
+                                    <i class="fas fa-minus" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -85,9 +85,9 @@ $module_scripts = ['users/index-users'];
                                         <td><?= htmlspecialchars($user['email']); ?></td>
                                         <td class="text-center">
                                             <?php if (isset($user['image'])): ?>
-                                                <img src="<?= $URL; ?>public/uploads/users/<?= $user['image']; ?>" loading="lazy" alt="Image" class="img-thumbnail" width="30">
+                                                <img src="<?= $URL; ?>public/uploads/users/<?= $user['image']; ?>" loading="lazy" alt="Profile picture of <?= htmlspecialchars($user['name']); ?>" class="img-thumbnail" width="30">
                                             <?php else : ?>
-                                                <img src="<?= $URL; ?>public/uploads/users/user_default.jpg" loading="lazy" alt="Image" class="img-thumbnail" width="30">
+                                                <img src="<?= $URL; ?>public/uploads/users/user_default.jpg" loading="lazy" alt="Default profile picture" class="img-thumbnail" width="30">
                                             <?php endif; ?>
                                         </td>
                                         <td><?= (!empty($user['position'])) ? htmlspecialchars($user['position']) : 'N/A'; ?></td>
@@ -100,18 +100,19 @@ $module_scripts = ['users/index-users'];
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm">
-                                                    <i class="fas fa-eye"></i>
+                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm" aria-label="View user <?= htmlspecialchars($user['name']); ?>">
+                                                    <i class="fas fa-eye" aria-hidden="true"></i>
                                                 </a>
-                                                <a href="<?= $URL; ?>views/users/update.php?id=<?= $user['id']; ?>" class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-edit"></i>
+                                                <a href="<?= $URL; ?>views/users/update.php?id=<?= $user['id']; ?>" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>">
+                                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </a>
                                                 <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                                     <button type="button" class="btn <?= $statusBtnClass; ?> btn-sm btn-toggle-status"
+                                                        aria-label="<?= $confirmButtonText; ?> user <?= htmlspecialchars($user['name']); ?>"
                                                         data-id="<?= $user['id']; ?>"
                                                         data-status="<?= $currentStatus; ?>"
                                                         data-name="<?= htmlspecialchars($user['name']); ?>">
-                                                        <i class="fas <?= $statusIconClass; ?>"></i>
+                                                        <i class="fas <?= $statusIconClass; ?>" aria-hidden="true"></i>
                                                     </button>
                                                 <?php endif; ?>
                                             </div>

@@ -10,8 +10,11 @@ bash.exe.stackdump
 .env
 /public/uploads/users/*
 !/public/uploads/users/user_default.jpg
+# IA & Agentes locales
 .mcp.json
-.claude
+.claude/*
+!.claude/skills/
+!.claude/settings.example.json
 
 # IDEs and editors
 .idea/

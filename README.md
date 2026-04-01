@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.0.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.1.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -125,6 +125,11 @@ libs/           # Vendored libraries (TCPDF)
 - Session ID regeneration on every login
 - Permission cache in session — navigation checks require zero DB queries per page load
 - Users cannot deactivate or change the status of their own account
+
+## AI Integration
+
+This project is configured for AI coding assistants like Claude Code. It includes custom skills, MCP server templates, and auto-approval settings.
+See [docs/AI_SETUP.md](docs/AI_SETUP.md) for full details on how to use and extend the AI configuration.
 
 ## Contributing
 

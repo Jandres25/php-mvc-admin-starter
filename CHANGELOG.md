@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-04-01
+
+### Added
+- `docs/AI_SETUP.md` documentation for configuring AI assistants like Claude Code.
+- `.claude/settings.example.json` to share recommended bash permissions for Claude Code.
+- `.mcp.example.json` to share recommended Model Context Protocol (MCP) servers (GitHub, MySQL, ClickUp).
+- Added `.claude/*` to `.gitignore` while explicitly allowing `!.claude/skills/` and `!.claude/settings.example.json`.
+
 ## [2.0.1] - 2026-03-29
 
 ### Fixed
@@ -176,7 +184,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.1...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.5.0...2.0.0
 [1.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.4.0...v1.5.0
