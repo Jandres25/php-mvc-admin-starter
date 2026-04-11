@@ -66,7 +66,7 @@ class UserController
         return [
             'name'            => isset($postData['name'])            ? trim($postData['name'])            : '',
             'first_surname'   => isset($postData['first_surname'])   ? trim($postData['first_surname'])   : '',
-            'second_surname'  => isset($postData['second_surname'])  ? trim($postData['second_surname'])  : '',
+            'second_surname'  => !empty($postData['second_surname'])  ? trim($postData['second_surname'])  : null,
             'document_type'   => isset($postData['document_type'])   ? trim($postData['document_type'])   : '',
             'document_number' => isset($postData['document_number']) ? trim($postData['document_number']) : '',
             'address'         => !empty($postData['address'])  ? trim($postData['address'])  : null,

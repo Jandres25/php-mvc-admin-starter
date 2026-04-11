@@ -126,7 +126,13 @@ class User
             $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':name',            $data['name'],            PDO::PARAM_STR);
             $stmt->bindParam(':first_surname',   $data['first_surname'],   PDO::PARAM_STR);
-            $stmt->bindParam(':second_surname',  $data['second_surname'],  PDO::PARAM_STR);
+
+            if (empty($data['second_surname'])) {
+                $stmt->bindValue(':second_surname', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindParam(':second_surname', $data['second_surname'], PDO::PARAM_STR);
+            }
+
             $stmt->bindParam(':document_type',   $data['document_type'],   PDO::PARAM_STR);
             $stmt->bindParam(':document_number', $data['document_number'], PDO::PARAM_STR);
 
@@ -197,7 +203,13 @@ class User
             $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':name',            $data['name'],            PDO::PARAM_STR);
             $stmt->bindParam(':first_surname',   $data['first_surname'],   PDO::PARAM_STR);
-            $stmt->bindParam(':second_surname',  $data['second_surname'],  PDO::PARAM_STR);
+
+            if (empty($data['second_surname'])) {
+                $stmt->bindValue(':second_surname', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindParam(':second_surname', $data['second_surname'], PDO::PARAM_STR);
+            }
+
             $stmt->bindParam(':document_type',   $data['document_type'],   PDO::PARAM_STR);
             $stmt->bindParam(':document_number', $data['document_number'], PDO::PARAM_STR);
 

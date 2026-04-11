@@ -154,12 +154,16 @@ class Permission
                 return false;
             }
 
-            $description = $data['description'] ?? null;
+            $description = !empty($data['description']) ? $data['description'] : null;
             $stmt = $this->connection->prepare(
                 "INSERT INTO {$this->tabla} (name, description) VALUES (:name, :description)"
             );
-            $stmt->bindParam(':name',        $data['name'],  PDO::PARAM_STR);
-            $stmt->bindParam(':description', $description,   PDO::PARAM_STR);
+            $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
+            if ($description === null) {
+                $stmt->bindValue(':description', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+            }
             return $stmt->execute();
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
@@ -186,13 +190,17 @@ class Permission
                 return false;
             }
 
-            $description = $data['description'] ?? null;
+            $description = !empty($data['description']) ? $data['description'] : null;
             $stmt = $this->connection->prepare(
                 "UPDATE {$this->tabla} SET name = :name, description = :description WHERE id = :id"
             );
-            $stmt->bindParam(':name',        $data['name'], PDO::PARAM_STR);
-            $stmt->bindParam(':description', $description,  PDO::PARAM_STR);
-            $stmt->bindParam(':id',          $id,           PDO::PARAM_INT);
+            $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
+            if ($description === null) {
+                $stmt->bindValue(':description', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+            }
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
