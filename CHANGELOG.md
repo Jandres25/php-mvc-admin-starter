@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-04-11
+
+### Added
+- `public/js/core/ui-components.js` — `ComponentUtils` module: centralizes Select2 and tooltip initialization with a single `ComponentUtils.initAll()` call on `DOMContentLoaded`; `initSelect2(options, selector)` and `initTooltips()` are also exposed individually for modules that need targeted initialization
+- `public/css/core/ui-components.css` — companion stylesheet loaded globally via `header.php`
+- **Permissions index**: new "Description" column in the permissions table showing the permission description or "N/A"
+- `data-toggle="tooltip"` added to action buttons in `users/index.php`, `permissions/index.php`, and `permissions/detail.php` — tooltips are now initialized automatically by `ComponentUtils`
+
+### Changed
+- `views/permissions/_modal_permission.php` now includes the "Assign User" modal (previously inlined in `detail.php`), keeping `detail.php` free of duplicate markup
+- `public/js/core/common-utils.js` — `initializeSelect2()` now delegates to `ComponentUtils.initSelect2()` for backwards compatibility; `refreshSelect2()` and `initializeTooltips()` removed (functionality covered by `ComponentUtils`)
+- `create-user.js` / `update-user.js` — removed manual `initializeSelect2()` and `$('[data-toggle="tooltip"]').tooltip()` calls; auto-initialization handled by `ComponentUtils.initAll()`
+
+### Fixed
+- **Users — `second_surname` stored as empty string**: `UserController::prepareUserData()` now returns `null` for an empty `second_surname`; `User::create()` and `User::update()` bind it with `PDO::PARAM_NULL` when empty, consistent with the existing pattern for `address`, `phone`, and other nullable fields
+- **Permissions — `description` stored as empty string**: `Permission::create()` and `Permission::update()` now use `!empty()` (instead of `?? null`, which does not catch `''`) and bind `null` with `PDO::PARAM_NULL` when the description is absent or blank
+
 ## [2.1.0] - 2026-04-01
 
 ### Added
@@ -184,7 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.1.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.2.0...HEAD
+[2.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/v1.5.0...2.0.0
