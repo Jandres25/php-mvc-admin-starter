@@ -115,9 +115,9 @@ $usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
                         <h3 class="card-title"><i class="fas fa-users mr-1"></i> Users with this Permission</h3>
                         <div class="card-tools">
                             <?php if (!$isInactive): ?>
-                            <button type="button" class="btn btn-success btn-sm mr-2" id="btnAssignUser">
-                                <i class="fas fa-user-plus"></i> Assign User
-                            </button>
+                                <button type="button" class="btn btn-success btn-sm mr-2" id="btnAssignUser">
+                                    <i class="fas fa-user-plus"></i> Assign User
+                                </button>
                             <?php endif; ?>
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -126,10 +126,10 @@ $usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
                     </div>
                     <div class="card-body">
                         <?php if ($isInactive): ?>
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                            This permission is <strong>inactive</strong>. No new users can be assigned until it is reactivated.
-                        </div>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                This permission is <strong>inactive</strong>. No new users can be assigned until it is reactivated.
+                            </div>
                         <?php endif; ?>
                         <table id="tablePermissionDetail" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
                             <thead>
@@ -150,13 +150,13 @@ $usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
                                         <td><?= htmlspecialchars($user['position']); ?></td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm" title="View user">
+                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View user">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <button type="button" class="btn btn-danger btn-sm btn-revoke"
                                                     data-user-id="<?= $user['id']; ?>"
                                                     data-name="<?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>"
-                                                    title="Revoke permission">
+                                                    data-toggle="tooltip" title="Revoke permission">
                                                     <i class="fas fa-user-minus"></i>
                                                 </button>
                                             </div>
@@ -173,41 +173,6 @@ $usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
 </section>
 
 <?php include '_modal_permission.php'; ?>
-
-<!-- Assign User Modal -->
-<div class="modal fade" id="modalAssignUser" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title"><i class="fas fa-user-plus mr-1"></i> Assign User to Permission</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="selectUser">Select User <span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectUser">
-                        <option value=""></option>
-                        <?php foreach ($usersWithoutPerm as $u): ?>
-                            <option value="<?= $u['id']; ?>">
-                                <?= htmlspecialchars(trim($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? '')) . ($u['position'] ? ' — ' . $u['position'] : '')); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-success" id="btnConfirmAssign">
-                    <i class="fas fa-user-plus"></i> Assign
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     const permissionId = <?= $id; ?>;

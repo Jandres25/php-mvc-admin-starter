@@ -36,3 +36,38 @@
         </div>
     </div>
 </div>
+
+<!-- Assign User Modal -->
+<div class="modal fade" id="modalAssignUser" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title"><i class="fas fa-user-plus mr-1"></i> Assign User to Permission</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="selectUser">Select User <span class="text-danger">*</span></label>
+                    <select class="form-control select2" id="selectUser">
+                        <option value="">Selecciona un usuario</option>
+                        <?php foreach ($usersWithoutPerm as $u): ?>
+                            <option value="<?= $u['id']; ?>">
+                                <?= htmlspecialchars(trim($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? '')) . ($u['position'] ? ' — ' . $u['position'] : '')); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="btnConfirmAssign">
+                    <i class="fas fa-user-plus"></i> Assign
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

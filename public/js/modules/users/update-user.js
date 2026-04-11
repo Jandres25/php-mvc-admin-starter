@@ -11,8 +11,6 @@
  */
 
 $(document).ready(function () {
-    initializeSelect2();
-
     // ============= JQUERY VALIDATE =============
 
     const userId = $('input[name="user_id"]').val() || '';
@@ -200,5 +198,4 @@ $(document).ready(function () {
         Swal.fire({ position: 'top-end', icon: 'info', title: 'All permissions deselected', showConfirmButton: false, timer: 3000, toast: true });
     });
 
-    $('[data-toggle="tooltip"]').tooltip();
 });

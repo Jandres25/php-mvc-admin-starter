@@ -29,6 +29,8 @@ global $URL;
     <link rel="icon" type="image/png" href="<?= $URL; ?>public/img/e-commerce_logo.png">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/adminlte/adminlte.min.css">
+    <!-- UI Components custom styles -->
+    <link rel="stylesheet" href="<?= $URL; ?>public/css/core/ui-components.css">
     <!-- Conditional plugin CSS -->
     <?php
     $plugin_css = [

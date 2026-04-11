@@ -88,7 +88,8 @@ $module_scripts = ['permissions/modal-permission', 'permissions/index-permission
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 10%">ID</th>
-                                        <th class="text-center" style="width: 50%">Name</th>
+                                        <th class="text-center" style="width: 20%">Name</th>
+                                        <th class="text-center" style="width: 40%">Description</th>
                                         <th class="text-center" style="width: 15%">Users</th>
                                         <th class="text-center" style="width: 10%">Status</th>
                                         <th class="text-center" style="width: 15%">Actions</th>
@@ -106,6 +107,7 @@ $module_scripts = ['permissions/modal-permission', 'permissions/index-permission
                                         <tr>
                                             <td class="text-center"><?= $permission['id']; ?></td>
                                             <td><?= htmlspecialchars($permission['name']); ?></td>
+                                            <td><?= htmlspecialchars($permission['description'] ?? 'N/A'); ?></td>
                                             <td class="text-center">
                                                 <span class="badge <?= $usersClass; ?> badge-pill p-2">
                                                     <?= $totalUsers; ?> user<?= $totalUsers != 1 ? 's' : ''; ?>
@@ -116,21 +118,21 @@ $module_scripts = ['permissions/modal-permission', 'permissions/index-permission
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a href="<?= $URL; ?>views/permissions/detail.php?id=<?= $permission['id']; ?>" class="btn btn-info btn-sm" title="View details">
+                                                    <a href="<?= $URL; ?>views/permissions/detail.php?id=<?= $permission['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View details">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <button type="button" class="btn btn-warning btn-sm btn-edit"
                                                         data-id="<?= $permission['id']; ?>"
                                                         data-name="<?= htmlspecialchars($permission['name']); ?>"
                                                         data-description="<?= htmlspecialchars($permission['description'] ?? ''); ?>"
-                                                        title="Edit">
+                                                        data-toggle="tooltip" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     <button type="button" class="btn <?= $currentStatus == 1 ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
                                                         data-id="<?= $permission['id']; ?>"
                                                         data-current-status="<?= $currentStatus; ?>"
                                                         data-users="<?= $totalUsers; ?>"
-                                                        title="<?= $currentStatus == 1 ? 'Deactivate' : 'Activate'; ?>">
+                                                        data-toggle="tooltip" title="<?= $currentStatus == 1 ? 'Deactivate' : 'Activate'; ?>">
                                                         <i class="fas <?= $currentStatus == 1 ? 'fa-times' : 'fa-check'; ?>"></i>
                                                     </button>
                                                 </div>

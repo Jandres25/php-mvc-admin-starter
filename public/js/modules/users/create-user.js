@@ -11,8 +11,6 @@
  */
 
 $(document).ready(function () {
-    initializeSelect2();
-
     // ============= JQUERY VALIDATE =============
 
     $('#formUser').validate({
@@ -194,5 +192,4 @@ $(document).ready(function () {
         Swal.fire({ position: 'top-end', icon: 'info', title: 'All permissions deselected', showConfirmButton: false, timer: 3000, toast: true });
     });
 
-    $('[data-toggle="tooltip"]').tooltip();
 });

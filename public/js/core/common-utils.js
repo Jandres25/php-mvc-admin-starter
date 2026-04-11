@@ -11,103 +11,16 @@
  */
 
 /**
- * Initializes Select2 on selected elements without modifying their options
+ * Wrapper for ComponentUtils.initSelect2Single — initializes Select2 on a
+ * specific selector with custom options. Use this when extra options are
+ * needed (e.g. dropdownParent for modals); for general page initialization
+ * ComponentUtils.initAll() in ui-components.js handles it automatically.
  *
  * @param {string} selector - Selector for elements to initialize (optional)
  * @param {object} options  - Additional Select2 options (optional)
  */
 function initializeSelect2(selector = '.select2', options = {}) {
-    const defaultOptions = {
-        theme: 'bootstrap4',
-        width: '100%',
-        allowClear: false,
-        minimumResultsForSearch: 7,
-        closeOnSelect: true,
-        dropdownAutoWidth: true,
-        language: {
-            noResults: function () {
-                return "No results found";
-            },
-            searching: function () {
-                return "Searching...";
-            },
-            inputTooShort: function (args) {
-                var remaining = args.minimum - args.input.length;
-                return "Please enter " + remaining + " more character" + (remaining === 1 ? "" : "s");
-            },
-            loadingMore: function () {
-                return "Loading more results...";
-            },
-            removeAllItems: function () {
-                return "Remove all items";
-            }
-        }
-    };
-
-    const mergedOptions = $.extend(true, {}, defaultOptions, options);
-
-    $(selector).each(function () {
-        if ($(this).data('select2')) {
-            $(this).select2('destroy');
-        }
-        $(this).select2(mergedOptions);
-    });
-}
-
-/**
- * Refreshes a Select2 element after its options have changed
- *
- * @param {string}        selector      - Select element selector
- * @param {string|number} valueToSelect - Value to select after refresh (optional)
- * @param {object}        options       - Additional Select2 options (optional)
- */
-function refreshSelect2(selector, valueToSelect = null, options = {}) {
-    if ($(selector).data('select2')) {
-        $(selector).select2('destroy');
-    }
-
-    initializeSelect2(selector, options);
-
-    if (valueToSelect !== null) {
-        $(selector).val(valueToSelect).trigger('change');
-    }
-}
-
-/**
- * Initializes tooltips with basic mobile device support
- */
-function initializeTooltips() {
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-    $('[data-toggle="tooltip"]').tooltip({
-        trigger: isTouchDevice ? 'click' : 'hover',
-        placement: 'auto',
-        delay: isTouchDevice ? { show: 0, hide: 2000 } : { show: 50, hide: 100 }
-    });
-
-    if (isTouchDevice) {
-        $('.tooltip').addClass('tooltip-touch');
-
-        $('a[data-toggle="tooltip"]').each(function () {
-            const $link = $(this);
-
-            if ($link.find('.info-btn').length === 0) {
-                $link.append('<span class="info-btn ml-1"><i class="fas fa-info-circle text-info"></i></span>');
-
-                $link.find('.info-btn').on('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    $link.tooltip('show');
-                });
-            }
-        });
-
-        $(document).on('touchstart', function (e) {
-            if (!$(e.target).closest('[data-toggle="tooltip"], .tooltip').length) {
-                $('[data-toggle="tooltip"]').tooltip('hide');
-            }
-        });
-    }
+    ComponentUtils.initSelect2(options, selector);
 }
 
 /**

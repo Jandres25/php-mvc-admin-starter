@@ -100,10 +100,10 @@ $module_scripts = ['users/index-users'];
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm" aria-label="View user <?= htmlspecialchars($user['name']); ?>">
+                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm" aria-label="View user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Ver usuario">
                                                     <i class="fas fa-eye" aria-hidden="true"></i>
                                                 </a>
-                                                <a href="<?= $URL; ?>views/users/update.php?id=<?= $user['id']; ?>" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>">
+                                                <a href="<?= $URL; ?>views/users/update.php?id=<?= $user['id']; ?>" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Editar usuario">
                                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </a>
                                                 <?php if ($user['id'] != $_SESSION['user_id']): ?>
@@ -111,7 +111,8 @@ $module_scripts = ['users/index-users'];
                                                         aria-label="<?= $confirmButtonText; ?> user <?= htmlspecialchars($user['name']); ?>"
                                                         data-id="<?= $user['id']; ?>"
                                                         data-status="<?= $currentStatus; ?>"
-                                                        data-name="<?= htmlspecialchars($user['name']); ?>">
+                                                        data-name="<?= htmlspecialchars($user['name']); ?>"
+                                                        data-toggle="tooltip" title="<?= $alertTitle; ?>">
                                                         <i class="fas <?= $statusIconClass; ?>" aria-hidden="true"></i>
                                                     </button>
                                                 <?php endif; ?>
