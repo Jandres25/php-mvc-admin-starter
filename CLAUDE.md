@@ -58,7 +58,7 @@ services/       # Business logic (AuthorizationService.php, ImageService.php)
 controllers/    # One file per action (e.g., create_user.php, login.php)
 views/          # PHP templates; layouts/header.php pulls in all CSS/JS
 public/         # Static assets organized as lib/, core/, plugins/, modules/
-libs/           # Vendored libraries (TCPDF)
+libs/           # Vendored libraries (TCPDF, PHPMailer)
 ```
 
 ### Custom Autoloader

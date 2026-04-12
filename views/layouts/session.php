@@ -123,7 +123,7 @@ function requireLogin($redirectUrl = null)
     global $URL;
 
     if (!$redirectUrl) {
-        $redirectUrl = $URL . 'views/login/login.php';
+        $redirectUrl = $URL . 'views/auth/login.php';
     }
 
     if (!isAuthenticated() || !checkSessionTimeout() || !checkSessionSecurity()) {

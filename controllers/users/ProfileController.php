@@ -52,7 +52,7 @@ class ProfileController
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['message'] = 'You must log in to access your profile.';
             $_SESSION['icon']    = 'warning';
-            header('Location: ' . $URL . 'views/login/login.php');
+            header('Location: ' . $URL . 'views/auth/login.php');
             exit;
         }
 
@@ -81,7 +81,7 @@ class ProfileController
         }
 
         if (!isset($_SESSION['user_id'])) {
-            return ['success' => false, 'message' => 'Session not started.', 'icon' => 'error', 'redirect' => 'views/login/login.php'];
+            return ['success' => false, 'message' => 'Session not started.', 'icon' => 'error', 'redirect' => 'views/auth/login.php'];
         }
 
         $id          = $_SESSION['user_id'];

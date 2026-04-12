@@ -770,6 +770,74 @@ class User
     }
 
     /**
+     * Stores a password reset token for a user identified by email.
+     *
+     * @param string $email
+     * @param string $token
+     * @param string $expiry DATETIME string
+     * @return bool
+     */
+    public function setResetToken($email, $token, $expiry)
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "UPDATE {$this->tabla} SET reset_token = :token, reset_token_expiry = :expiry WHERE email = :email"
+            );
+            $stmt->bindParam(':token', $token,  PDO::PARAM_STR);
+            $stmt->bindParam(':expiry', $expiry, PDO::PARAM_STR);
+            $stmt->bindParam(':email',  $email,  PDO::PARAM_STR);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Finds a user by a valid reset token.
+     *
+     * @param string $token
+     * @return array|false
+     */
+    public function getUserByResetToken($token)
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT * FROM {$this->tabla} WHERE reset_token = :token AND reset_token_expiry > NOW()"
+            );
+            $stmt->bindParam(':token', $token, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Resets the user's password and clears the reset token.
+     *
+     * @param int    $id
+     * @param string $newPassword Plain-text password
+     * @return bool
+     */
+    public function resetPassword($id, $newPassword)
+    {
+        try {
+            $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $this->connection->prepare(
+                "UPDATE {$this->tabla} SET password = :password, reset_token = NULL, reset_token_expiry = NULL WHERE id = :id"
+            );
+            $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
+            $stmt->bindParam(':id',       $id,   PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
      * Returns total, active and inactive user counts.
      *
      * @return array{total: int, active: int, inactive: int}

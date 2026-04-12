@@ -26,8 +26,6 @@ require_once __DIR__ . '/../../config/config.php';
     <!-- Font Awesome Webfonts -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/core/webfonts.css">
     <link rel="icon" type="image/png" href="<?= $URL; ?>public/img/e-commerce_logo.png">
-    <!-- iCheck -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Custom login styles -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/modules/login/login.css">
     <!-- Sweetalert2 -->
@@ -67,12 +65,16 @@ require_once __DIR__ . '/../../config/config.php';
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-login">
+                                <i class="fas fa-sign-in-alt mr-2" id="btn-icon"></i> Sign In
                             </button>
                         </div>
                     </div>
                 </form>
+
+                <p class="mb-1 mt-3 text-center">
+                    <a href="<?= $URL; ?>views/auth/forgot_password.php">I forgot my password</a>
+                </p>
             </div>
         </div>
 
@@ -87,95 +89,8 @@ require_once __DIR__ . '/../../config/config.php';
     <script src="<?= $URL; ?>public/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="<?= $URL; ?>public/js/lib/adminlte/adminlte.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-
-            $('#toggle-password').click(function() {
-                const passwordField = $('#password-field');
-                const passwordFieldType = passwordField.attr('type');
-
-                if (passwordFieldType === 'password') {
-                    passwordField.attr('type', 'text');
-                    $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-                } else {
-                    passwordField.attr('type', 'password');
-                    $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-                }
-            });
-
-            $('.login-box').addClass('login-animation');
-
-            $('#login-form').on('submit', function(e) {
-                e.preventDefault();
-
-                const identifier = $('input[name="identifier"]').val().trim();
-                const password = $('input[name="password"]').val().trim();
-                let isValid = true;
-
-                if (!identifier) {
-                    $('input[name="identifier"]').addClass('is-invalid');
-                    isValid = false;
-                } else {
-                    $('input[name="identifier"]').removeClass('is-invalid');
-                }
-
-                if (!password) {
-                    $('input[name="password"]').addClass('is-invalid');
-                    isValid = false;
-                } else {
-                    $('input[name="password"]').removeClass('is-invalid');
-                }
-
-                if (!isValid) {
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Please fill in all fields.'
-                    });
-                    return;
-                }
-
-                if (password.length < 6) {
-                    $('input[name="password"]').addClass('is-invalid');
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Password must be at least 6 characters.'
-                    });
-                    return;
-                }
-
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    title: 'Signing in...',
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                setTimeout(() => {
-                    this.submit();
-                }, 1000);
-            });
-
-            $('input').on('input', function() {
-                $(this).removeClass('is-invalid');
-            });
-        });
-    </script>
+    <!-- Login JS -->
+    <script src="<?= $URL; ?>public/js/modules/auth/login.js"></script>
 
     <?php
     require_once __DIR__ . '/../layouts/messages.php';

@@ -31,6 +31,8 @@ CREATE TABLE users (
   updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
   status tinyint(1) DEFAULT 1,
   permissions_updated_at DATETIME NULL DEFAULT NULL,
+  reset_token varchar(255) DEFAULT NULL,
+  reset_token_expiry DATETIME DEFAULT NULL,
   UNIQUE KEY (email),
   UNIQUE KEY (document_type, document_number)
 );

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-04-12
+
+### Added
+- **Password Reset System**: New workflow to recover accounts via email (`forgot_password.php`, `reset_password.php`)
+- `Services\MailService` — handles SMTP email delivery using PHPMailer
+- `libs/PHPMailer-master` — integrated PHPMailer as the primary mailing engine
+- SMTP configuration support in `.env` (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, etc.)
+
+### Changed
+- **Directory Restructuring**: Renamed `views/login/` to `views/auth/` for better semantic organization
+- **Modular JavaScript**: Extracted inline scripts from auth views to `public/js/modules/auth/` (`login.js`, `forgot_password.js`, `reset_password.js`)
+- **UX Improvements**: Login and password reset buttons now disable and show a spinner icon (`fa-spinner fa-spin`) during form submission to prevent duplicate requests
+- **Enhanced Debugging**: `PasswordResetController` now provides a specific error message if an email is not found when `DEBUG=true` is set in `.env`
+
 ## [2.2.0] - 2026-04-11
 
 ### Added
@@ -201,7 +215,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.2.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.0...2.0.1

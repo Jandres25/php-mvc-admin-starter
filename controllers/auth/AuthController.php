@@ -37,7 +37,7 @@ class AuthController
      */
     public function showLoginForm()
     {
-        require_once __DIR__ . '/../../views/login/login.php';
+        require_once __DIR__ . '/../../views/auth/login.php';
     }
 
     /**
@@ -102,7 +102,7 @@ class AuthController
             exit;
         }
 
-        header('Location: ' . $GLOBALS['URL'] . 'views/login/login.php');
+        header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
     }
 
     /**
@@ -155,7 +155,7 @@ class AuthController
 
         session_destroy();
 
-        header('Location: ' . $GLOBALS['URL'] . 'views/login/login.php');
+        header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
         exit;
     }
 }

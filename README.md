@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.2.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.3.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -66,7 +66,15 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=1.0.0
+APP_VERSION=2.3.0
+
+# SMTP Configuration (Optional)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_app_password
+MAIL_FROM=your_email@gmail.com
+MAIL_FROM_NAME="Admin Starter"
 ```
 
 ## Adding a New Module
