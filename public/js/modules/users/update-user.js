@@ -17,18 +17,18 @@ $(document).ready(function () {
 
     $('#formUser').validate({
         rules: {
-            name:             { required: true },
-            first_surname:    { required: true },
-            document_type:    { required: true },
+            name: { required: true },
+            first_surname: { required: true },
+            document_type: { required: true },
             document_number: {
                 required: true,
                 remote: {
                     url: baseUrl + 'controllers/users/check_document.php',
                     type: 'post',
                     data: {
-                        document_type:   function () { return $('#document_type').val(); },
+                        document_type: function () { return $('#document_type').val(); },
                         document_number: function () { return $('#document_number').val(); },
-                        user_id:         function () { return userId; }
+                        user_id: function () { return userId; }
                     }
                 }
             },
@@ -39,7 +39,7 @@ $(document).ready(function () {
                     url: baseUrl + 'controllers/users/check_email.php',
                     type: 'post',
                     data: {
-                        email:   function () { return $('#email').val(); },
+                        email: function () { return $('#email').val(); },
                         user_id: function () { return userId; }
                     }
                 }
@@ -56,17 +56,17 @@ $(document).ready(function () {
             image: { extension: 'jpg|jpeg|png|gif|webp' }
         },
         messages: {
-            name:          { required: 'Name is required.' },
+            name: { required: 'Name is required.' },
             first_surname: { required: 'First surname is required.' },
             document_type: { required: 'Select a document type.' },
             document_number: {
                 required: 'Document number is required.',
-                remote:   'This document is already registered.'
+                remote: 'This document is already registered.'
             },
             email: {
                 required: 'Email is required.',
-                email:    'Enter a valid email address.',
-                remote:   'This email is already in use.'
+                email: 'Enter a valid email address.',
+                remote: 'This email is already in use.'
             },
             position: { required: 'Select a position.' },
             password: {
@@ -74,7 +74,7 @@ $(document).ready(function () {
             },
             confirm_password: {
                 minlength: 'Password must be at least 8 characters.',
-                equalTo:   'Passwords do not match.'
+                equalTo: 'Passwords do not match.'
             },
             image: {
                 extension: 'Only images are allowed (jpg, png, gif, webp).'
@@ -116,7 +116,7 @@ $(document).ready(function () {
 
     // Document number validation based on type
     $('#document_type').on('change', function () {
-        let type     = $(this).val();
+        let type = $(this).val();
         let docInput = $('#document_number');
 
         switch (type) {
@@ -138,7 +138,7 @@ $(document).ready(function () {
 
     $('#togglePassword').click(function () {
         const field = $('#password');
-        const icon  = $(this).find('i');
+        const icon = $(this).find('i');
         if (field.attr('type') === 'password') {
             field.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
@@ -150,7 +150,7 @@ $(document).ready(function () {
 
     $('#toggleConfirmPassword').click(function () {
         const field = $('#confirm_password');
-        const icon  = $(this).find('i');
+        const icon = $(this).find('i');
         if (field.attr('type') === 'password') {
             field.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
@@ -162,12 +162,12 @@ $(document).ready(function () {
 
     // Update profile preview when fields change
     $('#name, #first_surname, #second_surname').on('input', function () {
-        const name          = $('#name').val() || '';
-        const firstSurname  = $('#first_surname').val() || '';
+        const name = $('#name').val() || '';
+        const firstSurname = $('#first_surname').val() || '';
         const secondSurname = $('#second_surname').val() || '';
 
         let fullName = name;
-        if (firstSurname)  fullName += ' ' + firstSurname;
+        if (firstSurname) fullName += ' ' + firstSurname;
         if (secondSurname) fullName += ' ' + secondSurname;
 
         $('#profile-preview-name').text(fullName || 'User');

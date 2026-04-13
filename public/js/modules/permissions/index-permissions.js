@@ -15,7 +15,7 @@ const errorDeactivateMessage = 'Cannot deactivate the permission because there a
 
 $(document).ready(function () {
     const config = createTableConfig('Permissions', [0, 1, 2, 3], {});
-    const table  = $("#tablePermissions").DataTable(config);
+    const table = $("#tablePermissions").DataTable(config);
     table.buttons().container().appendTo('#tablePermissions_wrapper .col-md-6:eq(0)');
 
     // Open modal in create mode
@@ -35,16 +35,16 @@ $(document).ready(function () {
 
     // Toggle permission status
     $(document).on('click', '.btn-toggle-status', function () {
-        const id            = $(this).data('id');
+        const id = $(this).data('id');
         const currentStatus = $(this).data('current-status');
-        const users         = $(this).data('users');
+        const users = $(this).data('users');
 
         if (currentStatus == 1 && users > 0) {
             showToast(errorDeactivateMessage, 'error');
             return;
         }
 
-        const action            = currentStatus == 1 ? 'deactivate' : 'activate';
+        const action = currentStatus == 1 ? 'deactivate' : 'activate';
         const actionCapitalized = action.charAt(0).toUpperCase() + action.slice(1);
 
         Swal.fire({

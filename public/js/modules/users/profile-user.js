@@ -37,7 +37,7 @@ document.getElementById('image').addEventListener('change', function (e) {
 document.getElementById('formChangePassword').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    const newPassword     = document.getElementById('new_password').value;
+    const newPassword = document.getElementById('new_password').value;
     const confirmPassword = document.getElementById('confirm_password').value;
 
     if (newPassword !== confirmPassword) {

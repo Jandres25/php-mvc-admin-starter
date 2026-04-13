@@ -14,8 +14,8 @@ $(document).ready(function () {
 
     // Open modal in edit mode
     $(document).on('click', '.btn-edit', function () {
-        const id          = $(this).data('id');
-        const name        = $(this).data('name');
+        const id = $(this).data('id');
+        const name = $(this).data('name');
         const description = $(this).data('description') || '';
 
         $('#permissionAction').val('edit');
@@ -35,17 +35,17 @@ $(document).ready(function () {
     $('#formPermission').on('submit', function (e) {
         e.preventDefault();
 
-        const action   = $('#permissionAction').val();
+        const action = $('#permissionAction').val();
         const formData = $(this).serialize();
 
         let url, loadingMsg, successBtn;
 
         if (action === 'create') {
-            url        = `${baseUrl}controllers/permissions/create_permission_ajax.php`;
+            url = `${baseUrl}controllers/permissions/create_permission_ajax.php`;
             loadingMsg = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             successBtn = '<i class="fas fa-save"></i> Save';
         } else {
-            url        = `${baseUrl}controllers/permissions/update_permission_ajax.php`;
+            url = `${baseUrl}controllers/permissions/update_permission_ajax.php`;
             loadingMsg = '<i class="fas fa-spinner fa-spin"></i> Updating...';
             successBtn = '<i class="fas fa-save"></i> Update';
         }

@@ -20,12 +20,12 @@ $(document).ready(function () {
 
 document.addEventListener('DOMContentLoaded', function () {
     function handleStatusToggle(button) {
-        const userId        = button.dataset.id;
+        const userId = button.dataset.id;
         const currentStatus = button.dataset.status;
-        const userName      = button.dataset.name;
+        const userName = button.dataset.name;
 
-        const alertTitle  = currentStatus == 1 ? `Deactivate ${userName}?` : `Activate ${userName}?`;
-        const alertText   = currentStatus == 1 ? 'The user will not be able to access the system.' : 'The user will be able to access the system again.';
+        const alertTitle = currentStatus == 1 ? `Deactivate ${userName}?` : `Activate ${userName}?`;
+        const alertText = currentStatus == 1 ? 'The user will not be able to access the system.' : 'The user will be able to access the system again.';
         const confirmText = currentStatus == 1 ? 'Yes, deactivate' : 'Yes, activate';
 
         Swal.fire({
