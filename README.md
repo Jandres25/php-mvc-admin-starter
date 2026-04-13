@@ -107,7 +107,7 @@ models/         # Data access + input sanitization
 services/       # Reusable business logic (AuthorizationService, ImageService)
 views/          # PHP templates; layouts/session.php validates the session
 public/         # Static assets organized into lib/, core/, plugins/, modules/
-libs/           # Vendored libraries (TCPDF)
+libs/           # Vendored libraries (TCPDF, PHPMailer)
 ```
 
 **Request flow:** URLs point directly to controller files (e.g. `/controllers/auth/login.php`). There is no central router. Every protected page includes `views/layouts/session.php` as its first step, which validates the session and exposes the `requireLogin()` and `getCurrentUser()` helpers.

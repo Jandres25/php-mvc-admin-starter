@@ -103,6 +103,8 @@ require_once '../layouts/header.php';
 
 **Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `controllers/users/check_email.php` or `check_document.php`.
 
+**Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly.
+
 ## Coding Conventions
 
 - **Namespaces:** `Controllers\Auth`, `Controllers\Users`, `Controllers\Permissions`, `Models`, `Services` — match directory structure in lowercase.

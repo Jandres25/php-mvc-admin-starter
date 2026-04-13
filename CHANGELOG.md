@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-04-13
+
+### Added
+- jQuery Validate support in auth views (`views/auth/login.php`, `views/auth/forgot_password.php`, `views/auth/reset_password.php`) by loading `jquery.validate`, `additional-methods`, and `public/js/core/common-validate.js` for consistent client-side validation
+
+### Changed
+- Auth form scripts (`public/js/modules/auth/login.js`, `forgot_password.js`, `reset_password.js`) now use `$('#form').validate({ ... submitHandler })` instead of manual validation checks, while preserving loading toasts/spinners on submit
+- Auth form markup now wraps each input as `form-group > input-group`, aligning Bootstrap validation feedback with the same pattern used in the rest of the app
+- `public/css/modules/login/login.css` now relies on global validation styles (removed local `.is-valid`/`.is-invalid` overrides) and adjusts validation spacing for cleaner rendering
+
+### Fixed
+- Removed redundant Select2 initialization from `public/js/modules/permissions/detail-permission.js`; modal Select2 now depends on centralized initialization to avoid duplicate setup
+
 ## [2.3.0] - 2026-04-12
 
 ### Added
@@ -215,7 +228,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.1...HEAD
+[2.3.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.0.1...2.1.0
