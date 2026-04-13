@@ -45,21 +45,25 @@ require_once __DIR__ . '/../../config/config.php';
                 <form action="<?= $URL; ?>controllers/auth/login.php" method="post" id="login-form">
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
-                    <div class="input-group mb-3">
-                        <input type="text" name="identifier" class="form-control" placeholder="Email or document number"
-                            autocomplete="username">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-user"></span>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" name="identifier" class="form-control" placeholder="Email or document number"
+                                autocomplete="username">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-user"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" id="password-field" class="form-control" placeholder="Password"
-                            autocomplete="current-password">
-                        <div class="input-group-append">
-                            <div class="input-group-text password-toggle" title="Show/Hide password">
-                                <span class="fas fa-eye-slash toggle-password" id="toggle-password"></span>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="password" name="password" id="password-field" class="form-control" placeholder="Password"
+                                autocomplete="current-password">
+                            <div class="input-group-append">
+                                <div class="input-group-text password-toggle" title="Show/Hide password">
+                                    <span class="fas fa-eye-slash toggle-password" id="toggle-password"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -89,6 +93,10 @@ require_once __DIR__ . '/../../config/config.php';
     <script src="<?= $URL; ?>public/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="<?= $URL; ?>public/js/lib/adminlte/adminlte.min.js"></script>
+    <!-- Jquery Validate -->
+    <script src="<?= $URL; ?>public/js/plugins/validations/jquery.validate.min.js"></script>
+    <script src="<?= $URL; ?>public/js/plugins/validations/additional-methods.min.js"></script>
+    <script src="<?= $URL; ?>public/js/core/common-validate.js"></script>
     <!-- Login JS -->
     <script src="<?= $URL; ?>public/js/modules/auth/login.js"></script>
 

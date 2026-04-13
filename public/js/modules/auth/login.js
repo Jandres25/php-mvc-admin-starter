@@ -1,16 +1,6 @@
 $(document).ready(function() {
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    });
-
+    // ============= UI INTERACTION =============
+    
     $('#toggle-password').click(function() {
         const passwordField = $('#password-field');
         const passwordFieldType = passwordField.attr('type');
@@ -26,65 +16,48 @@ $(document).ready(function() {
 
     $('.login-box').addClass('login-animation');
 
-    $('#login-form').on('submit', function(e) {
-        e.preventDefault();
+    // ============= JQUERY VALIDATE =============
 
-        const identifier = $('input[name="identifier"]').val().trim();
-        const password = $('input[name="password"]').val().trim();
-        let isValid = true;
-
-        if (!identifier) {
-            $('input[name="identifier"]').addClass('is-invalid');
-            isValid = false;
-        } else {
-            $('input[name="identifier"]').removeClass('is-invalid');
-        }
-
-        if (!password) {
-            $('input[name="password"]').addClass('is-invalid');
-            isValid = false;
-        } else {
-            $('input[name="password"]').removeClass('is-invalid');
-        }
-
-        if (!isValid) {
-            Toast.fire({
-                icon: 'error',
-                title: 'Please fill in all fields.'
-            });
-            return;
-        }
-
-        if (password.length < 6) {
-            $('input[name="password"]').addClass('is-invalid');
-            Toast.fire({
-                icon: 'error',
-                title: 'Password must be at least 6 characters.'
-            });
-            return;
-        }
-
-        // Disable button and show spinner
-        $('#btn-login').prop('disabled', true);
-        $('#btn-icon').removeClass('fa-sign-in-alt').addClass('fa-spinner fa-spin');
-
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            title: 'Signing in...',
-            didOpen: () => {
-                Swal.showLoading();
+    $('#login-form').validate({
+        rules: {
+            identifier: {
+                required: true,
+                minlength: 3
+            },
+            password: {
+                required: true,
+                minlength: 6
             }
-        });
+        },
+        messages: {
+            identifier: {
+                required: "Please enter your email or document number",
+                minlength: "Identifier must be at least 3 characters"
+            },
+            password: {
+                required: "Please enter your password",
+                minlength: "Password must be at least 6 characters"
+            }
+        },
+        submitHandler: function(form) {
+            // Disable button and show spinner
+            $('#btn-login').prop('disabled', true);
+            $('#btn-icon').removeClass('fa-sign-in-alt').addClass('fa-spinner fa-spin');
 
-        setTimeout(() => {
-            this.submit();
-        }, 1000);
-    });
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                title: 'Signing in...',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
-    $('input').on('input', function() {
-        $(this).removeClass('is-invalid');
+            setTimeout(() => {
+                form.submit();
+            }, 800);
+        }
     });
 });

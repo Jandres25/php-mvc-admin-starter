@@ -11,13 +11,6 @@
  */
 
 $(document).ready(function () {
-    // Initialize Select2 in the modal with dropdownParent to avoid Bootstrap focus trap conflict
-    initializeSelect2('#selectUser', {
-        dropdownParent: $('#modalAssignUser'),
-        allowClear: true,
-        placeholder: 'Search user...'
-    });
-
     const config = createTableConfig('Users', [0, 1, 2, 3], {
         "pageLength": 10,
         "language": {
@@ -74,8 +67,8 @@ $(document).ready(function () {
     // Revoke user
     $(document).on('click', '.btn-revoke', function () {
         const userId = $(this).data('user-id');
-        const name   = $(this).data('name');
-        const $btn   = $(this);
+        const name = $(this).data('name');
+        const $btn = $(this);
 
         Swal.fire({
             title: 'Revoke permission?',

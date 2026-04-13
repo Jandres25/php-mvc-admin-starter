@@ -61,22 +61,26 @@ if (!$user) {
                 <p class="login-box-msg">You are only one step away from your new password, recover your password now.</p>
 
                 <form action="<?= $URL; ?>controllers/auth/reset_password_process.php" method="post" id="reset-password-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                    <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token); ?>">
 
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" id="password" class="form-control" placeholder="New Password" required minlength="8">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="password" name="password" id="password" class="form-control" placeholder="New Password" required minlength="8">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm Password" required minlength="8">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm Password" required minlength="8">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -102,6 +106,10 @@ if (!$user) {
     <script src="<?= $URL; ?>public/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="<?= $URL; ?>public/js/lib/adminlte/adminlte.min.js"></script>
+    <!-- Jquery Validate -->
+    <script src="<?= $URL; ?>public/js/plugins/validations/jquery.validate.min.js"></script>
+    <script src="<?= $URL; ?>public/js/plugins/validations/additional-methods.min.js"></script>
+    <script src="<?= $URL; ?>public/js/core/common-validate.js"></script>
     <!-- Reset Password JS -->
     <script src="<?= $URL; ?>public/js/modules/auth/reset_password.js"></script>
 

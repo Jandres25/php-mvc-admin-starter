@@ -44,11 +44,13 @@ require_once __DIR__ . '/../../config/config.php';
                 <form action="<?= $URL; ?>controllers/auth/forgot_password_process.php" method="post" id="forgot-password-form">
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
-                    <div class="input-group mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="email" name="email" class="form-control" placeholder="Email">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-envelope"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -74,11 +76,16 @@ require_once __DIR__ . '/../../config/config.php';
     <script src="<?= $URL; ?>public/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="<?= $URL; ?>public/js/lib/adminlte/adminlte.min.js"></script>
+    <!-- Jquery Validate -->
+    <script src="<?= $URL; ?>public/js/plugins/validations/jquery.validate.min.js"></script>
+    <script src="<?= $URL; ?>public/js/plugins/validations/additional-methods.min.js"></script>
+    <script src="<?= $URL; ?>public/js/core/common-validate.js"></script>
     <!-- Forgot Password JS -->
     <script src="<?= $URL; ?>public/js/modules/auth/forgot_password.js"></script>
 
     <?php
     require_once __DIR__ . '/../layouts/messages.php';
-    ?></body>
+    ?>
+</body>
 
 </html>
