@@ -17,7 +17,7 @@ if (empty($token)) {
     exit;
 }
 
-$userModel = new \Models\User();
+$userModel = new \App\Models\User();
 $user = $userModel->getUserByResetToken($token);
 
 if (!$user) {

@@ -20,7 +20,7 @@ if (!$documentType || !$documentNumber) {
     exit;
 }
 
-$model  = new \Models\User();
+$model  = new \App\Models\User();
 $exists = $model->documentTypeExists($documentType, $documentNumber, $userId);
 
 echo $exists ? json_encode('This document is already registered.') : 'true';

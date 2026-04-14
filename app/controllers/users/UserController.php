@@ -13,9 +13,9 @@
 
 namespace App\Controllers\Users;
 
-use Models\User;
-use Services\ImageService;
-use Services\AuthorizationService;
+use App\Models\User;
+use App\Services\ImageService;
+use App\Services\AuthorizationService;
 
 class UserController
 {

@@ -12,7 +12,7 @@
 namespace App\Controllers\Permissions;
 
 use App\Core\BaseController;
-use Models\Permission;
+use App\Models\Permission;
 
 class PermissionPageController extends BaseController
 {

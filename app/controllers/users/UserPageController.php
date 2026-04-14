@@ -12,8 +12,8 @@
 namespace App\Controllers\Users;
 
 use App\Core\BaseController;
-use Models\User;
-use Services\AuthorizationService;
+use App\Models\User;
+use App\Services\AuthorizationService;
 
 class UserPageController extends BaseController
 {

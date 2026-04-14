@@ -1,15 +1,13 @@
 <?php
 require_once 'views/layouts/header.php';
 
-$userModel       = new \Models\User();
-$permissionModel = new \Models\Permission();
-
-$userStats  = $userModel->getStatistics();
-$permStats  = $permissionModel->getStatistics();
-$recentUsers = $userModel->getRecent(5);
-
-$canManageUsers       = $authService->hasPermissionByName($_SESSION['user_id'], 'users');
-$canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 'permissions');
+$dashboardController  = new \App\Controllers\Dashboard\DashboardPageController();
+$dashboardData        = $dashboardController->buildViewData();
+$userStats            = $dashboardData['user_stats'];
+$permStats            = $dashboardData['permission_stats'];
+$recentUsers          = $dashboardData['recent_users'];
+$canManageUsers       = $dashboardData['can_manage_users'];
+$canManagePermissions = $dashboardData['can_manage_permissions'];
 ?>
 
 <!-- Content Header -->
@@ -138,9 +136,9 @@ $canManagePermissions = $authService->hasPermissionByName($_SESSION['user_id'], 
                                                 </td>
                                                 <td>
                                                     <?php if ((int)$user['status'] === 1): ?>
-                                                        <span class="badge badge-success">Active</span>
+                                                        <span class="badge badge-success badge-pill p-2">Active</span>
                                                     <?php else: ?>
-                                                        <span class="badge badge-danger">Inactive</span>
+                                                        <span class="badge badge-danger badge-pill p-2">Inactive</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="d-none d-md-table-cell">

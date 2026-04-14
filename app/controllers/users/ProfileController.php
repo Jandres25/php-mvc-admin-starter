@@ -13,8 +13,8 @@
 
 namespace App\Controllers\Users;
 
-use Models\User;
-use Services\ImageService;
+use App\Models\User;
+use App\Services\ImageService;
 
 class ProfileController
 {

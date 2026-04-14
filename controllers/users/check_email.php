@@ -19,7 +19,7 @@ if (!$email) {
     exit;
 }
 
-$model  = new \Models\User();
+$model  = new \App\Models\User();
 $exists = $model->emailExists($email, $userId);
 
 echo $exists ? json_encode('This email is already in use.') : 'true';

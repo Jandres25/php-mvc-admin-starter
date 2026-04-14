@@ -13,7 +13,7 @@
 
 namespace App\Controllers\Auth;
 
-use Models\User;
+use App\Models\User;
 
 class AuthController
 {
@@ -127,7 +127,7 @@ class AuthController
         if (strtolower($user['position']) === 'administrator') {
             $_SESSION['user_permissions'] = ['*'];
         } else {
-            $authService = new \Services\AuthorizationService();
+            $authService = new \App\Services\AuthorizationService();
             $permissions = $authService->getUserPermissions($user['id']);
             $_SESSION['user_permissions'] = array_column($permissions, 'name');
         }

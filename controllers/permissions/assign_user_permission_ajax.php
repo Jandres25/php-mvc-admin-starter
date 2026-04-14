@@ -21,7 +21,7 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQ
 
 requireLogin();
 
-$authService = new \Services\AuthorizationService();
+$authService = new \App\Services\AuthorizationService();
 if (!$authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) {
     http_response_code(403);
     header('Content-Type: application/json');
@@ -50,11 +50,11 @@ if (!$userId || !$permissionId) {
 $result = $authService->assignPermission($userId, $permissionId);
 
 if ($result) {
-    $userModel = new \Models\User();
+    $userModel = new \App\Models\User();
     $userModel->updatePermissionsTimestamp($userId);
 
     if ($userId === $_SESSION['user_id']) {
-        $permModel = new \Models\Permission();
+        $permModel = new \App\Models\Permission();
         $perm      = $permModel->getById($permissionId);
         if ($perm && !in_array($perm['name'], $_SESSION['user_permissions'])) {
             $_SESSION['user_permissions'][] = $perm['name'];

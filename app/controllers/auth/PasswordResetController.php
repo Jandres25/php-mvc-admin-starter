@@ -11,8 +11,8 @@
 
 namespace App\Controllers\Auth;
 
-use Models\User;
-use Services\MailService;
+use App\Models\User;
+use App\Services\MailService;
 
 class PasswordResetController
 {

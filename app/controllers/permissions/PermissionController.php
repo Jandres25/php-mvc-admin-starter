@@ -13,7 +13,7 @@
 
 namespace App\Controllers\Permissions;
 
-use Models\Permission;
+use App\Models\Permission;
 
 class PermissionController
 {

@@ -21,7 +21,7 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQ
 
 requireLogin();
 
-$authService = new \Services\AuthorizationService();
+$authService = new \App\Services\AuthorizationService();
 if (!$authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) {
     http_response_code(403);
     header('Content-Type: application/json');
