@@ -89,6 +89,34 @@ class UserPageController extends BaseController
     }
 
     /**
+     * Builds view-model data for users/create.php.
+     *
+     * @return array
+     */
+    public function buildCreateViewData(): array
+    {
+        return [
+            'all_permissions' => $this->authService->getAllPermissions(),
+        ];
+    }
+
+    /**
+     * Builds view-model data for users/profile.php.
+     *
+     * @return array
+     */
+    public function buildProfileViewData(): array
+    {
+        $user = $this->resolveCurrentUserFromSession();
+        $imageName = !empty($user['image']) ? $user['image'] : 'user_default.jpg';
+
+        return [
+            'user' => $user,
+            'image_src' => 'public/uploads/users/' . $imageName,
+        ];
+    }
+
+    /**
      * Prepares one user row for index table rendering.
      *
      * @param array    $user
@@ -142,6 +170,26 @@ class UserPageController extends BaseController
     }
 
     /**
+     * Resolves current user from session.
+     *
+     * @return array
+     */
+    private function resolveCurrentUserFromSession(): array
+    {
+        $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+        if ($userId <= 0) {
+            $this->redirectWithError('You must log in to access your profile.', 'views/auth/login.php', 'warning');
+        }
+
+        $user = $this->userModel->getById($userId);
+        if (!$user) {
+            $this->redirectWithError('User not found.', 'index.php');
+        }
+
+        return $user;
+    }
+
+    /**
      * Redirects to users index with flash error.
      *
      * @param string $message
@@ -149,11 +197,24 @@ class UserPageController extends BaseController
      */
     private function redirectToUsersWithError(string $message): void
     {
+        $this->redirectWithError($message, 'views/users');
+    }
+
+    /**
+     * Redirects to a path with flash message.
+     *
+     * @param string $message
+     * @param string $path
+     * @param string $icon
+     * @return void
+     */
+    private function redirectWithError(string $message, string $path, string $icon = 'error'): void
+    {
         global $URL;
 
         $_SESSION['message'] = $message;
-        $_SESSION['icon']    = 'error';
-        header('Location: ' . $URL . 'views/users');
+        $_SESSION['icon']    = $icon;
+        header('Location: ' . $URL . ltrim($path, '/'));
         exit;
     }
 }

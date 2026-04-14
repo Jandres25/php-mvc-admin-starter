@@ -7,6 +7,10 @@ requirePermission('users');
 $plugins = ['select2', 'validate'];
 $module_scripts = ['users/create-user'];
 
+$pageController = new \App\Controllers\Users\UserPageController();
+$viewData       = $pageController->buildCreateViewData();
+$allPermissions = $viewData['all_permissions'];
+
 include_once '../layouts/header.php';
 ?>
 
@@ -325,7 +329,6 @@ include_once '../layouts/header.php';
                                         <label>Available permissions:</label>
                                         <div class="row">
                                             <?php
-                                            $allPermissions = $authService->getAllPermissions();
                                             foreach ($allPermissions as $permission) :
                                             ?>
                                                 <div class="col-md-4">

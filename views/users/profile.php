@@ -5,20 +5,12 @@ require_once __DIR__ . '/../../config/config.php';
 requirePermission('profile');
 
 $module_scripts = ['users/profile-user'];
+$pageController = new \App\Controllers\Users\UserPageController();
+$viewData       = $pageController->buildProfileViewData();
+$user           = $viewData['user'];
+$imageSrc       = $URL . htmlspecialchars($viewData['image_src']);
 
 include_once '../layouts/header.php';
-
-$controller = new \Controllers\Users\UserController();
-$user       = $controller->edit($_SESSION['user_id']);
-
-if (!$user) {
-    $_SESSION['message'] = 'User not found.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL);
-    exit;
-}
-
-$imageSrc = $URL . 'public/uploads/users/' . (!empty($user['image']) ? htmlspecialchars($user['image']) : 'user_default.jpg');
 ?>
 
 <!-- Content Header -->
