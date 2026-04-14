@@ -18,15 +18,22 @@
  */
 function customAutoload($class)
 {
+    $class = ltrim($class, '\\');
+
     // Split namespace (directories) from the class name
     $parts = explode('\\', $class);
+    if (empty($parts)) {
+        return;
+    }
+
     $className = array_pop($parts);
 
     // Namespaces map to lowercase directories; the class name retains its capitalization
     $directory = strtolower(implode(DIRECTORY_SEPARATOR, $parts));
 
     // Build the file path based on the namespace
-    $file = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $className . '.php';
+    $basePath = __DIR__ . DIRECTORY_SEPARATOR . '..';
+    $file = $basePath . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $className . '.php';
 
     // Check if the file exists and load it
     if (file_exists($file)) {
@@ -34,11 +41,26 @@ function customAutoload($class)
         return;
     }
 
+    // Explicit fallback for App\* classes (new core/application layer)
+    if (($parts[0] ?? null) === 'App') {
+        $appSubPath = strtolower(implode(DIRECTORY_SEPARATOR, array_slice($parts, 1)));
+        $appDir = $basePath . DIRECTORY_SEPARATOR . 'app';
+        if ($appSubPath !== '') {
+            $appDir .= DIRECTORY_SEPARATOR . $appSubPath;
+        }
+
+        $appFile = $appDir . DIRECTORY_SEPARATOR . $className . '.php';
+        if (file_exists($appFile)) {
+            require_once $appFile;
+            return;
+        }
+    }
+
     // If not found, fall back to searching by class name directly
     // Useful for special cases like Config\Connection
 
     // Search in config/ if the namespace is Config
-    if ($parts[0] === 'Config') {
+    if (($parts[0] ?? null) === 'Config') {
         $configFile = __DIR__ . DIRECTORY_SEPARATOR . strtolower($className) . '.php';
         if (file_exists($configFile)) {
             require_once $configFile;

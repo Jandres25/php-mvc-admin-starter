@@ -101,6 +101,7 @@ The autoloader automatically resolves any class whose namespace matches the dire
 ## Architecture
 
 ```
+app/            # New application layer (Core base classes, incremental MVC migration)
 config/         # PSR-4 autoloader, PDO singleton, .env helpers
 controllers/    # One file per action (no central router)
 models/         # Data access + input sanitization
@@ -111,6 +112,8 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 ```
 
 **Request flow:** URLs point directly to controller files (e.g. `/controllers/auth/login.php`). There is no central router. Every protected page includes `views/layouts/session.php` as its first step, which validates the session and exposes the `requireLogin()` and `getCurrentUser()` helpers.
+
+> Migration note: `controllers/*` endpoints remain the compatibility entrypoints while logic is being incrementally moved into the `app/` layer.
 
 ## Tech Stack
 
