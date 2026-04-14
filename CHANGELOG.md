@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-04-14
+
 ### Added
 - New app-layer base components: `app/core/BaseController.php`, `app/core/ViewRenderer.php`, and `app/core/AssetRegistry.php` to support incremental MVC migration without breaking legacy routes
 - New page controllers for view-model preparation: `app/controllers/users/UserPageController.php` and `app/controllers/permissions/PermissionPageController.php`
 
 ### Changed
-- `config/autoload.php` now resolves `App\...` classes explicitly, enabling the new `app/` layer while preserving existing namespace loading
+- `app/config/autoload.php` now resolves `App\...` classes explicitly as the primary bootstrap autoloader
 - Layout plugin assets were centralized through `AssetRegistry` (`views/layouts/header.php`, `views/layouts/footer.php`) to remove duplicated inline plugin maps
 - Users and Permissions views (`index`, `show`/`update`, `detail`) now consume page-controller view models instead of embedding request validation and flow control logic directly in views
-- Documentation updated to describe `app/` structure and compatibility-wrapper strategy during migration
+- Action endpoints moved from root `controllers/*` to `app/controllers/*`, and frontend form/AJAX routes were updated to the new paths
+- Documentation updated to describe the app-only structure (`app/controllers`, `app/models`, `app/services`, `app/config`)
 
 ## [2.3.1] - 2026-04-13
 
@@ -238,7 +241,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.1...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.0...HEAD
+[3.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.1...3.0.0
 [2.3.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.1.0...2.2.0

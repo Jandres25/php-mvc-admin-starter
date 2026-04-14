@@ -183,7 +183,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 1. Update version numbers in relevant files
 2. Update CHANGELOG.md with release notes
-3. Create a git tag: `git tag -a v1.2.0 -m "Release v1.2.0"`
+3. Create a git tag: `git tag -a 3.0.0 -m "Release 3.0.0"`
 4. Push tags: `git push origin --tags`
 5. Create GitHub release with release notes
 
@@ -194,14 +194,10 @@ When adding new features, follow the existing project structure:
 ```
 ├── app/                   # New app-layer MVC migration
 │   ├── core/              # BaseController, ViewRenderer, AssetRegistry
-│   └── controllers/       # Page controllers that build view-model data
-├── controllers/           # MVC Controllers
-│   ├── auth/              # Authentication related
-│   ├── users/             # User management
-│   └── permissions/       # Permission management
-│                           # (compatibility endpoints during migration)
-├── models/               # Data models
-├── services/             # Business logic services
+│   ├── controllers/       # Endpoints + page controllers
+│   ├── models/            # Data models
+│   ├── services/          # Business logic services
+│   └── config/            # Bootstrap/configuration
 ├── views/                # View templates
 │   ├── layouts/          # Layout components
 │   ├── users/            # User views
@@ -213,8 +209,6 @@ When adding new features, follow the existing project structure:
 │   └── css/
 │       ├── core/         # Core styles
 │       └── modules/      # Feature-specific CSS
-├── app/config/           # Primary configuration files
-├── config/               # Legacy compatibility wrappers
 ├── docs/                 # Project documentation for developers and AI
 └── .claude/              # AI assistant configurations and custom skills
 ```

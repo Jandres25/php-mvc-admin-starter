@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.3.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.0.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -66,7 +66,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=2.3.1
+APP_VERSION=3.0.0
 
 # SMTP Configuration (Optional)
 MAIL_HOST=smtp.gmail.com
@@ -82,10 +82,10 @@ MAIL_FROM_NAME="Admin Starter"
 This project is designed to be extended. To add a module (e.g. `Products`):
 
 1. **App Controller** — Create `app/controllers/products/ProductPageController.php` with namespace `App\Controllers\Products`
-2. **Model** — Create `models/Product.php` with namespace `Models`
+2. **Model** — Create `app/models/Product.php` with namespace `App\Models`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
 4. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
-5. **Compatibility endpoint (optional during migration)** — Keep `controllers/products/*.php` as thin wrappers while legacy routes are in use
+5. **Action endpoint** — Add action files in `app/controllers/products/*.php` for form submits/AJAX
 6. **Permission** — Insert the permission into the `permissions` table in the database
 7. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
 
@@ -105,21 +105,15 @@ The autoloader automatically resolves any class whose namespace matches the dire
 app/            # Application layer for incremental MVC migration
 ├── core/       # BaseController, ViewRenderer, AssetRegistry
 ├── controllers/# Page-level controllers (view-model preparation and flow)
-├── models/     # App\Models (legacy models/ act as wrappers)
-├── services/   # App\Services (legacy services/ act as wrappers)
+├── models/     # App\Models
+├── services/   # App\Services
 └── config/     # PSR-4 autoloader, PDO singleton, .env helpers
-config/         # Legacy compatibility wrappers to app/config
-controllers/    # Compatibility entrypoints/wrappers (legacy direct URLs)
-models/         # Data access + input sanitization
-services/       # Reusable business logic (AuthorizationService, ImageService)
 views/          # PHP templates; layouts/session.php validates the session
 public/         # Static assets organized into lib/, core/, plugins/, modules/
 libs/           # Vendored libraries (TCPDF, PHPMailer)
 ```
 
-**Request flow:** URLs point directly to controller files (e.g. `/controllers/auth/login.php`). There is no central router. Every protected page includes `views/layouts/session.php` as its first step, which validates the session and exposes the `requireLogin()` and `getCurrentUser()` helpers.
-
-> Migration note: `controllers/*` endpoints remain the compatibility entrypoints while logic is being incrementally moved into the `app/` layer.
+**Request flow:** URLs point directly to endpoint files under `app/controllers/*` (e.g. `/app/controllers/auth/login.php`). There is no central router. Every protected page includes `views/layouts/session.php` as its first step, which validates the session and exposes the `requireLogin()` and `getCurrentUser()` helpers.
 
 ## Tech Stack
 

@@ -33,6 +33,8 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
+**Current release tag:** `3.0.0`
+
 ## No Build Process
 
 This is a pure PHP application. There are no npm, Composer, Makefile, or test suite commands. Frontend assets (CSS/JS) are static files in `public/`. There is no formal test suite — testing is done manually via browser.
@@ -43,10 +45,8 @@ This is a pure PHP application. There are no npm, Composer, Makefile, or test su
 
 There is no router. Controllers are accessed directly via URL paths:
 - `/index.php` — dashboard
-- `/controllers/auth/login.php` — login page
-- `/controllers/users/create_user.php` — create user action
-
-Current migration strategy keeps `controllers/*` as compatibility entrypoints while moving page-flow/view-model logic into `app/controllers/*` classes.
+- `/app/controllers/auth/login.php` — login page
+- `/app/controllers/users/create_user.php` — create user action
 
 `views/layouts/session.php` is included at the top of every protected page. It loads the `.env`, validates the session, and defines `requireLogin()` and `getCurrentUser()` global functions.
 
@@ -56,14 +56,10 @@ Current migration strategy keeps `controllers/*` as compatibility entrypoints wh
 app/            # App-layer MVC migration (new)
 app/core/       # BaseController, ViewRenderer, AssetRegistry
 app/controllers/# Page controllers (view-model + request-flow prep)
-app/models/     # App-layer models (legacy models/ wrappers)
-app/services/   # App-layer services (legacy services/ wrappers)
+app/models/     # App-layer models
+app/services/   # App-layer services
 app/config/     # Primary bootstrap: autoloader, env loader, DB singleton, config array
-config/         # Legacy compatibility wrappers to app/config
 database/       # Schema (schema.sql) and seed data (seeder.sql)
-models/         # Data access + sanitization (User.php, Permission.php)
-services/       # Business logic (AuthorizationService.php, ImageService.php)
-controllers/    # Compatibility wrappers and action endpoints
 views/          # PHP templates; layouts/header.php pulls in all CSS/JS
 public/         # Static assets organized as lib/, core/, plugins/, modules/
 libs/           # Vendored libraries (TCPDF, PHPMailer)
@@ -71,15 +67,15 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 
 ### Custom Autoloader
 
-`app/config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `app/config/config.php`. Legacy `config/autoload.php` remains as a compatibility wrapper.
+`app/config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `app/config/config.php`.
 
 ### Database Connection
 
-`app/config/Connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements. Legacy `config/connection.php` maps `Config\Connection` to `App\Config\Connection`.
+`app/config/Connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements.
 
 ### Permissions
 
-`services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'users'`, `'permissions'`, `'admin'`). Use `$authService->hasPermissionByName($userId, 'permission_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
+`app/services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'users'`, `'permissions'`, `'admin'`). Use `$authService->hasPermissionByName($userId, 'permission_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
 
 Permission names are checked against `$_SESSION['user_permissions']` (cached at login). The cache is automatically refreshed by `refreshPermissionsIfStale()` in `session.php` — called on every page load — which compares `$_SESSION['permissions_ts']` against the `permissions_updated_at` column in `users`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
 
@@ -109,13 +105,13 @@ $module_scripts = ['users/index-users'];
 require_once '../layouts/header.php';
 ```
 
-**Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `controllers/users/check_email.php` or `check_document.php`.
+**Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `app/controllers/users/check_email.php` or `check_document.php`.
 
 **Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly.
 
 ## Coding Conventions
 
-- **Namespaces:** legacy namespaces (`Controllers\*`, `Models`, `Services`) remain valid; new page-flow classes should use `App\Controllers\*` and shared app-layer helpers use `App\Core\*`.
+- **Namespaces:** use `App\Controllers\*`, `App\Models\*`, `App\Services\*`, and `App\Core\*` consistently.
 - **CSRF:** Generate token with `generateCSRFToken()`, validate with `verifyCSRFToken()` (global functions in `session.php`). Call `regenerateCSRFToken()` after every successful POST validation to prevent replay attacks.
 - **Input sanitization:** Use `trim()` at the model layer (`sanitizeData()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
