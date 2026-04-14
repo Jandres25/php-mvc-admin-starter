@@ -238,12 +238,12 @@ function refreshPermissionsIfStale(): void
         return;
     }
 
-    $userModel   = new \Models\User();
+    $userModel   = new \App\Models\User();
     $dbTimestamp = $userModel->getPermissionsTimestamp($userId);
 
     $sessionTs = $_SESSION['permissions_ts'] ?? null;
     if ($dbTimestamp && (!$sessionTs || $dbTimestamp > $sessionTs)) {
-        $authService = new \Services\AuthorizationService();
+        $authService = new \App\Services\AuthorizationService();
         $permissions = $authService->getUserPermissions($userId);
         $_SESSION['user_permissions'] = array_column($permissions, 'name');
         $_SESSION['permissions_ts']   = $dbTimestamp;
@@ -258,7 +258,7 @@ function refreshPermissionsIfStale(): void
 function requirePermission(string $permission): void
 {
     $userId      = $_SESSION['user_id'] ?? null;
-    $authService = new \Services\AuthorizationService();
+    $authService = new \App\Services\AuthorizationService();
 
     if (!$authService->hasPermissionByName($userId, $permission)) {
         require __DIR__ . '/../errors/403.php';

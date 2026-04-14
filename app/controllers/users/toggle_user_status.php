@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Toggle Permission Status (AJAX)
+ * Toggle User Status (AJAX)
  *
- * Activates or deactivates a permission via AJAX.
+ * Activates or deactivates a user via AJAX.
  *
  * @package ProyectoBase
- * @subpackage Controllers\Permissions
+ * @subpackage Controllers\Users
  * @author Jandres25
  * @version 1.0
  */
 
-require_once __DIR__ . '/../../views/layouts/session.php';
+require_once __DIR__ . '/../../../views/layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
 if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
@@ -22,7 +22,7 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQ
 requireLogin();
 
 $authService = new \App\Services\AuthorizationService();
-if (!$authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) {
+if (!$authService->hasPermissionByName($_SESSION['user_id'], 'users')) {
     http_response_code(403);
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action.']);
@@ -39,12 +39,25 @@ if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
 
 regenerateCSRFToken();
 
-$controller = new \App\Controllers\Permissions\PermissionController();
-$result     = $controller->toggleStatusAjax();
+$userId        = filter_var($_POST['id']            ?? null, FILTER_VALIDATE_INT);
+$currentStatus = filter_var($_POST['current_status'] ?? null, FILTER_VALIDATE_INT);
+
+if ($userId === false || $currentStatus === false) {
+    echo json_encode(['success' => false, 'message' => 'Invalid data.']);
+    exit;
+}
+
+if ($userId === (int)$_SESSION['user_id']) {
+    echo json_encode(['success' => false, 'message' => 'You cannot deactivate your own account.']);
+    exit;
+}
+
+$controller = new \App\Controllers\Users\UserController();
+$result     = $controller->toggleUserStatus($userId, $currentStatus);
 
 if ($result['success']) {
     $_SESSION['message'] = $result['message'];
-    $_SESSION['icon']    = 'success';
+    $_SESSION['icon']    = $result['icon'];
 }
 
 echo json_encode($result);

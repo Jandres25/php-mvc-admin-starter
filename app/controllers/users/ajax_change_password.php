@@ -11,8 +11,8 @@
  * @version 1.0
  */
 
-require_once __DIR__ . '/../../views/layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
+require_once __DIR__ . '/../../../views/layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Content-Type: application/json');

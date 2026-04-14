@@ -62,13 +62,6 @@ function customAutoload($class)
         }
     }
 
-    // Search in config/ wrappers for legacy Config namespace
-    if (($parts[0] ?? null) === 'Config') {
-        $configFile = $basePath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . strtolower($className) . '.php';
-        if (file_exists($configFile)) {
-            require_once $configFile;
-        }
-    }
 }
 
 // Register the autoload function

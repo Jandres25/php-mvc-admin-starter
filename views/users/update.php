@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../app/config/config.php';
 
 requirePermission('users');
 
@@ -40,7 +40,7 @@ include_once '../layouts/header.php';
         <div class="row">
             <!-- Main form (8 columns) -->
             <div class="col-md-8">
-                <form action="<?= $URL; ?>controllers/users/update_user.php" method="POST" enctype="multipart/form-data" id="formUser">
+                <form action="<?= $URL; ?>app/controllers/users/update_user.php" method="POST" enctype="multipart/form-data" id="formUser">
                     <input type="hidden" name="user_id" value="<?= $user['id']; ?>">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 

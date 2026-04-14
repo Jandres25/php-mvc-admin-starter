@@ -42,7 +42,7 @@ require_once __DIR__ . '/../../app/config/config.php';
             <div class="card-body login-card-body">
                 <p class="login-box-msg">Enter your credentials to sign in</p>
 
-                <form action="<?= $URL; ?>controllers/auth/login.php" method="post" id="login-form">
+                <form action="<?= $URL; ?>app/controllers/auth/login.php" method="post" id="login-form">
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
                     <div class="form-group">

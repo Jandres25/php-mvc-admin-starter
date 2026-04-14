@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Assign User to Permission (AJAX)
+ * Revoke User Permission (AJAX)
  *
- * Assigns a user to a specific permission via AJAX.
+ * Revokes a permission from a specific user via AJAX.
  *
  * @package ProyectoBase
  * @subpackage Controllers\Permissions
@@ -11,8 +11,8 @@
  * @version 1.0
  */
 
-require_once __DIR__ . '/../../views/layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
+require_once __DIR__ . '/../../../views/layouts/session.php';
+require_once __DIR__ . '/../../config/config.php';
 
 if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
     http_response_code(403);
@@ -47,25 +47,22 @@ if (!$userId || !$permissionId) {
     exit;
 }
 
-$result = $authService->assignPermission($userId, $permissionId);
+$result = $authService->revokePermission($userId, $permissionId);
 
 if ($result) {
     $userModel = new \App\Models\User();
     $userModel->updatePermissionsTimestamp($userId);
 
     if ($userId === $_SESSION['user_id']) {
-        $permModel = new \App\Models\Permission();
-        $perm      = $permModel->getById($permissionId);
-        if ($perm && !in_array($perm['name'], $_SESSION['user_permissions'])) {
-            $_SESSION['user_permissions'][] = $perm['name'];
-            $_SESSION['permissions_ts']     = date('Y-m-d H:i:s');
-        }
+        $permissions                  = $authService->getUserPermissions($userId);
+        $_SESSION['user_permissions'] = array_column($permissions, 'name');
+        $_SESSION['permissions_ts']   = date('Y-m-d H:i:s');
     }
 
-    $_SESSION['message'] = 'User assigned successfully.';
+    $_SESSION['message'] = 'Permission revoked successfully.';
     $_SESSION['icon']    = 'success';
-    echo json_encode(['success' => true, 'message' => 'User assigned successfully.']);
+    echo json_encode(['success' => true, 'message' => 'Permission revoked successfully.']);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Error assigning user.']);
+    echo json_encode(['success' => false, 'message' => 'Error revoking permission.']);
 }
 exit;

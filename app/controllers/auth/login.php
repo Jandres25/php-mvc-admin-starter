@@ -12,10 +12,10 @@
  */
 
 // Include session (starts session, loads .env, defines global auth and CSRF functions)
-require_once __DIR__ . '/../../views/layouts/session.php';
+require_once __DIR__ . '/../../../views/layouts/session.php';
 
 // Include autoloader and configuration
-require_once __DIR__ . '/../../app/config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Instantiate the controller
 $authController = new \App\Controllers\Auth\AuthController();

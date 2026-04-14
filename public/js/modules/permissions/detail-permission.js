@@ -39,7 +39,7 @@ $(document).ready(function () {
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Assigning...');
 
         $.ajax({
-            url: `${baseUrl}controllers/permissions/assign_user_permission_ajax.php`,
+            url: `${baseUrl}app/controllers/permissions/assign_user_permission_ajax.php`,
             type: 'POST',
             dataType: 'json',
             data: { user_id: userId, permission_id: permissionId, csrf_token: csrfToken },
@@ -85,7 +85,7 @@ $(document).ready(function () {
             $btn.prop('disabled', true);
 
             $.ajax({
-                url: `${baseUrl}controllers/permissions/revoke_user_permission_ajax.php`,
+                url: `${baseUrl}app/controllers/permissions/revoke_user_permission_ajax.php`,
                 type: 'POST',
                 dataType: 'json',
                 data: { user_id: userId, permission_id: permissionId, csrf_token: csrfToken },

@@ -38,7 +38,7 @@ include_once '../layouts/header.php';
         <div class="row">
             <!-- Main form (8 columns) -->
             <div class="col-md-8">
-                <form action="<?= $URL; ?>controllers/users/create_user.php" method="POST" enctype="multipart/form-data" id="formUser">
+                <form action="<?= $URL; ?>app/controllers/users/create_user.php" method="POST" enctype="multipart/form-data" id="formUser">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
                     <!-- Personal Information Card -->

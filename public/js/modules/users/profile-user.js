@@ -49,7 +49,7 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-    fetch(`${baseUrl}controllers/users/ajax_change_password.php`, {
+    fetch(`${baseUrl}app/controllers/users/ajax_change_password.php`, {
         method: 'POST',
         body: new FormData(this)
     })
@@ -66,7 +66,7 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
                     allowOutsideClick: false,
                     confirmButtonText: 'Accept'
                 }).then(() => {
-                    window.location.href = `${baseUrl}controllers/auth/logout.php`;
+                    window.location.href = `${baseUrl}app/controllers/auth/logout.php`;
                 });
             } else {
                 Swal.fire({ icon: 'error', title: 'Error', text: data.message });

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../app/config/config.php';
 
 requirePermission('profile');
 
@@ -101,7 +101,7 @@ include_once '../layouts/header.php';
 
                             <!-- Tab: My Data -->
                             <div class="tab-pane fade show active" id="tab-data" role="tabpanel">
-                                <form action="<?= $URL; ?>controllers/users/process_update_profile.php" method="POST" enctype="multipart/form-data">
+                                <form action="<?= $URL; ?>app/controllers/users/process_update_profile.php" method="POST" enctype="multipart/form-data">
                                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
                                     <!-- Profile photo -->

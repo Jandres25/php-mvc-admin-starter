@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/session.php';
-require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../app/config/config.php';
 
 requireLogin();
 
 $currentUser = getCurrentUser();
 
-$authService = new \Services\AuthorizationService();
+$authService = new \App\Services\AuthorizationService();
 
 global $URL;
 
@@ -102,7 +102,7 @@ global $URL;
                             <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'profile')) : ?>
                                 <a href="<?= $URL; ?>views/users/profile.php" class="btn btn-default btn-flat">Profile</a>
                             <?php endif; ?>
-                            <a href="<?= $URL; ?>controllers/auth/logout.php" class="btn btn-default btn-flat float-right">Log Out</a>
+                            <a href="<?= $URL; ?>app/controllers/auth/logout.php" class="btn btn-default btn-flat float-right">Log Out</a>
                         </li>
                     </ul>
 

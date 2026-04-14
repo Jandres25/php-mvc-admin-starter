@@ -60,7 +60,7 @@ if (!$user) {
             <div class="card-body login-card-body">
                 <p class="login-box-msg">You are only one step away from your new password, recover your password now.</p>
 
-                <form action="<?= $URL; ?>controllers/auth/reset_password_process.php" method="post" id="reset-password-form">
+                <form action="<?= $URL; ?>app/controllers/auth/reset_password_process.php" method="post" id="reset-password-form">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token); ?>">
 

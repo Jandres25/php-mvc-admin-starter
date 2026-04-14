@@ -41,7 +41,7 @@ require_once __DIR__ . '/../../app/config/config.php';
             <div class="card-body login-card-body">
                 <p class="login-box-msg">You forgot your password? Here you can easily retrieve a new password.</p>
 
-                <form action="<?= $URL; ?>controllers/auth/forgot_password_process.php" method="post" id="forgot-password-form">
+                <form action="<?= $URL; ?>app/controllers/auth/forgot_password_process.php" method="post" id="forgot-password-form">
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
                     <div class="form-group">

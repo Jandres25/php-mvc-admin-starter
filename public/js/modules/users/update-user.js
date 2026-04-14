@@ -23,7 +23,7 @@ $(document).ready(function () {
             document_number: {
                 required: true,
                 remote: {
-                    url: baseUrl + 'controllers/users/check_document.php',
+                    url: baseUrl + 'app/controllers/users/check_document.php',
                     type: 'post',
                     data: {
                         document_type: function () { return $('#document_type').val(); },
@@ -36,7 +36,7 @@ $(document).ready(function () {
                 required: true,
                 email: true,
                 remote: {
-                    url: baseUrl + 'controllers/users/check_email.php',
+                    url: baseUrl + 'app/controllers/users/check_email.php',
                     type: 'post',
                     data: {
                         email: function () { return $('#email').val(); },
