@@ -6,12 +6,12 @@
  * Manages operations related to permissions.
  *
  * @package ProyectoBase
- * @subpackage Controllers\Permissions
+ * @subpackage App\Controllers\Permissions
  * @author Jandres25
  * @version 1.0
  */
 
-namespace Controllers\Permissions;
+namespace App\Controllers\Permissions;
 
 use Models\Permission;
 

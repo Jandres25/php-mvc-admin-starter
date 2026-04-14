@@ -6,12 +6,12 @@
  * Manages the authenticated user's own profile.
  *
  * @package ProyectoBase
- * @subpackage Controllers\Users
+ * @subpackage App\Controllers\Users
  * @author Jandres25
  * @version 1.0
  */
 
-namespace Controllers\Users;
+namespace App\Controllers\Users;
 
 use Models\User;
 use Services\ImageService;
@@ -33,7 +33,7 @@ class ProfileController
     public function __construct()
     {
         $this->model        = new User();
-        $this->imageService = new ImageService(__DIR__ . '/../../public/uploads/users/');
+        $this->imageService = new ImageService(__DIR__ . '/../../../public/uploads/users/');
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();

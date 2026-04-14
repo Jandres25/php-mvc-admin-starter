@@ -26,7 +26,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$controller = new \Controllers\Users\ProfileController();
+$controller = new \App\Controllers\Users\ProfileController();
 $result     = $controller->updatePasswordAjax();
 
 header('Content-Type: application/json');

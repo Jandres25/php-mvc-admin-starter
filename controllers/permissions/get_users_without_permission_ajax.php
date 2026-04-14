@@ -39,7 +39,7 @@ if (!$permissionId) {
     exit;
 }
 
-$controller = new \Controllers\Permissions\PermissionController();
+$controller = new \App\Controllers\Permissions\PermissionController();
 $users      = $controller->getUsersWithoutPermission($permissionId);
 
 $result = array_map(function ($u) {

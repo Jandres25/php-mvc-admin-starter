@@ -1,6 +1,15 @@
 <?php
 
-namespace Controllers\Auth;
+/**
+ * Password Reset Controller
+ *
+ * @package ProyectoBase
+ * @subpackage App\Controllers\Auth
+ * @author Jandres25
+ * @version 1.0
+ */
+
+namespace App\Controllers\Auth;
 
 use Models\User;
 use Services\MailService;

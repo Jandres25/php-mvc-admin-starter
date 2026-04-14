@@ -6,12 +6,12 @@
  * Handles user login and logout.
  *
  * @package ProyectoBase
- * @subpackage Controllers\Auth
+ * @subpackage App\Controllers\Auth
  * @author Jandres25
  * @version 1.0
  */
 
-namespace Controllers\Auth;
+namespace App\Controllers\Auth;
 
 use Models\User;
 
@@ -37,7 +37,7 @@ class AuthController
      */
     public function showLoginForm()
     {
-        require_once __DIR__ . '/../../views/auth/login.php';
+        require_once __DIR__ . '/../../../views/auth/login.php';
     }
 
     /**

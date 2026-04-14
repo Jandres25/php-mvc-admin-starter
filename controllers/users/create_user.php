@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verifyCSRFToken($_POST['csrf_token
 
 regenerateCSRFToken();
 
-$controller = new \Controllers\Users\UserController();
+$controller = new \App\Controllers\Users\UserController();
 $result     = $controller->save();
 
 $_SESSION['message'] = $result['message'];

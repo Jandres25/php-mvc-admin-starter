@@ -52,7 +52,7 @@ if ($userId === (int)$_SESSION['user_id']) {
     exit;
 }
 
-$controller = new \Controllers\Users\UserController();
+$controller = new \App\Controllers\Users\UserController();
 $result     = $controller->toggleUserStatus($userId, $currentStatus);
 
 if ($result['success']) {

@@ -39,7 +39,7 @@ if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
 
 regenerateCSRFToken();
 
-$controller = new \Controllers\Permissions\PermissionController();
+$controller = new \App\Controllers\Permissions\PermissionController();
 $result     = $controller->toggleStatusAjax();
 
 if ($result['success']) {

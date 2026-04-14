@@ -68,7 +68,7 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 
 ### Custom Autoloader
 
-`config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `config/config.php`. Examples: `Controllers\Users\UserController` → `controllers/users/UserController.php`, `App\Controllers\Users\UserPageController` → `app/controllers/users/UserPageController.php`.
+`config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `config/config.php`. Example: `App\Controllers\Users\UserPageController` → `app/controllers/users/UserPageController.php`.
 
 ### Database Connection
 

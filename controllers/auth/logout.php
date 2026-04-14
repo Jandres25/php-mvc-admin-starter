@@ -18,7 +18,7 @@ require_once __DIR__ . '/../../views/layouts/session.php';
 require_once __DIR__ . '/../../config/config.php';
 
 // Instantiate the controller
-$authController = new \Controllers\Auth\AuthController();
+$authController = new \App\Controllers\Auth\AuthController();
 
 // Process logout
 $authController->logout();

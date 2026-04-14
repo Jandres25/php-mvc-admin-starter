@@ -6,12 +6,12 @@
  * Handles user management operations.
  *
  * @package ProyectoBase
- * @subpackage Controllers\Users
+ * @subpackage App\Controllers\Users
  * @author Jandres25
  * @version 1.0
  */
 
-namespace Controllers\Users;
+namespace App\Controllers\Users;
 
 use Models\User;
 use Services\ImageService;
@@ -34,7 +34,7 @@ class UserController
     public function __construct()
     {
         $this->model        = new User();
-        $this->imageService = new ImageService(__DIR__ . '/../../public/uploads/users/');
+        $this->imageService = new ImageService(__DIR__ . '/../../../public/uploads/users/');
     }
 
     /**
@@ -52,7 +52,7 @@ class UserController
      */
     public function create()
     {
-        require_once __DIR__ . '/../../views/users/create.php';
+        require_once __DIR__ . '/../../../views/users/create.php';
     }
 
     /**
