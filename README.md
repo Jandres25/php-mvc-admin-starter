@@ -104,8 +104,11 @@ The autoloader automatically resolves any class whose namespace matches the dire
 ```
 app/            # Application layer for incremental MVC migration
 ├── core/       # BaseController, ViewRenderer, AssetRegistry
-└── controllers/# Page-level controllers (view-model preparation and flow)
-config/         # PSR-4 autoloader, PDO singleton, .env helpers
+├── controllers/# Page-level controllers (view-model preparation and flow)
+├── models/     # App\Models (legacy models/ act as wrappers)
+├── services/   # App\Services (legacy services/ act as wrappers)
+└── config/     # PSR-4 autoloader, PDO singleton, .env helpers
+config/         # Legacy compatibility wrappers to app/config
 controllers/    # Compatibility entrypoints/wrappers (legacy direct URLs)
 models/         # Data access + input sanitization
 services/       # Reusable business logic (AuthorizationService, ImageService)

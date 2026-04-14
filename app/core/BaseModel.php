@@ -11,7 +11,7 @@
 
 namespace App\Core;
 
-use Config\Connection;
+use App\Config\Connection;
 use PDO;
 
 abstract class BaseModel

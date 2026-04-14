@@ -55,7 +55,7 @@ class ViewRenderer
                 require_once $layoutPath . '/session.php';
             }
 
-            require_once $this->projectRoot . '/config/config.php';
+            require_once $this->projectRoot . '/app/config/config.php';
             include $layoutPath . '/header.php';
             include $viewFile;
 

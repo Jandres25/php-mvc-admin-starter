@@ -56,7 +56,10 @@ Current migration strategy keeps `controllers/*` as compatibility entrypoints wh
 app/            # App-layer MVC migration (new)
 app/core/       # BaseController, ViewRenderer, AssetRegistry
 app/controllers/# Page controllers (view-model + request-flow prep)
-config/         # Bootstrap: autoloader, env loader, DB singleton, config array
+app/models/     # App-layer models (legacy models/ wrappers)
+app/services/   # App-layer services (legacy services/ wrappers)
+app/config/     # Primary bootstrap: autoloader, env loader, DB singleton, config array
+config/         # Legacy compatibility wrappers to app/config
 database/       # Schema (schema.sql) and seed data (seeder.sql)
 models/         # Data access + sanitization (User.php, Permission.php)
 services/       # Business logic (AuthorizationService.php, ImageService.php)
@@ -68,11 +71,11 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 
 ### Custom Autoloader
 
-`config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `config/config.php`. Example: `App\Controllers\Users\UserPageController` → `app/controllers/users/UserPageController.php`.
+`app/config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `app/config/config.php`. Legacy `config/autoload.php` remains as a compatibility wrapper.
 
 ### Database Connection
 
-`config/connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements.
+`app/config/Connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements. Legacy `config/connection.php` maps `Config\Connection` to `App\Config\Connection`.
 
 ### Permissions
 

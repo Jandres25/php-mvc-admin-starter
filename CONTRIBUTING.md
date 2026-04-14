@@ -213,7 +213,8 @@ When adding new features, follow the existing project structure:
 │   └── css/
 │       ├── core/         # Core styles
 │       └── modules/      # Feature-specific CSS
-├── config/               # Configuration files
+├── app/config/           # Primary configuration files
+├── config/               # Legacy compatibility wrappers
 ├── docs/                 # Project documentation for developers and AI
 └── .claude/              # AI assistant configurations and custom skills
 ```

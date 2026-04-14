@@ -13,7 +13,7 @@
 
 namespace App\Services;
 
-use Config\Connection;
+use App\Config\Connection;
 use PDO;
 use PDOException;
 

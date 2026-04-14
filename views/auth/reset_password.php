@@ -6,7 +6,7 @@ if (isAuthenticated()) {
     exit;
 }
 
-require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../app/config/config.php';
 
 $token = isset($_GET['token']) ? trim($_GET['token']) : '';
 
