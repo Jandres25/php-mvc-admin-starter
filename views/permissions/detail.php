@@ -4,35 +4,18 @@ require_once __DIR__ . '/../../config/config.php';
 
 requirePermission('permissions');
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-if (!$id) {
-    $_SESSION['message'] = 'Invalid permission ID.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL . 'views/permissions');
-    exit;
-}
-
-$controller = new \Controllers\Permissions\PermissionController();
-$permission = $controller->getById($id);
-
-if (!$permission) {
-    $_SESSION['message'] = 'Permission not found.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL . 'views/permissions');
-    exit;
-}
-
-$isInactive = $permission['status'] == 0;
-
 $plugins = ['datatables', 'select2'];
-
-include_once '../layouts/header.php';
-
 $module_scripts = ['permissions/modal-permission', 'permissions/detail-permission'];
 
-$users              = $permission['users'];
-$usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
+$pageController    = new \App\Controllers\Permissions\PermissionPageController();
+$viewData          = $pageController->buildDetailViewDataFromRequest();
+$permission        = $viewData['permission'];
+$users             = $viewData['users'];
+$usersWithoutPerm  = $viewData['users_without_permission'];
+$isInactive        = $viewData['is_inactive'];
+$permissionId      = $viewData['permission_id'];
+
+include_once '../layouts/header.php';
 ?>
 
 <!-- Content Header (Page header) -->
@@ -210,7 +193,7 @@ $usersWithoutPerm   = $controller->getUsersWithoutPermission($id);
 </div>
 
 <script>
-    const permissionId = <?= $id; ?>;
+    const permissionId = <?= $permissionId; ?>;
 </script>
 
 <?php

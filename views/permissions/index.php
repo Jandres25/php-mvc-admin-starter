@@ -5,14 +5,14 @@ require_once __DIR__ . '/../../config/config.php';
 requirePermission('permissions');
 
 $plugins = ['datatables', 'datatables-export'];
+$module_scripts = ['permissions/modal-permission', 'permissions/index-permissions'];
+
+$pageController = new \App\Controllers\Permissions\PermissionPageController();
+$viewData       = $pageController->buildIndexViewData();
+$permissions    = $viewData['permissions'];
+$statistics     = $viewData['statistics'];
 
 include_once '../layouts/header.php';
-
-$controller  = new \Controllers\Permissions\PermissionController();
-$permissions = $controller->index();
-$statistics  = $controller->getStatistics();
-
-$module_scripts = ['permissions/modal-permission', 'permissions/index-permissions'];
 ?>
 
 <!-- Content Header (Page header) -->
@@ -98,23 +98,18 @@ $module_scripts = ['permissions/modal-permission', 'permissions/index-permission
                                 <tbody>
                                     <?php
                                     foreach ($permissions as $permission) :
-                                        $currentStatus  = $permission['status'];
-                                        $statusClass    = $currentStatus == 1 ? 'badge-success' : 'badge-danger';
-                                        $statusLabel    = $currentStatus == 1 ? 'Active' : 'Inactive';
-                                        $totalUsers     = $permission['total_users'] ?? 0;
-                                        $usersClass     = $totalUsers > 0 ? 'badge-primary' : 'badge-secondary';
                                     ?>
                                         <tr>
                                             <td class="text-center"><?= $permission['id']; ?></td>
                                             <td><?= htmlspecialchars($permission['name']); ?></td>
-                                            <td><?= htmlspecialchars($permission['description'] ?? 'N/A'); ?></td>
+                                            <td><?= htmlspecialchars($permission['description']); ?></td>
                                             <td class="text-center">
-                                                <span class="badge <?= $usersClass; ?> badge-pill p-2">
-                                                    <?= $totalUsers; ?> user<?= $totalUsers != 1 ? 's' : ''; ?>
+                                                <span class="badge <?= htmlspecialchars($permission['users_badge_class']); ?> badge-pill p-2">
+                                                    <?= $permission['total_users']; ?> <?= $permission['users_label']; ?>
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge <?= $statusClass; ?> badge-pill p-2"><?= $statusLabel; ?></span>
+                                                <span class="badge <?= htmlspecialchars($permission['status_badge_class']); ?> badge-pill p-2"><?= htmlspecialchars($permission['status_label']); ?></span>
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
@@ -124,16 +119,16 @@ $module_scripts = ['permissions/modal-permission', 'permissions/index-permission
                                                     <button type="button" class="btn btn-warning btn-sm btn-edit"
                                                         data-id="<?= $permission['id']; ?>"
                                                         data-name="<?= htmlspecialchars($permission['name']); ?>"
-                                                        data-description="<?= htmlspecialchars($permission['description'] ?? ''); ?>"
+                                                        data-description="<?= htmlspecialchars($permission['description_raw']); ?>"
                                                         data-toggle="tooltip" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button type="button" class="btn <?= $currentStatus == 1 ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
+                                                    <button type="button" class="btn <?= htmlspecialchars($permission['status_btn_class']); ?> btn-sm btn-toggle-status"
                                                         data-id="<?= $permission['id']; ?>"
-                                                        data-current-status="<?= $currentStatus; ?>"
-                                                        data-users="<?= $totalUsers; ?>"
-                                                        data-toggle="tooltip" title="<?= $currentStatus == 1 ? 'Deactivate' : 'Activate'; ?>">
-                                                        <i class="fas <?= $currentStatus == 1 ? 'fa-times' : 'fa-check'; ?>"></i>
+                                                        data-current-status="<?= $permission['status']; ?>"
+                                                        data-users="<?= $permission['total_users']; ?>"
+                                                        data-toggle="tooltip" title="<?= htmlspecialchars($permission['status_btn_title']); ?>">
+                                                        <i class="fas <?= htmlspecialchars($permission['status_icon_class']); ?>"></i>
                                                     </button>
                                                 </div>
                                             </td>
