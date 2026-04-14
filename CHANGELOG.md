@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New app-layer base components: `app/core/BaseController.php`, `app/core/ViewRenderer.php`, and `app/core/AssetRegistry.php` to support incremental MVC migration without breaking legacy routes
+- New page controllers for view-model preparation: `app/controllers/users/UserPageController.php` and `app/controllers/permissions/PermissionPageController.php`
+
+### Changed
+- `config/autoload.php` now resolves `App\...` classes explicitly, enabling the new `app/` layer while preserving existing namespace loading
+- Layout plugin assets were centralized through `AssetRegistry` (`views/layouts/header.php`, `views/layouts/footer.php`) to remove duplicated inline plugin maps
+- Users and Permissions views (`index`, `show`/`update`, `detail`) now consume page-controller view models instead of embedding request validation and flow control logic directly in views
+- Documentation updated to describe `app/` structure and compatibility-wrapper strategy during migration
+
 ## [2.3.1] - 2026-04-13
 
 ### Added

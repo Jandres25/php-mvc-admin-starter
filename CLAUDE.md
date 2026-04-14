@@ -46,16 +46,21 @@ There is no router. Controllers are accessed directly via URL paths:
 - `/controllers/auth/login.php` — login page
 - `/controllers/users/create_user.php` — create user action
 
+Current migration strategy keeps `controllers/*` as compatibility entrypoints while moving page-flow/view-model logic into `app/controllers/*` classes.
+
 `views/layouts/session.php` is included at the top of every protected page. It loads the `.env`, validates the session, and defines `requireLogin()` and `getCurrentUser()` global functions.
 
 ### MVC Structure
 
 ```
+app/            # App-layer MVC migration (new)
+app/core/       # BaseController, ViewRenderer, AssetRegistry
+app/controllers/# Page controllers (view-model + request-flow prep)
 config/         # Bootstrap: autoloader, env loader, DB singleton, config array
 database/       # Schema (schema.sql) and seed data (seeder.sql)
 models/         # Data access + sanitization (User.php, Permission.php)
 services/       # Business logic (AuthorizationService.php, ImageService.php)
-controllers/    # One file per action (e.g., create_user.php, login.php)
+controllers/    # Compatibility wrappers and action endpoints
 views/          # PHP templates; layouts/header.php pulls in all CSS/JS
 public/         # Static assets organized as lib/, core/, plugins/, modules/
 libs/           # Vendored libraries (TCPDF, PHPMailer)
@@ -63,7 +68,7 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 
 ### Custom Autoloader
 
-`config/autoload.php` implements PSR-4: namespace separators map to lowercase directory paths relative to the project root. Register once in `config/config.php`. Example: `Controllers\Users\UserController` → `controllers/users/UserController.php`.
+`config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `config/config.php`. Examples: `Controllers\Users\UserController` → `controllers/users/UserController.php`, `App\Controllers\Users\UserPageController` → `app/controllers/users/UserPageController.php`.
 
 ### Database Connection
 
@@ -93,7 +98,7 @@ Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJA
 
 Similarly, register page-specific CSS via `$module_styles = ['feature/file']` at the top of the view.
 
-**Conditional plugin loading:** Third-party plugins (DataTables, Select2, jQuery Validate) are loaded on demand via `$plugins` declared before `header.php`. Available plugins: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Example:
+**Conditional plugin loading:** Third-party plugins (DataTables, Select2, jQuery Validate) are loaded on demand via `$plugins` declared before `header.php`. Asset maps are centralized in `App\Core\AssetRegistry` and consumed by layouts. Available plugins: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Example:
 
 ```php
 $plugins = ['datatables', 'datatables-export'];
@@ -107,7 +112,7 @@ require_once '../layouts/header.php';
 
 ## Coding Conventions
 
-- **Namespaces:** `Controllers\Auth`, `Controllers\Users`, `Controllers\Permissions`, `Models`, `Services` — match directory structure in lowercase.
+- **Namespaces:** legacy namespaces (`Controllers\*`, `Models`, `Services`) remain valid; new page-flow classes should use `App\Controllers\*` and shared app-layer helpers use `App\Core\*`.
 - **CSRF:** Generate token with `generateCSRFToken()`, validate with `verifyCSRFToken()` (global functions in `session.php`). Call `regenerateCSRFToken()` after every successful POST validation to prevent replay attacks.
 - **Input sanitization:** Use `trim()` at the model layer (`sanitizeData()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.

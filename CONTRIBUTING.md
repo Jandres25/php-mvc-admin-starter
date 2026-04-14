@@ -192,10 +192,14 @@ We follow [Semantic Versioning](https://semver.org/):
 When adding new features, follow the existing project structure:
 
 ```
+├── app/                   # New app-layer MVC migration
+│   ├── core/              # BaseController, ViewRenderer, AssetRegistry
+│   └── controllers/       # Page controllers that build view-model data
 ├── controllers/           # MVC Controllers
-│   ├── auth/             # Authentication related
-│   ├── users/            # User management
-│   └── permissions/      # Permission management
+│   ├── auth/              # Authentication related
+│   ├── users/             # User management
+│   └── permissions/       # Permission management
+│                           # (compatibility endpoints during migration)
 ├── models/               # Data models
 ├── services/             # Business logic services
 ├── views/                # View templates

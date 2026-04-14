@@ -81,12 +81,13 @@ MAIL_FROM_NAME="Admin Starter"
 
 This project is designed to be extended. To add a module (e.g. `Products`):
 
-1. **Controller** — Create `controllers/products/ProductController.php` with namespace `Controllers\Products`
+1. **App Controller** — Create `app/controllers/products/ProductPageController.php` with namespace `App\Controllers\Products`
 2. **Model** — Create `models/Product.php` with namespace `Models`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
 4. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
-5. **Permission** — Insert the permission into the `permissions` table in the database
-6. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
+5. **Compatibility endpoint (optional during migration)** — Keep `controllers/products/*.php` as thin wrappers while legacy routes are in use
+6. **Permission** — Insert the permission into the `permissions` table in the database
+7. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
 
 ```php
 <?php if ($authService->hasPermissionByName($usuario['id'], 'products')): ?>
@@ -101,9 +102,11 @@ The autoloader automatically resolves any class whose namespace matches the dire
 ## Architecture
 
 ```
-app/            # New application layer (Core base classes, incremental MVC migration)
+app/            # Application layer for incremental MVC migration
+├── core/       # BaseController, ViewRenderer, AssetRegistry
+└── controllers/# Page-level controllers (view-model preparation and flow)
 config/         # PSR-4 autoloader, PDO singleton, .env helpers
-controllers/    # One file per action (no central router)
+controllers/    # Compatibility entrypoints/wrappers (legacy direct URLs)
 models/         # Data access + input sanitization
 services/       # Reusable business logic (AuthorizationService, ImageService)
 views/          # PHP templates; layouts/session.php validates the session
