@@ -5,29 +5,15 @@ require_once __DIR__ . '/../../config/config.php';
 requirePermission('users');
 
 $plugins = ['select2', 'validate'];
+$module_scripts = ['users/update-user'];
+
+$pageController      = new \App\Controllers\Users\UserPageController();
+$viewData            = $pageController->buildUpdateViewDataFromRequest();
+$user                = $viewData['user'];
+$allPermissions      = $viewData['all_permissions'];
+$assignedPermissions = $viewData['assigned_permissions'];
 
 include_once '../layouts/header.php';
-
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-if (!$id) {
-    $_SESSION['message'] = 'Invalid user ID.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL . 'views/users');
-    exit;
-}
-
-$controller = new \Controllers\Users\UserController();
-$user       = $controller->edit($id);
-
-if (!$user) {
-    $_SESSION['message'] = 'User not found.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL . 'views/users');
-    exit;
-}
-
-$module_scripts = ['users/update-user'];
 ?>
 
 <!-- Content Header (Page header) -->
@@ -364,8 +350,6 @@ $module_scripts = ['users/update-user'];
                                         <label>Available permissions:</label>
                                         <div class="row">
                                             <?php
-                                            $allPermissions    = $authService->getAllPermissions();
-                                            $assignedPermissions = $authService->getAssignedPermissions($user['id']);
                                             foreach ($allPermissions as $permission) :
                                                 $checked = in_array($permission['id'], $assignedPermissions) ? 'checked' : '';
                                             ?>

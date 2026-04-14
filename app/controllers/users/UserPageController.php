@@ -13,6 +13,7 @@ namespace App\Controllers\Users;
 
 use App\Core\BaseController;
 use Models\User;
+use Services\AuthorizationService;
 
 class UserPageController extends BaseController
 {
@@ -22,11 +23,18 @@ class UserPageController extends BaseController
      * @var User
      */
     private $userModel;
+    /**
+     * Authorization service.
+     *
+     * @var AuthorizationService
+     */
+    private $authService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->userModel = new User();
+        $this->userModel   = new User();
+        $this->authService = new AuthorizationService();
     }
 
     /**
@@ -44,6 +52,40 @@ class UserPageController extends BaseController
         }
 
         return ['users' => $rows];
+    }
+
+    /**
+     * Builds view-model data for users/show.php.
+     *
+     * @return array
+     */
+    public function buildShowViewDataFromRequest(): array
+    {
+        $user = $this->resolveUserFromRequest();
+        $userId = (int)$user['id'];
+
+        return [
+            'user' => $user,
+            'user_permissions' => $this->authService->getUserPermissions($userId),
+            'is_admin_user' => $this->authService->isAdmin($userId),
+        ];
+    }
+
+    /**
+     * Builds view-model data for users/update.php.
+     *
+     * @return array
+     */
+    public function buildUpdateViewDataFromRequest(): array
+    {
+        $user = $this->resolveUserFromRequest();
+        $userId = (int)$user['id'];
+
+        return [
+            'user' => $user,
+            'all_permissions' => $this->authService->getAllPermissions(),
+            'assigned_permissions' => $this->authService->getAssignedPermissions($userId),
+        ];
     }
 
     /**
@@ -76,5 +118,42 @@ class UserPageController extends BaseController
             'confirm_button_text' => $isActive ? 'Yes, deactivate' : 'Yes, activate',
             'can_toggle_status' => ((int)$user['id']) !== $currentUserId,
         ];
+    }
+
+    /**
+     * Resolves and validates the user requested via query string.
+     *
+     * @return array
+     */
+    private function resolveUserFromRequest(): array
+    {
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+        if ($id <= 0) {
+            $this->redirectToUsersWithError('Invalid user ID.');
+        }
+
+        $user = $this->userModel->getById($id);
+        if (!$user) {
+            $this->redirectToUsersWithError('User not found.');
+        }
+
+        return $user;
+    }
+
+    /**
+     * Redirects to users index with flash error.
+     *
+     * @param string $message
+     * @return void
+     */
+    private function redirectToUsersWithError(string $message): void
+    {
+        global $URL;
+
+        $_SESSION['message'] = $message;
+        $_SESSION['icon']    = 'error';
+        header('Location: ' . $URL . 'views/users');
+        exit;
     }
 }

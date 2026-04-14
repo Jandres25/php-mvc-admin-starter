@@ -7,28 +7,13 @@ requirePermission('users');
 $module_styles  = ['users/show-user'];
 $module_scripts = ['users/show-user'];
 
+$pageController = new \App\Controllers\Users\UserPageController();
+$viewData       = $pageController->buildShowViewDataFromRequest();
+$user           = $viewData['user'];
+$userPermissions = $viewData['user_permissions'];
+$isAdminUser    = $viewData['is_admin_user'];
+
 include_once '../layouts/header.php';
-
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-if (!$id) {
-    $_SESSION['message'] = 'Invalid user ID.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL . 'views/users');
-    exit;
-}
-
-$controller = new \Controllers\Users\UserController();
-$user       = $controller->edit($id);
-
-if (!$user) {
-    $_SESSION['message'] = 'User not found.';
-    $_SESSION['icon']    = 'error';
-    header('Location: ' . $URL . 'views/users');
-    exit;
-}
-
-$userPermissions = $authService->getUserPermissions($user['id']);
 ?>
 
 <!-- Content Header (Page header) -->
@@ -87,7 +72,7 @@ $userPermissions = $authService->getUserPermissions($user['id']);
                             </li>
                             <li class="list-group-item">
                                 <b><i class="fas fa-phone mr-1"></i> Phone</b>
-                                <a href="tel:<?= htmlspecialchars($user['phone'] ?? ''); ?>" class="float-right">
+                                <a href="https://wa.me/<?= htmlspecialchars($user['phone'] ?? ''); ?>" class="float-right" target="_blank">
                                     <?= !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'Not registered'; ?>
                                 </a>
                             </li>
@@ -111,31 +96,6 @@ $userPermissions = $authService->getUserPermissions($user['id']);
                                 <i class="fas fa-arrow-left"></i> Back
                             </a>
                         </div>
-                    </div>
-                </div>
-
-                <!-- System info card -->
-                <div class="card card-outline card-info">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-history mr-1"></i> System Information</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <strong><i class="far fa-calendar-plus mr-1"></i> Created At:</strong>
-                        <p class="text-muted">
-                            <?= isset($user['created_at']) ? date('m/d/Y H:i', strtotime($user['created_at'])) : 'N/A'; ?>
-                        </p>
-
-                        <hr>
-
-                        <strong><i class="fas fa-sync-alt mr-1"></i> Last Updated:</strong>
-                        <p class="text-muted">
-                            <?= isset($user['updated_at']) ? date('m/d/Y H:i', strtotime($user['updated_at'])) : 'N/A'; ?>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -171,13 +131,23 @@ $userPermissions = $authService->getUserPermissions($user['id']);
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Name:</label>
-                                            <p class="form-control"><?= htmlspecialchars($user['name']); ?></p>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                                </div>
+                                                <p class="form-control"><?= htmlspecialchars($user['name']); ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>First Surname:</label>
-                                            <p class="form-control"><?= htmlspecialchars($user['first_surname']); ?></p>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                                </div>
+                                                <p class="form-control"><?= htmlspecialchars($user['first_surname']); ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -186,13 +156,23 @@ $userPermissions = $authService->getUserPermissions($user['id']);
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Second Surname:</label>
-                                            <p class="form-control"><?= !empty($user['second_surname']) ? htmlspecialchars($user['second_surname']) : 'Not registered'; ?></p>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                                </div>
+                                                <p class="form-control"><?= !empty($user['second_surname']) ? htmlspecialchars($user['second_surname']) : 'Not registered'; ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Position:</label>
-                                            <p class="form-control"><?= !empty($user['position']) ? htmlspecialchars($user['position']) : 'Not assigned'; ?></p>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                                </div>
+                                                <p class="form-control"><?= !empty($user['position']) ? htmlspecialchars($user['position']) : 'Not assigned'; ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -201,13 +181,23 @@ $userPermissions = $authService->getUserPermissions($user['id']);
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Document Type:</label>
-                                            <p class="form-control"><?= htmlspecialchars($user['document_type']); ?></p>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                                </div>
+                                                <p class="form-control"><?= htmlspecialchars($user['document_type']); ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Document Number:</label>
-                                            <p class="form-control"><?= htmlspecialchars($user['document_number']); ?></p>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                                </div>
+                                                <p class="form-control"><?= htmlspecialchars($user['document_number']); ?></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -268,7 +258,7 @@ $userPermissions = $authService->getUserPermissions($user['id']);
 
                             <!-- Permissions Tab -->
                             <div class="tab-pane fade" id="tab-permissions" role="tabpanel" aria-labelledby="tab-permissions-tab">
-                                <?php if ($authService->isAdmin($user['id'])): ?>
+                                <?php if ($isAdminUser): ?>
                                     <div class="alert alert-success">
                                         <h5><i class="icon fas fa-check"></i> Administrator User</h5>
                                         <p>This user has the Administrator position and therefore has access to all system permissions.</p>
