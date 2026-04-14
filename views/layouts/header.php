@@ -33,28 +33,11 @@ global $URL;
     <link rel="stylesheet" href="<?= $URL; ?>public/css/core/ui-components.css">
     <!-- Conditional plugin CSS -->
     <?php
-    $plugin_css = [
-        'datatables' => [
-            'plugins/datatables/datatables.min.css',
-            'plugins/datatables/dataTables.bootstrap4.min.css',
-            'plugins/datatables/responsive.bootstrap4.min.css',
-            'plugins/datatables/buttons.bootstrap4.min.css',
-        ],
-        'select2' => [
-            'plugins/select2/select2.min.css',
-            'plugins/select2/select2-bootstrap4.min.css',
-        ],
-    ];
-    if (isset($plugins) && is_array($plugins)):
-        foreach ($plugins as $plugin):
-            if (isset($plugin_css[$plugin])):
-                foreach ($plugin_css[$plugin] as $css): ?>
-                    <link rel="stylesheet" href="<?= $URL; ?>public/css/<?= $css; ?>">
-    <?php endforeach;
-            endif;
-        endforeach;
-    endif;
-    ?>
+    $activePlugins = (isset($plugins) && is_array($plugins)) ? $plugins : [];
+    $pluginCssFiles = \App\Core\AssetRegistry::resolvePluginCss($activePlugins);
+    foreach ($pluginCssFiles as $css): ?>
+        <link rel="stylesheet" href="<?= $URL; ?>public/css/<?= $css; ?>">
+    <?php endforeach; ?>
     <!-- Sweetalert2 -->
     <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/sweetalert2/sweetalert2.min.css">
     <script src="<?= $URL; ?>public/js/plugins/sweetalert2/sweetalert2.min.js"></script>
