@@ -5,13 +5,13 @@ require_once __DIR__ . '/../../config/config.php';
 requirePermission('users');
 
 $plugins = ['datatables', 'datatables-export'];
+$module_scripts = ['users/index-users'];
+
+$pageController = new \App\Controllers\Users\UserPageController();
+$viewData = $pageController->buildIndexViewData();
+$users = $viewData['users'];
 
 include_once '../layouts/header.php';
-
-$controller = new \Controllers\Users\UserController();
-$users      = $controller->index();
-
-$module_scripts = ['users/index-users'];
 ?>
 
 <!-- Content Header (Page header) -->
@@ -69,14 +69,7 @@ $module_scripts = ['users/index-users'];
                             <tbody>
                                 <?php
                                 $counter = 1;
-                                foreach ($users as $user) :
-                                    $currentStatus      = $user['status'];
-                                    $statusBtnClass     = $currentStatus == 1 ? 'btn-danger' : 'btn-success';
-                                    $statusIconClass    = $currentStatus == 1 ? 'fa-user-slash' : 'fa-user-check';
-                                    $alertTitle         = $currentStatus == 1 ? 'Deactivate User?' : 'Activate User?';
-                                    $alertText          = $currentStatus == 1 ? 'The user will not be able to access the system.' : 'The user will be able to access the system again.';
-                                    $confirmButtonText  = $currentStatus == 1 ? 'Yes, deactivate' : 'Yes, activate';
-                                ?>
+                                foreach ($users as $user) : ?>
                                     <tr>
                                         <td class="text-center"><?= $counter++; ?></td>
                                         <td><?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?></td>
@@ -84,19 +77,11 @@ $module_scripts = ['users/index-users'];
                                         <td><?= htmlspecialchars($user['document_number']); ?></td>
                                         <td><?= htmlspecialchars($user['email']); ?></td>
                                         <td class="text-center">
-                                            <?php if (isset($user['image'])): ?>
-                                                <img src="<?= $URL; ?>public/uploads/users/<?= $user['image']; ?>" loading="lazy" alt="Profile picture of <?= htmlspecialchars($user['name']); ?>" class="img-thumbnail" width="30">
-                                            <?php else : ?>
-                                                <img src="<?= $URL; ?>public/uploads/users/user_default.jpg" loading="lazy" alt="Default profile picture" class="img-thumbnail" width="30">
-                                            <?php endif; ?>
+                                            <img src="<?= $URL; ?>public/uploads/users/<?= htmlspecialchars($user['image']); ?>" loading="lazy" alt="Profile picture of <?= htmlspecialchars($user['name']); ?>" class="img-thumbnail" width="30">
                                         </td>
-                                        <td><?= (!empty($user['position'])) ? htmlspecialchars($user['position']) : 'N/A'; ?></td>
+                                        <td><?= htmlspecialchars($user['position_label']); ?></td>
                                         <td class="text-center">
-                                            <?php if ($currentStatus == 1) : ?>
-                                                <span class="badge badge-success badge-pill p-2">Active</span>
-                                            <?php else : ?>
-                                                <span class="badge badge-danger badge-pill p-2">Inactive</span>
-                                            <?php endif; ?>
+                                            <span class="badge <?= htmlspecialchars($user['status_badge_class']); ?> badge-pill p-2"><?= htmlspecialchars($user['status_label']); ?></span>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
@@ -106,14 +91,14 @@ $module_scripts = ['users/index-users'];
                                                 <a href="<?= $URL; ?>views/users/update.php?id=<?= $user['id']; ?>" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Editar usuario">
                                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </a>
-                                                <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                                    <button type="button" class="btn <?= $statusBtnClass; ?> btn-sm btn-toggle-status"
-                                                        aria-label="<?= $confirmButtonText; ?> user <?= htmlspecialchars($user['name']); ?>"
+                                                <?php if ($user['can_toggle_status']): ?>
+                                                    <button type="button" class="btn <?= htmlspecialchars($user['status_btn_class']); ?> btn-sm btn-toggle-status"
+                                                        aria-label="<?= htmlspecialchars($user['confirm_button_text']); ?> user <?= htmlspecialchars($user['name']); ?>"
                                                         data-id="<?= $user['id']; ?>"
-                                                        data-status="<?= $currentStatus; ?>"
+                                                        data-status="<?= $user['status']; ?>"
                                                         data-name="<?= htmlspecialchars($user['name']); ?>"
-                                                        data-toggle="tooltip" title="<?= $alertTitle; ?>">
-                                                        <i class="fas <?= $statusIconClass; ?>" aria-hidden="true"></i>
+                                                        data-toggle="tooltip" title="<?= htmlspecialchars($user['alert_title']); ?>">
+                                                        <i class="fas <?= htmlspecialchars($user['status_icon_class']); ?>" aria-hidden="true"></i>
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
