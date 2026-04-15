@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.0.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.0.1-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -53,6 +53,7 @@ Open `http://localhost/php-mvc-admin-starter/` in your browser.
 
 **Default credentials:** `admin@sistema.com` / `admin123`
 ⚠️ Change the default credentials immediately after installation.
+For all seeded test users and their permissions, see [docs/SEEDING.md](docs/SEEDING.md).
 
 ## Configuration `.env`
 
@@ -66,7 +67,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.0.0
+APP_VERSION=3.0.1
 
 # SMTP Configuration (Optional)
 MAIL_HOST=smtp.gmail.com
@@ -136,6 +137,12 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 - Session ID regeneration on every login
 - Permission cache in session — navigation checks require zero DB queries per page load
 - Users cannot deactivate or change the status of their own account
+
+## Developer Docs
+
+- [docs/SEEDING.md](docs/SEEDING.md) — seeded users, rerun behavior, and permission matrix
+- [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md) — session guards and permission cache flow
+- [docs/AJAX_AND_MODULES.md](docs/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
 
 ## AI Integration
 

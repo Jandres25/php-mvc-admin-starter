@@ -31,9 +31,11 @@ chmod 777 public/uploads/users/
 
 **Default credentials:** `admin@sistema.com` / `admin123`
 
+**Seed dataset reference:** see `docs/SEEDING.md` for all seeded users, permission matrix, and rerun behavior.
+
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.0.0`
+**Current release tag:** `3.0.1`
 
 ## No Build Process
 
@@ -86,6 +88,8 @@ Permission names are checked against `$_SESSION['user_permissions']` (cached at 
 Action controllers (e.g., `create_user.php`, `ajax_change_password.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated via `generateCSRFToken()` (global in `session.php`) and validated with `verifyCSRFToken()`; call `regenerateCSRFToken()` after every successful POST.
 
 When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` in the PHP endpoint before echoing the JSON — `messages.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
+
+Additional reference: `docs/ACCESS_CONTROL.md` and `docs/AJAX_AND_MODULES.md`.
 
 ### Frontend Modules
 

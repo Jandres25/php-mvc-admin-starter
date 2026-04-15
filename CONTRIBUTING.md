@@ -145,6 +145,8 @@ refactor: reorganize user controller methods
 4. **Code Review**: Request review from maintainers
 5. **Address Feedback**: Make necessary changes based on review comments
 
+When your changes affect session/permissions flow, AJAX endpoint patterns, or local seed data, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`) in the same PR.
+
 ### Pull Request Template
 
 ```markdown
@@ -183,7 +185,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 1. Update version numbers in relevant files
 2. Update CHANGELOG.md with release notes
-3. Create a git tag: `git tag -a 3.0.0 -m "Release 3.0.0"`
+3. Create a git tag: `git tag -a 3.0.1 -m "Release 3.0.1"`
 4. Push tags: `git push origin --tags`
 5. Create GitHub release with release notes
 
