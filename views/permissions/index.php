@@ -1,21 +1,4 @@
-<?php
-require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
-
-requirePermission('permissions');
-
-$plugins = ['datatables', 'datatables-export'];
-$module_scripts = ['permissions/modal-permission', 'permissions/index-permissions'];
-
-$pageController = new \App\Controllers\Permissions\PermissionPageController();
-$viewData       = $pageController->buildIndexViewData();
-$permissions    = $viewData['permissions'];
-$statistics     = $viewData['statistics'];
-
-include_once '../layouts/header.php';
-?>
-
-<!-- Content Header (Page header) -->
+<!-- Content Header -->
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
@@ -24,7 +7,7 @@ include_once '../layouts/header.php';
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
                     <li class="breadcrumb-item active">Permissions</li>
                 </ol>
             </div>
@@ -96,9 +79,7 @@ include_once '../layouts/header.php';
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    foreach ($permissions as $permission) :
-                                    ?>
+                                    <?php foreach ($permissions as $permission): ?>
                                         <tr>
                                             <td class="text-center"><?= $permission['id']; ?></td>
                                             <td><?= htmlspecialchars($permission['name']); ?></td>
@@ -113,7 +94,7 @@ include_once '../layouts/header.php';
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a href="<?= $URL; ?>views/permissions/detail.php?id=<?= $permission['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View details">
+                                                    <a href="<?= URL ?>permissions/<?= $permission['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View details">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <button type="button" class="btn btn-warning btn-sm btn-edit"
@@ -144,9 +125,4 @@ include_once '../layouts/header.php';
     </div>
 </section>
 
-<?php include '_modal_permission.php'; ?>
-
-<?php
-include_once '../layouts/messages.php';
-include_once '../layouts/footer.php';
-?>
+<?php include __DIR__ . '/_modal_permission.php'; ?>

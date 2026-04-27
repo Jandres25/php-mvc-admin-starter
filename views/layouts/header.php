@@ -1,17 +1,3 @@
-<?php
-require_once __DIR__ . '/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
-
-requireLogin();
-
-$currentUser = getCurrentUser();
-
-$authService = new \App\Services\AuthorizationService();
-
-global $URL;
-
-?>
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -22,36 +8,36 @@ global $URL;
     <title>Base System MVC</title>
 
     <!-- Bootstrap 4 -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= URL; ?>/css/lib/bootstrap/bootstrap.min.css">
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/fontawesome/all.min.css">
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/core/webfonts.css">
-    <link rel="icon" type="image/png" href="<?= $URL; ?>public/img/e-commerce_logo.png">
+    <link rel="stylesheet" href="<?= URL; ?>/css/lib/fontawesome/all.min.css">
+    <link rel="stylesheet" href="<?= URL; ?>/css/core/webfonts.css">
+    <link rel="icon" type="image/png" href="<?= URL; ?>/img/e-commerce_logo.png">
     <!-- Theme style -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/lib/adminlte/adminlte.min.css">
+    <link rel="stylesheet" href="<?= URL; ?>/css/lib/adminlte/adminlte.min.css">
     <!-- UI Components custom styles -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/core/ui-components.css">
+    <link rel="stylesheet" href="<?= URL; ?>/css/core/ui-components.css">
     <!-- Conditional plugin CSS -->
     <?php
     $activePlugins = (isset($plugins) && is_array($plugins)) ? $plugins : [];
     $pluginCssFiles = \App\Core\AssetRegistry::resolvePluginCss($activePlugins);
     foreach ($pluginCssFiles as $css): ?>
-        <link rel="stylesheet" href="<?= $URL; ?>public/css/<?= $css; ?>">
+        <link rel="stylesheet" href="<?= URL; ?>/css/<?= $css; ?>">
     <?php endforeach; ?>
     <!-- Sweetalert2 -->
-    <link rel="stylesheet" href="<?= $URL; ?>public/css/plugins/sweetalert2/sweetalert2.min.css">
-    <script src="<?= $URL; ?>public/js/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="<?= URL; ?>/css/plugins/sweetalert2/sweetalert2.min.css">
+    <script src="<?= URL; ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
     <!-- jQuery -->
-    <script src="<?= $URL; ?>public/js/lib/jquery/jquery.min.js"></script>
+    <script src="<?= URL; ?>/js/lib/jquery/jquery.min.js"></script>
 
     <!-- Module-specific styles -->
     <?php if (isset($module_styles) && is_array($module_styles)): ?>
         <?php foreach ($module_styles as $style): ?>
-            <link rel="stylesheet" href="<?= $URL; ?>public/css/modules/<?= $style; ?>.css">
+            <link rel="stylesheet" href="<?= URL; ?>/css/modules/<?= $style; ?>.css">
         <?php endforeach; ?>
     <?php endif; ?>
     <script>
-        const baseUrl = "<?= $URL; ?>";
+        const baseUrl = "<?= URL; ?>";
         const csrfToken = "<?= generateCSRFToken(); ?>";
     </script>
 </head>
@@ -69,8 +55,8 @@ global $URL;
 
                 <!-- Logo visible only on mobile -->
                 <li class="nav-item d-sm-none">
-                    <a href="<?= $URL; ?>" class="nav-link d-flex align-items-center">
-                        <img src="<?= $URL; ?>/public/img/e-commerce_logo.png" alt="Logo" class="img-circle"
+                    <a href="<?= URL; ?>" class="nav-link d-flex align-items-center">
+                        <img src="<?= URL; ?>/img/e-commerce_logo.png" alt="Logo" class="img-circle"
                             style="width: 25px; height: 25px; margin-right: 8px;">
                         <span class="brand-text">Base System</span>
                     </a>
@@ -91,7 +77,7 @@ global $URL;
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <!-- User image -->
                         <li class="user-header">
-                            <img src="<?= $URL; ?>public/uploads/users/<?= $currentUser['image']; ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
+                            <img src="<?= URL; ?>/uploads/users/<?= $currentUser['image']; ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
                             <p>
                                 <?= $currentUser['name']; ?>
                                 <small><?= $currentUser['position']; ?></small>
@@ -100,9 +86,9 @@ global $URL;
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'profile')) : ?>
-                                <a href="<?= $URL; ?>views/users/profile.php" class="btn btn-default btn-flat">Profile</a>
+                                <a href="<?= URL; ?>profile" class="btn btn-default btn-flat">Profile</a>
                             <?php endif; ?>
-                            <a href="<?= $URL; ?>app/controllers/auth/logout.php" class="btn btn-default btn-flat float-right">Log Out</a>
+                            <a href="<?= URL; ?>logout" class="btn btn-default btn-flat float-right">Log Out</a>
                         </li>
                     </ul>
 
@@ -114,8 +100,8 @@ global $URL;
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-light-primary elevation-2">
             <!-- Brand Logo -->
-            <a href="<?= $URL; ?>" class="brand-link">
-                <img src="<?= $URL; ?>public/img/e-commerce_logo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
+            <a href="<?= URL; ?>" class="brand-link">
+                <img src="<?= URL; ?>/img/e-commerce_logo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
                 <span class="brand-text font-weight-light">Base System</span>
             </a>
 
@@ -128,7 +114,7 @@ global $URL;
 
                         <!-- Dashboard -->
                         <li class="nav-item">
-                            <a href="<?= $URL; ?>" class="nav-link">
+                            <a href="<?= URL; ?>" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
                             </a>
@@ -147,7 +133,7 @@ global $URL;
                                 <ul class="nav nav-treeview">
                                     <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'users')) : ?>
                                         <li class="nav-item">
-                                            <a href="<?= $URL; ?>views/users" class="nav-link">
+                                            <a href="<?= URL; ?>users" class="nav-link">
                                                 <i class="fas fa-user-alt nav-icon"></i>
                                                 <p>Users</p>
                                             </a>
@@ -155,7 +141,7 @@ global $URL;
                                     <?php endif; ?>
                                     <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) : ?>
                                         <li class="nav-item">
-                                            <a href="<?= $URL; ?>views/permissions" class="nav-link">
+                                            <a href="<?= URL; ?>permissions" class="nav-link">
                                                 <i class="fas fa-key nav-icon"></i>
                                                 <p>Permissions</p>
                                             </a>

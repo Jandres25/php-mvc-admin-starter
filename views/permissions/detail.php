@@ -1,24 +1,4 @@
-<?php
-require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
-
-requirePermission('permissions');
-
-$plugins = ['datatables', 'select2'];
-$module_scripts = ['permissions/modal-permission', 'permissions/detail-permission'];
-
-$pageController    = new \App\Controllers\Permissions\PermissionPageController();
-$viewData          = $pageController->buildDetailViewDataFromRequest();
-$permission        = $viewData['permission'];
-$users             = $viewData['users'];
-$usersWithoutPerm  = $viewData['users_without_permission'];
-$isInactive        = $viewData['is_inactive'];
-$permissionId      = $viewData['permission_id'];
-
-include_once '../layouts/header.php';
-?>
-
-<!-- Content Header (Page header) -->
+<!-- Content Header -->
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
@@ -27,8 +7,8 @@ include_once '../layouts/header.php';
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/permissions"><i class="fas fa-key"></i> Permissions</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>permissions"><i class="fas fa-key"></i> Permissions</a></li>
                     <li class="breadcrumb-item active">Permission Detail</li>
                 </ol>
             </div>
@@ -77,7 +57,7 @@ include_once '../layouts/header.php';
                         </ul>
 
                         <div class="d-flex justify-content-between">
-                            <a href="<?= $URL; ?>views/permissions" class="btn btn-default">
+                            <a href="<?= URL ?>permissions" class="btn btn-default">
                                 <i class="fas fa-arrow-left"></i> Back
                             </a>
                             <button type="button" class="btn btn-warning btn-edit"
@@ -133,7 +113,7 @@ include_once '../layouts/header.php';
                                         <td><?= htmlspecialchars($user['position']); ?></td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="<?= $URL; ?>views/users/show.php?id=<?= $user['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View user">
+                                                <a href="<?= URL ?>users/<?= $user['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View user">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <button type="button" class="btn btn-danger btn-sm btn-revoke"
@@ -155,7 +135,7 @@ include_once '../layouts/header.php';
     </div>
 </section>
 
-<?php include_once __DIR__ . '/_modal_permission.php'; ?>
+<?php include __DIR__ . '/_modal_permission.php'; ?>
 
 <!-- Assign User Modal -->
 <div class="modal fade" id="modalAssignUser" tabindex="-1" role="dialog" aria-hidden="true">
@@ -171,7 +151,7 @@ include_once '../layouts/header.php';
                 <div class="form-group">
                     <label for="selectUser">Select User <span class="text-danger">*</span></label>
                     <select class="form-control select2" id="selectUser">
-                        <option value="">Selecciona un usuario</option>
+                        <option value="">Select a user</option>
                         <?php foreach ($usersWithoutPerm as $u): ?>
                             <option value="<?= $u['id']; ?>">
                                 <?= htmlspecialchars(trim($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? '')) . ($u['position'] ? ' — ' . $u['position'] : '')); ?>
@@ -195,8 +175,3 @@ include_once '../layouts/header.php';
 <script>
     const permissionId = <?= $permissionId; ?>;
 </script>
-
-<?php
-include_once '../layouts/messages.php';
-include_once '../layouts/footer.php';
-?>

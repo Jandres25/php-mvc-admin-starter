@@ -1,19 +1,3 @@
-<?php
-require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
-
-requirePermission('users');
-
-$plugins = ['select2', 'validate'];
-$module_scripts = ['users/create-user'];
-
-$pageController = new \App\Controllers\Users\UserPageController();
-$viewData       = $pageController->buildCreateViewData();
-$allPermissions = $viewData['all_permissions'];
-
-include_once '../layouts/header.php';
-?>
-
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
@@ -23,8 +7,8 @@ include_once '../layouts/header.php';
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/users"><i class="fas fa-users"></i> Users</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>users"><i class="fas fa-users"></i> Users</a></li>
                     <li class="breadcrumb-item active">Create User</li>
                 </ol>
             </div>
@@ -38,7 +22,7 @@ include_once '../layouts/header.php';
         <div class="row">
             <!-- Main form (8 columns) -->
             <div class="col-md-8">
-                <form action="<?= $URL; ?>app/controllers/users/create_user.php" method="POST" enctype="multipart/form-data" id="formUser">
+                <form action="<?= URL ?>users" method="POST" enctype="multipart/form-data" id="formUser">
                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
                     <!-- Personal Information Card -->
@@ -356,7 +340,7 @@ include_once '../layouts/header.php';
                                     </button>
                                 </div>
                                 <div class="col-12 col-sm-auto">
-                                    <a href="<?= $URL; ?>views/users" class="btn btn-default btn-block">
+                                    <a href="<?= URL ?>users" class="btn btn-default btn-block">
                                         <i class="fas fa-times"></i> Cancel
                                     </a>
                                 </div>
@@ -480,7 +464,7 @@ include_once '../layouts/header.php';
                     </div>
                     <div class="card-body text-center">
                         <div class="profile-preview">
-                            <img id="profile-preview-img" src="<?= $URL; ?>public/uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                            <img id="profile-preview-img" src="<?= URL ?>uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
                             <h5 id="profile-preview-name" class="mt-3">New User</h5>
                             <p id="profile-preview-role" class="text-muted">User position</p>
                             <div id="profile-preview-badge" class="badge badge-success">Active</div>
@@ -500,7 +484,3 @@ include_once '../layouts/header.php';
 </section>
 <!-- /.content -->
 
-<?php
-include_once '../layouts/messages.php';
-include_once '../layouts/footer.php';
-?>

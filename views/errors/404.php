@@ -23,11 +23,11 @@ if (file_exists($env_file)) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>404 - Page Not Found</title>
-    <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/adminlte/adminlte.min.css">
-    <link rel="stylesheet" href="<?= $app_url ?>public/css/lib/fontawesome/all.min.css">
-    <link rel="stylesheet" href="<?= $app_url ?>public/css/core/webfonts.css">
-    <link rel="icon" type="image/png" href="<?= $app_url ?>public/img/e-commerce_logo.png">
+    <link rel="stylesheet" href="<?= $app_url ?>/css/lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= $app_url ?>/css/lib/adminlte/adminlte.min.css">
+    <link rel="stylesheet" href="<?= $app_url ?>/css/lib/fontawesome/all.min.css">
+    <link rel="stylesheet" href="<?= $app_url ?>/css/core/webfonts.css">
+    <link rel="icon" type="image/png" href="<?= $app_url ?>/img/e-commerce_logo.png">
     <style>
         body {
             background-color: #f4f6f9;

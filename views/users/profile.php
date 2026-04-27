@@ -1,18 +1,3 @@
-<?php
-require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
-
-requirePermission('profile');
-
-$module_scripts = ['users/profile-user'];
-$pageController = new \App\Controllers\Users\UserPageController();
-$viewData       = $pageController->buildProfileViewData();
-$user           = $viewData['user'];
-$imageSrc       = $URL . htmlspecialchars($viewData['image_src']);
-
-include_once '../layouts/header.php';
-?>
-
 <!-- Content Header -->
 <section class="content-header">
     <div class="container-fluid">
@@ -22,7 +7,7 @@ include_once '../layouts/header.php';
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
                     <li class="breadcrumb-item active">My Profile</li>
                 </ol>
             </div>
@@ -101,7 +86,7 @@ include_once '../layouts/header.php';
 
                             <!-- Tab: My Data -->
                             <div class="tab-pane fade show active" id="tab-data" role="tabpanel">
-                                <form action="<?= $URL; ?>app/controllers/users/process_update_profile.php" method="POST" enctype="multipart/form-data">
+                                <form action="<?= URL ?>profile" method="POST" enctype="multipart/form-data">
                                     <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
 
                                     <!-- Profile photo -->
@@ -174,6 +159,7 @@ include_once '../layouts/header.php';
                                     <i class="fas fa-info-circle mr-1"></i> Changing the password will end the current session.
                                 </div>
                                 <form id="formChangePassword" action="javascript:void(0)">
+                                    <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
                                     <div class="form-group">
                                         <label for="current_password">Current password <span class="text-danger">*</span></label>
                                         <div class="input-group">
@@ -222,7 +208,3 @@ include_once '../layouts/header.php';
     </div>
 </section>
 
-<?php
-include_once '../layouts/messages.php';
-include_once '../layouts/footer.php';
-?>

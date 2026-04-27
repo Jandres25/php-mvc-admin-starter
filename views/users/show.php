@@ -1,21 +1,3 @@
-<?php
-require_once __DIR__ . '/../layouts/session.php';
-require_once __DIR__ . '/../../app/config/config.php';
-
-requirePermission('users');
-
-$module_styles  = ['users/show-user'];
-$module_scripts = ['users/show-user'];
-
-$pageController = new \App\Controllers\Users\UserPageController();
-$viewData       = $pageController->buildShowViewDataFromRequest();
-$user           = $viewData['user'];
-$userPermissions = $viewData['user_permissions'];
-$isAdminUser    = $viewData['is_admin_user'];
-
-include_once '../layouts/header.php';
-?>
-
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid">
@@ -25,8 +7,8 @@ include_once '../layouts/header.php';
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>"><i class="fas fa-home"></i> Home</a></li>
-                    <li class="breadcrumb-item"><a href="<?= $URL; ?>views/users"><i class="fas fa-users"></i> Users</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL ?>users"><i class="fas fa-users"></i> Users</a></li>
                     <li class="breadcrumb-item active">User Detail</li>
                 </ol>
             </div>
@@ -46,11 +28,11 @@ include_once '../layouts/header.php';
                         <div class="text-center">
                             <?php if (isset($user['image']) && !empty($user['image'])): ?>
                                 <img class="profile-user-img img-fluid img-circle"
-                                    src="<?= $URL; ?>public/uploads/users/<?= $user['image']; ?>"
+                                    src="<?= URL ?>uploads/users/<?= $user['image']; ?>"
                                     alt="Profile image">
                             <?php else: ?>
                                 <img class="profile-user-img img-fluid img-circle"
-                                    src="<?= $URL; ?>public/uploads/users/user_default.jpg"
+                                    src="<?= URL ?>uploads/users/user_default.jpg"
                                     alt="Profile image">
                             <?php endif; ?>
                         </div>
@@ -89,10 +71,10 @@ include_once '../layouts/header.php';
                         </ul>
 
                         <div class="d-flex justify-content-between">
-                            <a href="<?= $URL; ?>views/users/update.php?id=<?= $user['id']; ?>" class="btn btn-warning mb-3">
+                            <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning mb-3">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
-                            <a href="<?= $URL; ?>views/users/index.php" class="btn btn-default mb-3">
+                            <a href="<?= URL ?>users" class="btn btn-default mb-3">
                                 <i class="fas fa-arrow-left"></i> Back
                             </a>
                         </div>
@@ -299,7 +281,3 @@ include_once '../layouts/header.php';
     </div>
 </section>
 
-<?php
-include_once '../layouts/messages.php';
-include_once '../layouts/footer.php';
-?>
