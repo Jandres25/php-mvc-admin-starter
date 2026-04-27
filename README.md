@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.0.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.1.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -67,7 +67,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.0.1
+APP_VERSION=3.1.0
 
 # SMTP Configuration (Optional)
 MAIL_HOST=smtp.gmail.com
@@ -82,18 +82,23 @@ MAIL_FROM_NAME="Admin Starter"
 
 This project is designed to be extended. To add a module (e.g. `Products`):
 
-1. **App Controller** — Create `app/controllers/products/ProductPageController.php` with namespace `App\Controllers\Products`
-2. **Model** — Create `app/models/Product.php` with namespace `App\Models`
+1. **Controller** — Create `app/controllers/products/ProductController.php` with namespace `App\Controllers\Products`, extending `App\Core\Controller`
+2. **Model** — Create `app/models/Product.php` with namespace `App\Models`, extending `App\Core\Model`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
-4. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
-5. **Action endpoint** — Add action files in `app/controllers/products/*.php` for form submits/AJAX
+4. **Routes** — Add entries to `routes/web.php`:
+   ```php
+   ['method' => 'GET',  'path' => '/products',        'controller' => 'Products\Product@index',  'middleware' => ['auth', 'perm:products']],
+   ['method' => 'POST', 'path' => '/products',        'controller' => 'Products\Product@store',  'middleware' => ['auth', 'perm:products']],
+   ['method' => 'GET',  'path' => '/products/create', 'controller' => 'Products\Product@create', 'middleware' => ['auth', 'perm:products']],
+   ```
+5. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
 6. **Permission** — Insert the permission into the `permissions` table in the database
 7. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
 
 ```php
-<?php if ($authService->hasPermissionByName($usuario['id'], 'products')): ?>
+<?php if ($authService->hasPermissionByName($currentUser['id'], 'products')): ?>
     <li class="nav-item">
-        <a href="<?= $URL ?>/views/products/index.php" class="nav-link">Products</a>
+        <a href="<?= URL ?>products" class="nav-link">Products</a>
     </li>
 <?php endif; ?>
 ```
@@ -103,18 +108,20 @@ The autoloader automatically resolves any class whose namespace matches the dire
 ## Architecture
 
 ```
-app/            # Application layer for incremental MVC migration
-├── core/       # BaseController, ViewRenderer, AssetRegistry
-├── controllers/# Page-level controllers (view-model preparation and flow)
-├── models/     # App\Models
-├── services/   # App\Services
-└── config/     # PSR-4 autoloader, PDO singleton, .env helpers
-views/          # PHP templates; layouts/session.php validates the session
-public/         # Static assets organized into lib/, core/, plugins/, modules/
-libs/           # Vendored libraries (TCPDF, PHPMailer)
+app/
+├── config/       # Bootstrap: PSR-4 autoloader, PDO singleton, .env helpers
+├── controllers/  # Feature controllers (auth/, users/, permissions/, dashboard/)
+├── core/         # Controller.php, Model.php, Router.php, AssetRegistry.php, helpers.php
+├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
+├── models/       # App\Models
+└── services/     # App\Services (AuthorizationService, ImageService, MailService)
+routes/           # web.php — all route definitions
+views/            # PHP templates; layouts/header.php and footer.php wrap content
+public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)
+libs/             # Vendored libraries (TCPDF, PHPMailer)
 ```
 
-**Request flow:** URLs point directly to endpoint files under `app/controllers/*` (e.g. `/app/controllers/auth/login.php`). There is no central router. Every protected page includes `views/layouts/session.php` as its first step, which validates the session and exposes the `requireLogin()` and `getCurrentUser()` helpers.
+**Request flow:** All HTTP requests are routed through `public/index.php` via Apache rewriting. `App\Core\Router` matches the URI and method against `routes/web.php`, runs declared middleware (auth, guest, perm:NAME), and dispatches to the controller method. Clean URLs like `/users`, `/users/5/edit`, `/permissions/3` replace the old direct-file access pattern.
 
 ## Tech Stack
 

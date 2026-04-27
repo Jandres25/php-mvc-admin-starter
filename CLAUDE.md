@@ -35,7 +35,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.0.1`
+**Current release tag:** `3.1.0`
 
 ## No Build Process
 
@@ -45,26 +45,34 @@ This is a pure PHP application. There are no npm, Composer, Makefile, or test su
 
 ### Request Flow
 
-There is no router. Controllers are accessed directly via URL paths:
-- `/index.php` — dashboard
-- `/app/controllers/auth/login.php` — login page
-- `/app/controllers/users/create_user.php` — create user action
+All HTTP requests are routed through `public/index.php` (Front Controller) via Apache rewriting. The `App\Core\Router` matches the URI and HTTP method against `routes/web.php`, runs registered middleware, then dispatches to the appropriate controller method.
 
-`views/layouts/session.php` is included at the top of every protected page. It loads the `.env`, validates the session, and defines `requireLogin()` and `getCurrentUser()` global functions.
+Clean URL examples:
+- `/` or `/dashboard` — dashboard
+- `/login` — login page
+- `/users/create` — create user form
+- `/users` (POST) — store new user
+- `/users/5/edit` — edit user
+
+**Entry point:** `public/index.php` starts the session, loads `app/config/config.php` and `app/core/helpers.php`, then instantiates the router.
+
+**Helpers:** `app/core/helpers.php` defines the global functions `isAuthenticated()`, `checkSessionTimeout()`, `checkSessionSecurity()`, `getCurrentUser()`, `refreshPermissionsIfStale()`, `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`. It is loaded once at the entry point.
 
 ### MVC Structure
 
 ```
-app/            # App-layer MVC migration (new)
-app/core/       # BaseController, ViewRenderer, AssetRegistry
-app/controllers/# Page controllers (view-model + request-flow prep)
-app/models/     # App-layer models
-app/services/   # App-layer services
-app/config/     # Primary bootstrap: autoloader, env loader, DB singleton, config array
-database/       # Schema (schema.sql) and seed data (seeder.sql)
-views/          # PHP templates; layouts/header.php pulls in all CSS/JS
-public/         # Static assets organized as lib/, core/, plugins/, modules/
-libs/           # Vendored libraries (TCPDF, PHPMailer)
+app/
+├── config/       # Bootstrap: autoloader, .env loader, DB singleton, config array
+├── controllers/  # Feature controllers (auth/, users/, permissions/, dashboard/)
+├── core/         # Controller.php, Model.php, Router.php, AssetRegistry.php, helpers.php
+├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
+├── models/       # App\Models
+└── services/     # App\Services (AuthorizationService, ImageService, MailService)
+routes/           # web.php — all route definitions
+database/         # schema.sql and seeder.sql
+views/            # PHP templates; layouts/header.php pulls in all CSS/JS
+public/           # Static assets (lib/, core/, plugins/, modules/) + index.php
+libs/             # Vendored libraries (TCPDF, PHPMailer)
 ```
 
 ### Custom Autoloader
@@ -79,13 +87,18 @@ libs/           # Vendored libraries (TCPDF, PHPMailer)
 
 `app/services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'users'`, `'permissions'`, `'admin'`). Use `$authService->hasPermissionByName($userId, 'permission_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
 
-Permission names are checked against `$_SESSION['user_permissions']` (cached at login). The cache is automatically refreshed by `refreshPermissionsIfStale()` in `session.php` — called on every page load — which compares `$_SESSION['permissions_ts']` against the `permissions_updated_at` column in `users`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
+Permission names are checked against `$_SESSION['user_permissions']` (cached at login). The cache is automatically refreshed by `refreshPermissionsIfStale()` in `helpers.php` — called on every request by `AuthMiddleware` — which compares `$_SESSION['permissions_ts']` against the `permissions_updated_at` column in `users`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
 
 `AuthorizationService::isAdmin()` is memoized per-request via `static array $adminCache` — safe to call multiple times in the same request without extra DB queries.
 
+**Middleware:** Route-level protection is declared in `routes/web.php` via the `middleware` key:
+- `'auth'` — `AuthMiddleware`: validates session, timeout, anti-hijacking, then calls `refreshPermissionsIfStale()`.
+- `'guest'` — `GuestMiddleware`: redirects authenticated users away from login/forgot-password pages.
+- `'perm:NAME'` — `PermissionMiddleware`: checks `AuthorizationService::hasPermissionByName()` for the given permission name; returns 403 view on failure.
+
 ### AJAX Pattern
 
-Action controllers (e.g., `create_user.php`, `ajax_change_password.php`) return JSON responses consumed by JS modules in `public/js/modules/`. CSRF tokens are generated via `generateCSRFToken()` (global in `session.php`) and validated with `verifyCSRFToken()`; call `regenerateCSRFToken()` after every successful POST.
+Controller methods that handle AJAX calls return JSON via `$this->jsonResponse($data)`. CSRF tokens are generated via `generateCSRFToken()` (global in `helpers.php`) and validated with `$this->csrfCheck()` (calls `verifyCSRFToken()` internally); call `regenerateCSRFToken()` after every successful POST. AJAX routes are declared in `routes/web.php` like any other route and protected by the same middleware.
 
 When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` in the PHP endpoint before echoing the JSON — `messages.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
 
@@ -101,22 +114,20 @@ Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJA
 
 Similarly, register page-specific CSS via `$module_styles = ['feature/file']` at the top of the view.
 
-**Conditional plugin loading:** Third-party plugins (DataTables, Select2, jQuery Validate) are loaded on demand via `$plugins` declared before `header.php`. Asset maps are centralized in `App\Core\AssetRegistry` and consumed by layouts. Available plugins: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Example:
+**Conditional plugin loading:** Third-party plugins (DataTables, Select2, jQuery Validate) are loaded on demand via `$plugins` passed to `Controller::render()`. Asset maps are centralized in `App\Core\AssetRegistry` and consumed by layouts. Available plugins: `datatables`, `datatables-export`, `select2`, `validate`, `chart`. Example (inside a controller method):
 
 ```php
-$plugins = ['datatables', 'datatables-export'];
-$module_scripts = ['users/index-users'];
-require_once '../layouts/header.php';
+$this->render('users/index', $data, ['datatables', 'datatables-export'], ['users/index-users']);
 ```
 
-**Form validation:** Use `$plugins = ['select2', 'validate']` on forms. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `app/controllers/users/check_email.php` or `check_document.php`.
+**Form validation:** Pass `['select2', 'validate']` as the plugins argument. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `/users/check-email` or `/users/check-document`.
 
 **Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly.
 
 ## Coding Conventions
 
 - **Namespaces:** use `App\Controllers\*`, `App\Models\*`, `App\Services\*`, and `App\Core\*` consistently.
-- **CSRF:** Generate token with `generateCSRFToken()`, validate with `verifyCSRFToken()` (global functions in `session.php`). Call `regenerateCSRFToken()` after every successful POST validation to prevent replay attacks.
+- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST. All helpers live in `app/core/helpers.php`.
 - **Input sanitization:** Use `trim()` at the model layer (`sanitizeData()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImageService`.

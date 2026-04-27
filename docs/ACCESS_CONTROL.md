@@ -4,18 +4,23 @@ This document summarizes how authentication, session validation, and permission 
 
 ## Request guard flow
 
-Protected pages load `views/layouts/session.php` first, then call:
+All requests pass through `public/index.php`, which boots the session and helpers. The `App\Core\Router` runs middleware before dispatching to a controller method:
 
-1. `requireLogin()` to validate authentication, timeout, and session security.
-2. `requirePermission('permission_name')` when access must be restricted by permission.
+1. `AuthMiddleware::handle()` — validates the session (authentication, timeout, anti-hijacking) and calls `refreshPermissionsIfStale()`.
+2. `GuestMiddleware::handle()` — redirects already-authenticated users away from guest-only pages (login, forgot-password).
+3. `PermissionMiddleware::handle($name)` — calls `AuthorizationService::hasPermissionByName()` for the given permission; returns a 403 view on failure.
 
-`requireLogin()` also calls `refreshPermissionsIfStale()` on every request to keep the session permission cache in sync.
+Middleware is declared per route in `routes/web.php`:
+
+```php
+['method' => 'GET', 'path' => '/users', 'controller' => 'Users\User@index', 'middleware' => ['auth', 'perm:users']],
+```
 
 ## Session security controls
 
-Implemented in `session.php`:
+Implemented in `app/core/helpers.php` (loaded once at entry point):
 
-- Session cookie hardening (`httponly`, `SameSite=Lax`, `use_strict_mode`)
+- Session cookie hardening (`httponly`, `SameSite=Lax`, `use_strict_mode`) — set in `public/index.php` before `session_start()`
 - Inactivity timeout via `checkSessionTimeout()` (default: 24 hours)
 - Anti-hijacking validation via `checkSessionSecurity()` (IP + User-Agent)
 
@@ -35,18 +40,25 @@ Permission changes are cached in session and refreshed when stale.
 
 - Session value: `$_SESSION['permissions_ts']`
 - DB value: `users.permissions_updated_at`
-- Refresh trigger: `refreshPermissionsIfStale()` compares both values
+- Refresh trigger: `refreshPermissionsIfStale()` (called by `AuthMiddleware` on every authenticated request) compares both values
 
 After changing any user permission assignments, update the user's timestamp through the model/service flow so the next page load refreshes their cache.
 
 ## Practical pattern
 
-For any new protected endpoint:
+For any new protected route, declare middleware in `routes/web.php`:
 
 ```php
-require_once __DIR__ . '/../../../views/layouts/session.php';
-require_once __DIR__ . '/../../config/config.php';
+// Requires authentication only
+['method' => 'GET', 'path' => '/profile', 'controller' => 'Users\User@profile', 'middleware' => ['auth']],
 
-requireLogin();
-requirePermission('users'); // Replace with your permission
+// Requires authentication + named permission
+['method' => 'GET', 'path' => '/products', 'controller' => 'Products\Product@index', 'middleware' => ['auth', 'perm:products']],
+```
+
+Within the controller method, additional inline checks are available via the base `Controller` helpers:
+
+```php
+$this->csrfCheck();          // validates CSRF; returns JSON 403 for AJAX or redirects
+$this->requirePermission('products'); // re-checks permission and renders 403 view on failure
 ```

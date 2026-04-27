@@ -2,6 +2,79 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2026-04-27
+
+⚠️ **BREAKING CHANGES - Migration Required**
+
+This release introduces a major architectural refactoring from scattered endpoint files to a centralized Front Controller pattern with proper MVC structure.
+
+### Migration Guide
+
+If upgrading from v3.0.x, follow these steps:
+
+1. **Update Apache Configuration**
+   - Set DocumentRoot to `public/` directory
+   - OR add `.htaccess` rewriting rules (included)
+   - Restart Apache
+
+2. **URL Structure Changes**
+   - Before: `/app/controllers/users/create_user.php`
+   - After: `/users/create` (routed through `public/index.php`)
+   - Update all frontend navigation and API calls
+
+3. **Remove Direct File Access**
+   - No longer access `/app/controllers/*` directly
+   - All requests must go through the router
+
+### Added
+
+- **Front Controller Pattern** (`public/index.php`)
+  - Single entry point for all requests
+  - Centralized request dispatching via `App\Core\Router`
+
+- **Centralized Routing** (`routes/web.php`)
+  - All routes defined in single configuration file
+  - Clean URL syntax: `/users/edit/5`
+  - Supports HTTP method matching
+
+- **Core Classes**
+  - `App\Core\Controller` - Base controller with `render()`, `redirect()`, `jsonResponse()`
+  - `App\Core\Model` - Base model with PDO database methods
+  - `App\Core\Router` - Dynamic route dispatcher
+
+- **Apache Configuration** (`.htaccess` in public/)
+  - URL rewriting for clean routes
+  - Automatic routing to `public/index.php`
+
+### Changed
+
+- Consolidated 18+ legacy endpoint files into controller methods
+- Renamed `BaseModel.php` → `Model.php` in `app/core/`
+- Updated all controllers to extend `App\Core\Controller`
+- Updated all models to extend `App\Core\Model`
+- Reorganized views with layout wrappers
+- Updated all JavaScript AJAX calls to use new routing
+
+### Removed
+
+- Legacy endpoint files:
+  - `app/controllers/auth/{login.php, logout.php, forgot_password_process.php, reset_password_process.php}`
+  - `app/controllers/users/{create_user.php, update_user.php, ajax_change_password.php, check_email.php, check_document.php, toggle_user_status.php, process_update_profile.php}`
+  - `app/controllers/users/{UserPageController.php, ProfileController.php}`
+  - `app/controllers/permissions/{*_ajax.php, PermissionPageController.php}` (7 files)
+  - `app/controllers/dashboard/DashboardPageController.php`
+
+- Legacy core classes:
+  - `app/core/BaseController.php`
+  - `app/core/BaseModel.php`
+  - `app/core/ViewRenderer.php`
+
+### Fixed
+
+- Direct file access security concerns
+- Inconsistent routing patterns
+- Missing request method validation
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -254,7 +327,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.1...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.1.0...HEAD
+[3.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.1...3.0.0
 [2.3.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.0...2.3.1

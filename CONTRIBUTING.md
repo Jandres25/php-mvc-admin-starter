@@ -145,7 +145,7 @@ refactor: reorganize user controller methods
 4. **Code Review**: Request review from maintainers
 5. **Address Feedback**: Make necessary changes based on review comments
 
-When your changes affect session/permissions flow, AJAX endpoint patterns, or local seed data, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`) in the same PR.
+When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `AI_SETUP.md`) in the same PR.
 
 ### Pull Request Template
 
@@ -185,7 +185,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 1. Update version numbers in relevant files
 2. Update CHANGELOG.md with release notes
-3. Create a git tag: `git tag -a 3.0.1 -m "Release 3.0.1"`
+3. Create a git tag: `git tag -a 3.1.0 -m "Release 3.1.0"`
 4. Push tags: `git push origin --tags`
 5. Create GitHub release with release notes
 
@@ -194,23 +194,29 @@ We follow [Semantic Versioning](https://semver.org/):
 When adding new features, follow the existing project structure:
 
 ```
-├── app/                   # New app-layer MVC migration
-│   ├── core/              # BaseController, ViewRenderer, AssetRegistry
-│   ├── controllers/       # Endpoints + page controllers
-│   ├── models/            # Data models
-│   ├── services/          # Business logic services
-│   └── config/            # Bootstrap/configuration
-├── views/                # View templates
-│   ├── layouts/          # Layout components
-│   ├── users/            # User views
-│   └── permissions/      # Permission views
-├── public/
+├── public/               # Front controller (index.php) + static assets
 │   ├── js/
 │   │   ├── core/         # Core JavaScript utilities
 │   │   └── modules/      # Feature-specific JS
 │   └── css/
 │       ├── core/         # Core styles
 │       └── modules/      # Feature-specific CSS
+├── app/
+│   ├── core/             # Controller.php, Model.php, Router.php, AssetRegistry.php, helpers.php
+│   ├── controllers/      # Feature controllers (auth/, users/, permissions/, dashboard/)
+│   ├── middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
+│   ├── models/           # App\Models
+│   ├── services/         # App\Services (AuthorizationService, ImageService, MailService)
+│   └── config/           # Bootstrap: autoloader, .env loader, DB singleton, config array
+├── routes/               # web.php — all route definitions
+├── views/                # PHP templates
+│   ├── layouts/          # Layout components (header, footer, messages)
+│   ├── users/            # User views
+│   ├── permissions/      # Permission views
+│   ├── auth/             # Login, forgot password, reset password
+│   └── errors/           # 403, 404 error pages
+├── database/             # schema.sql and seeder.sql
+├── libs/                 # Vendored libraries (PHPMailer)
 ├── docs/                 # Project documentation for developers and AI
 └── .claude/              # AI assistant configurations and custom skills
 ```
