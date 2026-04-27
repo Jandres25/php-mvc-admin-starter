@@ -1,212 +1,275 @@
 <?php
 
-/**
- * Permission Controller
- *
- * Manages operations related to permissions.
- *
- * @package ProyectoBase
- * @subpackage App\Controllers\Permissions
- * @author Jandres25
- * @version 1.0
- */
-
 namespace App\Controllers\Permissions;
 
+use App\Core\Controller;
 use App\Models\Permission;
+use App\Models\User;
+use App\Services\AuthorizationService;
 
-class PermissionController
+class PermissionController extends Controller
 {
-    /**
-     * Permission model
-     * @var Permission
-     */
-    private $model;
+    private $permissionModel;
 
     public function __construct()
     {
-        $this->model = new Permission();
+        $this->permissionModel = new Permission();
     }
 
-    /**
-     * Returns the list of permissions with user count.
-     *
-     * @param bool $activeOnly If true, returns only active permissions
-     * @return array
-     */
-    public function index($activeOnly = false)
+    public function pageIndex()
     {
-        return $this->model->getAllWithUserCount($activeOnly);
-    }
-
-    /**
-     * Creates a permission via AJAX.
-     *
-     * @return array
-     */
-    public function createAjax()
-    {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Method not allowed.'];
+        $permissions = [];
+        foreach ($this->permissionModel->getAllWithUserCount() as $permission) {
+            $permissions[] = $this->mapIndexRow($permission);
         }
+        $statistics = $this->permissionModel->getStatistics();
+
+        $this->render(
+            'permissions/index',
+            compact('permissions', 'statistics'),
+            ['datatables', 'datatables-export'],
+            ['permissions/modal-permission', 'permissions/index-permissions']
+        );
+    }
+
+    public function detail($id = null)
+    {
+        $permission = $this->getPermissionOrRedirect((int) $id);
+
+        $users           = $permission['users'] ?? [];
+        $usersWithoutPerm = $this->permissionModel->getUsersWithoutPermission((int) $permission['id']);
+        $isInactive      = ((int) $permission['status']) === 0;
+        $permissionId    = (int) $permission['id'];
+
+        $this->render(
+            'permissions/detail',
+            compact('permission', 'users', 'usersWithoutPerm', 'isInactive', 'permissionId'),
+            ['datatables', 'select2'],
+            ['permissions/modal-permission', 'permissions/detail-permission']
+        );
+    }
+
+    public function create()
+    {
+        $this->csrfCheck();
 
         $data = [
-            'name'        => isset($_POST['name'])        ? trim($_POST['name'])        : '',
-            'description' => isset($_POST['description']) ? trim($_POST['description']) : null,
+            'name'        => trim($_POST['name']        ?? ''),
+            'description' => trim($_POST['description'] ?? '') ?: null,
         ];
 
-        $data = $this->model->sanitizeData($data);
+        $data = $this->permissionModel->sanitizeData($data);
 
         if (empty($data['name'])) {
-            return ['success' => false, 'message' => 'Permission name is required.'];
+            $this->jsonResponse(['success' => false, 'message' => 'Permission name is required.']);
         }
 
-        if ($this->model->create($data)) {
-            return [
+        if ($this->permissionModel->create($data)) {
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Permission created successfully.';
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse([
                 'success'    => true,
                 'message'    => 'Permission created successfully.',
                 'permission' => [
-                    'id'          => $this->model->getLastInsertId(),
+                    'id'          => $this->permissionModel->getLastInsertId(),
                     'name'        => $data['name'],
                     'status'      => 1,
                     'total_users' => 0,
                 ],
-            ];
+            ]);
         }
 
-        return ['success' => false, 'message' => $this->model->getLastError()];
+        $this->jsonResponse(['success' => false, 'message' => $this->permissionModel->getLastError()]);
     }
 
-    /**
-     * Returns a permission by ID with user count and assigned users.
-     *
-     * @param int $id
-     * @return array|false
-     */
-    public function getById($id)
+    public function update()
     {
-        $permission = $this->model->getById($id);
-        if ($permission) {
-            $permission['total_users'] = $this->model->countUsers($id);
-            $permission['users']       = $this->model->getUsersByPermission($id);
-        }
-        return $permission;
-    }
+        $this->csrfCheck();
 
-    /**
-     * Updates a permission via AJAX.
-     *
-     * @return array
-     */
-    public function updateAjax()
-    {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Method not allowed.'];
-        }
-
-        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+        $id = (int) ($_POST['id'] ?? 0);
 
         if (!$id) {
-            return ['success' => false, 'message' => 'Invalid permission ID.'];
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid permission ID.']);
         }
 
-        $current = $this->model->getById($id);
+        $current = $this->permissionModel->getById($id);
         if (!$current) {
-            return ['success' => false, 'message' => 'Permission not found.'];
+            $this->jsonResponse(['success' => false, 'message' => 'Permission not found.']);
         }
 
         $data = [
-            'name'        => isset($_POST['name'])        ? trim($_POST['name'])        : $current['name'],
-            'description' => isset($_POST['description']) ? trim($_POST['description']) : $current['description'],
+            'name'        => trim($_POST['name']        ?? '') ?: $current['name'],
+            'description' => trim($_POST['description'] ?? '') ?: $current['description'],
         ];
 
-        $data = $this->model->sanitizeData($data);
+        $data = $this->permissionModel->sanitizeData($data);
 
         if (empty($data['name'])) {
-            return ['success' => false, 'message' => 'Permission name is required.'];
+            $this->jsonResponse(['success' => false, 'message' => 'Permission name is required.']);
         }
 
-        if ($this->model->update($id, $data)) {
-            return [
+        if ($this->permissionModel->update($id, $data)) {
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Permission updated successfully.';
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse([
                 'success'    => true,
                 'message'    => 'Permission updated successfully.',
                 'permission' => [
                     'id'          => $id,
                     'name'        => $data['name'],
                     'status'      => $current['status'],
-                    'total_users' => $this->model->countUsers($id),
+                    'total_users' => $this->permissionModel->countUsers($id),
                 ],
-            ];
+            ]);
         }
 
-        return ['success' => false, 'message' => $this->model->getLastError()];
+        $this->jsonResponse(['success' => false, 'message' => $this->permissionModel->getLastError()]);
     }
 
-    /**
-     * Toggles the status of a permission via AJAX.
-     *
-     * @return array
-     */
-    public function toggleStatusAjax()
+    public function toggleStatus()
     {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Method not allowed.'];
+        $this->csrfCheck();
+
+        $id            = filter_var($_POST['id']             ?? null, FILTER_VALIDATE_INT);
+        $currentStatus = filter_var($_POST['current_status'] ?? null, FILTER_VALIDATE_INT);
+
+        if (!$id || $currentStatus === false) {
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
         }
 
-        $id            = isset($_POST['id'])             ? (int)$_POST['id']             : 0;
-        $currentStatus = isset($_POST['current_status']) ? (int)$_POST['current_status'] : null;
-
-        if (!$id || $currentStatus === null) {
-            return ['success' => false, 'message' => 'Invalid data.'];
-        }
-
-        if ($currentStatus == 1 && $this->model->countUsers($id) > 0) {
-            return ['success' => false, 'message' => 'Cannot deactivate this permission because it has assigned users.'];
+        if ($currentStatus == 1 && $this->permissionModel->countUsers($id) > 0) {
+            $this->jsonResponse(['success' => false, 'message' => 'Cannot deactivate this permission because it has assigned users.']);
         }
 
         $newStatus = $currentStatus == 1 ? 0 : 1;
 
-        if ($this->model->updateStatus($id, $newStatus)) {
+        if ($this->permissionModel->updateStatus($id, $newStatus)) {
+            regenerateCSRFToken();
             $label = $newStatus == 1 ? 'activated' : 'deactivated';
-            return [
+            $_SESSION['message'] = "Permission $label successfully.";
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse([
                 'success'    => true,
                 'message'    => "Permission $label successfully.",
                 'new_status' => $newStatus,
-            ];
+            ]);
         }
 
-        return ['success' => false, 'message' => 'Error changing permission status: ' . $this->model->getLastError()];
+        $this->jsonResponse(['success' => false, 'message' => 'Error changing permission status: ' . $this->permissionModel->getLastError()]);
     }
 
-    /**
-     * Returns users assigned to a specific permission.
-     *
-     * @param int $permissionId
-     * @return array
-     */
-    public function getUsersByPermission($permissionId)
+    public function assignUser()
     {
-        return $this->model->getUsersByPermission($permissionId);
+        $this->csrfCheck();
+
+        $authService  = new AuthorizationService();
+        $userId       = filter_var($_POST['user_id']       ?? 0, FILTER_VALIDATE_INT);
+        $permissionId = filter_var($_POST['permission_id'] ?? 0, FILTER_VALIDATE_INT);
+
+        if (!$userId || !$permissionId) {
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
+        }
+
+        $ok = $authService->assignPermission($userId, $permissionId);
+        if ($ok) {
+            $userModel = new User();
+            $userModel->updatePermissionsTimestamp($userId);
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'User assigned successfully.';
+            $_SESSION['icon']    = 'success';
+        }
+
+        $this->jsonResponse(['success' => (bool) $ok, 'message' => $ok ? 'User assigned successfully.' : 'Error assigning user.']);
     }
 
-    /**
-     * Returns active users without a specific permission (for assignment modal).
-     *
-     * @param int $permissionId
-     * @return array
-     */
-    public function getUsersWithoutPermission($permissionId)
+    public function revokeUser()
     {
-        return $this->model->getUsersWithoutPermission($permissionId);
+        $this->csrfCheck();
+
+        $authService  = new AuthorizationService();
+        $userId       = filter_var($_POST['user_id']       ?? 0, FILTER_VALIDATE_INT);
+        $permissionId = filter_var($_POST['permission_id'] ?? 0, FILTER_VALIDATE_INT);
+
+        if (!$userId || !$permissionId) {
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
+        }
+
+        $ok = $authService->revokePermission($userId, $permissionId);
+        if ($ok) {
+            $userModel = new User();
+            $userModel->updatePermissionsTimestamp($userId);
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Permission revoked successfully.';
+            $_SESSION['icon']    = 'success';
+        }
+
+        $this->jsonResponse(['success' => (bool) $ok, 'message' => $ok ? 'Permission revoked successfully.' : 'Error revoking permission.']);
     }
 
-    /**
-     * Returns permission statistics.
-     *
-     * @return array
-     */
-    public function getStatistics()
+    public function getUsersWithout()
     {
-        return $this->model->getStatistics();
+        $permissionId = filter_var($_GET['permission_id'] ?? 0, FILTER_VALIDATE_INT);
+        if (!$permissionId) {
+            $this->jsonResponse([]);
+        }
+
+        $users  = $this->permissionModel->getUsersWithoutPermission($permissionId);
+        $result = [];
+        foreach ($users as $u) {
+            $name     = htmlspecialchars(trim($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? '')), ENT_QUOTES, 'UTF-8');
+            $position = $u['position'] ? ' — ' . htmlspecialchars($u['position'], ENT_QUOTES, 'UTF-8') : '';
+            $result[] = ['id' => $u['id'], 'text' => $name . $position];
+        }
+
+        $this->jsonResponse($result);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private function getPermissionOrRedirect($id)
+    {
+        if ($id <= 0) {
+            $_SESSION['message'] = 'Invalid permission ID.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'permissions');
+        }
+
+        $permission = $this->permissionModel->getById($id);
+        if (!$permission) {
+            $_SESSION['message'] = 'Permission not found.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'permissions');
+        }
+
+        $permission['total_users'] = $this->permissionModel->countUsers($id);
+        $permission['users']       = $this->permissionModel->getUsersByPermission($id);
+
+        return $permission;
+    }
+
+    private function mapIndexRow(array $permission)
+    {
+        $isActive   = ((int) $permission['status']) === 1;
+        $totalUsers = isset($permission['total_users']) ? (int) $permission['total_users'] : 0;
+
+        return [
+            'id'                 => (int) $permission['id'],
+            'name'               => $permission['name'] ?? '',
+            'description'        => !empty($permission['description']) ? $permission['description'] : 'N/A',
+            'description_raw'    => $permission['description'] ?? '',
+            'status'             => (int) $permission['status'],
+            'status_label'       => $isActive ? 'Active' : 'Inactive',
+            'status_badge_class' => $isActive ? 'badge-success' : 'badge-danger',
+            'status_btn_class'   => $isActive ? 'btn-danger' : 'btn-success',
+            'status_btn_title'   => $isActive ? 'Deactivate' : 'Activate',
+            'status_icon_class'  => $isActive ? 'fa-times' : 'fa-check',
+            'total_users'        => $totalUsers,
+            'users_badge_class'  => $totalUsers > 0 ? 'badge-primary' : 'badge-secondary',
+            'users_label'        => $totalUsers === 1 ? 'user' : 'users',
+        ];
     }
 }

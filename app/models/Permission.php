@@ -13,11 +13,11 @@
 
 namespace App\Models;
 
-use App\Core\BaseModel;
+use App\Core\Model;
 use PDO;
 use PDOException;
 
-class Permission extends BaseModel
+class Permission extends Model
 {
     /**
      * Permissions table name

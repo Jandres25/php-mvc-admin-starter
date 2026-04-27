@@ -1,103 +1,214 @@
 <?php
 
-/**
- * User Controller
- *
- * Handles user management operations.
- *
- * @package ProyectoBase
- * @subpackage App\Controllers\Users
- * @author Jandres25
- * @version 1.0
- */
-
 namespace App\Controllers\Users;
 
+use App\Core\Controller;
 use App\Models\User;
 use App\Services\ImageService;
 use App\Services\AuthorizationService;
 
-class UserController
+class UserController extends Controller
 {
-    /**
-     * User model
-     * @var User
-     */
-    private $model;
-
-    /**
-     * Image service
-     * @var ImageService
-     */
+    private $userModel;
     private $imageService;
 
     public function __construct()
     {
-        $this->model        = new User();
+        $this->userModel    = new User();
         $this->imageService = new ImageService(__DIR__ . '/../../../public/uploads/users/');
     }
 
-    /**
-     * Returns all users.
-     *
-     * @return array
-     */
     public function index()
     {
-        return $this->model->getAll();
-    }
-
-    /**
-     * Renders the create-user form.
-     */
-    public function create()
-    {
-        require_once __DIR__ . '/../../../views/users/create.php';
-    }
-
-    /**
-     * Maps POST data to the user data array using English field names.
-     *
-     * @param array $postData
-     * @return array
-     */
-    private function prepareUserData($postData)
-    {
-        return [
-            'name'            => isset($postData['name'])            ? trim($postData['name'])            : '',
-            'first_surname'   => isset($postData['first_surname'])   ? trim($postData['first_surname'])   : '',
-            'second_surname'  => !empty($postData['second_surname'])  ? trim($postData['second_surname'])  : null,
-            'document_type'   => isset($postData['document_type'])   ? trim($postData['document_type'])   : '',
-            'document_number' => isset($postData['document_number']) ? trim($postData['document_number']) : '',
-            'address'         => !empty($postData['address'])  ? trim($postData['address'])  : null,
-            'phone'           => !empty($postData['phone'])    ? trim($postData['phone'])    : null,
-            'email'           => !empty($postData['email'])    ? trim($postData['email'])    : '',
-            'position'        => !empty($postData['position']) ? trim($postData['position']) : '',
-            'password'        => isset($postData['password'])  ? trim($postData['password']) : '',
-            'status'          => isset($postData['status'])    ? (int)$postData['status']    : 1,
-            'image'           => null,
-        ];
-    }
-
-    /**
-     * Processes the create-user form and persists the new user.
-     *
-     * @return array  Result with keys: success, message, icon, redirect
-     */
-    public function save()
-    {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Access not allowed.', 'icon' => 'warning', 'redirect' => 'index.php'];
+        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $users = [];
+        foreach ($this->userModel->getAll() as $user) {
+            $users[] = $this->mapIndexRow($user, $currentUserId);
         }
 
-        $data   = $this->model->sanitizeData($this->prepareUserData($_POST));
-        $errors = $this->model->validateData($data);
+        $this->render(
+            'users/index',
+            compact('users'),
+            ['datatables', 'datatables-export'],
+            ['users/index-users']
+        );
+    }
+
+    public function create()
+    {
+        $authService    = new AuthorizationService();
+        $allPermissions = $authService->getAllPermissions();
+
+        $this->render(
+            'users/create',
+            compact('allPermissions'),
+            ['select2', 'validate'],
+            ['users/create-user']
+        );
+    }
+
+    public function show($id = null)
+    {
+        $authService     = new AuthorizationService();
+        $user            = $this->getUserOrRedirect((int) $id);
+        $userPermissions = $authService->getUserPermissions((int) $user['id']);
+        $isAdminUser     = $authService->isAdmin((int) $user['id']);
+
+        $this->render(
+            'users/show',
+            compact('user', 'userPermissions', 'isAdminUser'),
+            [],
+            ['users/show-user'],
+            ['users/show-user']
+        );
+    }
+
+    public function edit($id = null)
+    {
+        $authService         = new AuthorizationService();
+        $user                = $this->getUserOrRedirect((int) $id);
+        $allPermissions      = $authService->getAllPermissions();
+        $assignedPermissions = $authService->getAssignedPermissions((int) $user['id']);
+
+        $this->render(
+            'users/update',
+            compact('user', 'allPermissions', 'assignedPermissions'),
+            ['select2', 'validate'],
+            ['users/update-user']
+        );
+    }
+
+    public function profile()
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $user   = $this->userModel->getById($userId);
+
+        if (!$user) {
+            $_SESSION['message'] = 'User not found.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'dashboard');
+        }
+
+        $imageSrc = URL . 'uploads/users/' . htmlspecialchars(!empty($user['image']) ? $user['image'] : 'user_default.jpg');
+
+        $this->render(
+            'users/profile',
+            compact('user', 'imageSrc'),
+            [],
+            ['users/profile-user']
+        );
+    }
+
+    public function store()
+    {
+        $this->csrfCheck();
+
+        $result = $this->save();
+        $_SESSION['message'] = $result['message'];
+        $_SESSION['icon']    = $result['icon'];
+
+        $target = $result['icon'] === 'success' ? 'users' : 'users/create';
+        $this->redirect(URL . $target);
+    }
+
+    public function updateAction()
+    {
+        $this->csrfCheck();
+
+        $result = $this->update();
+        $_SESSION['message'] = $result['message'];
+        $_SESSION['icon']    = $result['icon'];
+
+        $target = 'users';
+        if ($result['icon'] !== 'success' && preg_match('/update\.php\?id=(\d+)/', $result['redirect'], $m)) {
+            $target = 'users/' . $m[1] . '/edit';
+        }
+        $this->redirect(URL . $target);
+    }
+
+    public function processUpdateProfile()
+    {
+        $this->csrfCheck();
+
+        $profileController   = new ProfileController();
+        $result              = $profileController->updateProfile();
+        $_SESSION['message'] = $result['message'];
+        $_SESSION['icon']    = $result['icon'];
+
+        regenerateCSRFToken();
+        $this->redirect(URL . 'profile');
+    }
+
+    public function checkEmail()
+    {
+        $email  = trim($_POST['email'] ?? '');
+        $userId = filter_var($_POST['user_id'] ?? '', FILTER_VALIDATE_INT) ?: null;
+
+        if (!$email) {
+            echo 'true';
+            exit;
+        }
+
+        $exists = $this->userModel->emailExists($email, $userId);
+        header('Content-Type: application/json');
+        echo $exists ? json_encode('This email is already in use.') : 'true';
+        exit;
+    }
+
+    public function checkDocument()
+    {
+        $documentType   = trim($_POST['document_type']   ?? '');
+        $documentNumber = trim($_POST['document_number'] ?? '');
+        $userId         = filter_var($_POST['user_id'] ?? '', FILTER_VALIDATE_INT) ?: null;
+
+        if (!$documentType || !$documentNumber) {
+            echo 'true';
+            exit;
+        }
+
+        $exists = $this->userModel->documentTypeExists($documentType, $documentNumber, $userId);
+        header('Content-Type: application/json');
+        echo $exists ? json_encode('This document is already registered.') : 'true';
+        exit;
+    }
+
+    public function toggleStatusAjax()
+    {
+        $this->csrfCheck();
+
+        $userId        = filter_var($_POST['id']             ?? null, FILTER_VALIDATE_INT);
+        $currentStatus = filter_var($_POST['current_status'] ?? null, FILTER_VALIDATE_INT);
+
+        $result = $this->toggleUserStatus($userId, $currentStatus);
+
+        // Set flash so the toast fires after location.reload()
+        $_SESSION['message'] = $result['message'];
+        $_SESSION['icon']    = $result['icon'];
+
+        regenerateCSRFToken();
+        $this->jsonResponse($result);
+    }
+
+    public function ajaxChangePassword()
+    {
+        $this->csrfCheck();
+        $this->jsonResponse($this->updateProfilePasswordAjax());
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private function save()
+    {
+        $data   = $this->userModel->sanitizeData($this->prepareUserData($_POST));
+        $errors = $this->userModel->validateData($data);
 
         if (!empty($errors)) {
             return ['success' => false, 'message' => $errors[0], 'icon' => 'error', 'redirect' => 'create.php'];
         }
 
-        $confirmPassword = isset($_POST['confirm_password']) ? trim($_POST['confirm_password']) : '';
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
         if ($data['password'] !== $confirmPassword) {
             return ['success' => false, 'message' => 'Passwords do not match.', 'icon' => 'error', 'redirect' => 'create.php'];
         }
@@ -111,84 +222,43 @@ class UserController
             }
         }
 
-        if ($this->model->create($data)) {
-            $userId = $this->model->getLastInsertId();
+        if ($this->userModel->create($data)) {
+            $userId = $this->userModel->getLastInsertId();
             $this->processPermissions($userId, $_POST);
+            regenerateCSRFToken();
             return ['success' => true, 'message' => 'User created successfully.', 'icon' => 'success', 'redirect' => 'index.php'];
         }
 
-        return ['success' => false, 'message' => 'Error creating user: ' . $this->model->getLastError(), 'icon' => 'error', 'redirect' => 'create.php'];
+        return ['success' => false, 'message' => 'Error creating user: ' . $this->userModel->getLastError(), 'icon' => 'error', 'redirect' => 'create.php'];
     }
 
-    /**
-     * Returns the user data for the edit form, or redirects if not found.
-     *
-     * @param int|null $id
-     * @return array
-     */
-    public function edit($id = null)
+    private function update()
     {
-        if (!$id) {
-            global $URL;
-            $_SESSION['message'] = 'Invalid user ID.';
-            $_SESSION['icon']    = 'error';
-            header('Location: ' . $URL . 'views/users');
-            exit;
-        }
-
-        $user = $this->model->getById($id);
-
-        if (!$user) {
-            global $URL;
-            $_SESSION['message'] = 'User not found.';
-            $_SESSION['icon']    = 'error';
-            header('Location: ' . $URL . 'views/users');
-            exit;
-        }
-
-        return $user;
-    }
-
-    /**
-     * Processes the update-user form and persists the changes.
-     *
-     * @return array
-     */
-    public function update()
-    {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Access not allowed.', 'icon' => 'warning', 'redirect' => 'index.php'];
-        }
-
-        $id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+        $id = (int) ($_POST['user_id'] ?? 0);
 
         if (!$id) {
             return ['success' => false, 'message' => 'Invalid user ID.', 'icon' => 'error', 'redirect' => 'index.php'];
         }
 
-        $currentUser = $this->model->getById($id);
+        $currentUser = $this->userModel->getById($id);
         if (!$currentUser) {
             return ['success' => false, 'message' => 'User not found.', 'icon' => 'error', 'redirect' => 'index.php'];
         }
 
-        $oldImage = $currentUser['image'];
-        $data     = $this->prepareUserData($_POST);
+        $oldImage    = $currentUser['image'];
+        $data        = $this->prepareUserData($_POST);
+        $data['status'] = (int) $currentUser['status'];
 
-        // Preserve the current status (not editable from the edit form)
-        $data['status'] = (int)$currentUser['status'];
-
-        // Keep existing values for required fields if not submitted
-        $required = ['name', 'first_surname', 'document_type', 'document_number', 'email', 'position'];
-        foreach ($required as $field) {
+        foreach (['name', 'first_surname', 'document_type', 'document_number', 'email', 'position'] as $field) {
             if (empty($data[$field]) && isset($currentUser[$field])) {
                 $data[$field] = $currentUser[$field];
             }
         }
 
-        $data  = $this->model->sanitizeData($data);
+        $data          = $this->userModel->sanitizeData($data);
         $data['image'] = $oldImage;
 
-        $errors = $this->model->validateData($data, $id);
+        $errors = $this->userModel->validateData($data, $id);
         if (!empty($errors)) {
             return ['success' => false, 'message' => $errors[0], 'icon' => 'error', 'redirect' => "update.php?id=$id"];
         }
@@ -196,20 +266,20 @@ class UserController
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
             $newImagePath = $this->imageService->processImage($_FILES['image']);
             if ($newImagePath) {
-                $data['image'] = $newImagePath;
                 if ($oldImage && $oldImage !== 'user_default.jpg') {
                     $this->imageService->deleteImage($oldImage);
                 }
+                $data['image'] = $newImagePath;
             } else {
-                return ['success' => false, 'message' => 'Error processing the new image. Check format and size.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
+                return ['success' => false, 'message' => 'Error processing the new image.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
             }
         }
 
-        $updated = $this->model->update($id, $data);
-
-        $password        = isset($_POST['password'])         ? trim($_POST['password'])         : '';
-        $confirmPassword = isset($_POST['confirm_password']) ? trim($_POST['confirm_password']) : '';
+        $updated         = $this->userModel->update($id, $data);
         $passwordUpdated = true;
+
+        $password        = trim($_POST['password']         ?? '');
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
 
         if (!empty($password) || !empty($confirmPassword)) {
             if (empty($password) || empty($confirmPassword)) {
@@ -221,18 +291,18 @@ class UserController
             if (strlen($password) < 6) {
                 return ['success' => false, 'message' => 'Password must be at least 6 characters.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
             }
-            $passwordUpdated = $this->model->updatePassword($id, $password);
+            $passwordUpdated = $this->userModel->updatePassword($id, $password);
         }
 
         if ($updated && $passwordUpdated) {
             $this->processPermissions($id, $_POST);
+            regenerateCSRFToken();
             return ['success' => true, 'message' => 'User updated successfully.', 'icon' => 'success', 'redirect' => 'index.php'];
         }
 
         $errorMsg = 'Error updating user.';
         if (!$updated) {
-            $dbError   = $this->model->getLastError();
-            $errorMsg .= ' ' . ($dbError ?: 'Unknown error.');
+            $errorMsg .= ' ' . ($this->userModel->getLastError() ?: 'Unknown error.');
         }
         if (!$passwordUpdated) {
             $errorMsg .= ' Password update failed.';
@@ -240,31 +310,18 @@ class UserController
         return ['success' => false, 'message' => $errorMsg, 'icon' => 'error', 'redirect' => "update.php?id=$id"];
     }
 
-    /**
-     * Handles the AJAX password change from the profile page.
-     *
-     * @return array
-     */
-    public function updateProfilePasswordAjax()
+    private function updateProfilePasswordAjax()
     {
-        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            return ['success' => false, 'message' => 'Access not allowed.'];
-        }
-
-        if (!isset($_SESSION['user_id'])) {
-            return ['success' => false, 'message' => 'Session not started.'];
-        }
-
-        $id              = $_SESSION['user_id'];
-        $currentPassword = isset($_POST['current_password']) ? trim($_POST['current_password']) : '';
-        $newPassword     = isset($_POST['new_password'])     ? trim($_POST['new_password'])     : '';
-        $confirmPassword = isset($_POST['confirm_password']) ? trim($_POST['confirm_password']) : '';
+        $id              = $_SESSION['user_id'] ?? null;
+        $currentPassword = trim($_POST['current_password'] ?? '');
+        $newPassword     = trim($_POST['new_password']     ?? '');
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
 
         if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
             return ['success' => false, 'message' => 'All password fields are required.'];
         }
 
-        if (!$this->model->verifyCurrentPassword($id, $currentPassword)) {
+        if (!$this->userModel->verifyCurrentPassword($id, $currentPassword)) {
             return ['success' => false, 'message' => 'The current password is incorrect.'];
         }
 
@@ -276,21 +333,15 @@ class UserController
             return ['success' => false, 'message' => 'Password must be at least 6 characters.'];
         }
 
-        if ($this->model->updatePassword($id, $newPassword)) {
+        if ($this->userModel->updatePassword($id, $newPassword)) {
+            regenerateCSRFToken();
             return ['success' => true, 'message' => 'Password updated successfully.'];
         }
 
-        return ['success' => false, 'message' => 'Error updating password: ' . $this->model->getLastError()];
+        return ['success' => false, 'message' => 'Error updating password: ' . $this->userModel->getLastError()];
     }
 
-    /**
-     * Toggles a user's active/inactive status.
-     *
-     * @param int|null $id
-     * @param int|null $currentStatus
-     * @return array
-     */
-    public function toggleUserStatus($id = null, $currentStatus = null)
+    private function toggleUserStatus($id, $currentStatus)
     {
         if ($id === null || $currentStatus === null) {
             return ['success' => false, 'message' => 'Invalid user ID or status.', 'icon' => 'error'];
@@ -298,25 +349,78 @@ class UserController
 
         $newStatus = $currentStatus == 1 ? 0 : 1;
 
-        if ($this->model->updateStatus($id, $newStatus)) {
+        if ($this->userModel->updateStatus($id, $newStatus)) {
             $action = $newStatus == 1 ? 'activated' : 'deactivated';
             return ['success' => true, 'message' => "User $action successfully.", 'icon' => 'success'];
         }
 
-        return ['success' => false, 'message' => 'Error changing user status: ' . $this->model->getLastError(), 'icon' => 'error'];
+        return ['success' => false, 'message' => 'Error changing user status: ' . $this->userModel->getLastError(), 'icon' => 'error'];
     }
 
-    /**
-     * Syncs the permissions selected in the form with the user's assigned permissions.
-     *
-     * @param int   $userId
-     * @param array $postData
-     */
+    private function getUserOrRedirect($id)
+    {
+        if ($id <= 0) {
+            $_SESSION['message'] = 'Invalid user ID.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'users');
+        }
+
+        $user = $this->userModel->getById($id);
+        if (!$user) {
+            $_SESSION['message'] = 'User not found.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'users');
+        }
+
+        return $user;
+    }
+
+    private function prepareUserData($postData)
+    {
+        return [
+            'name'            => trim($postData['name']            ?? ''),
+            'first_surname'   => trim($postData['first_surname']   ?? ''),
+            'second_surname'  => !empty($postData['second_surname'])  ? trim($postData['second_surname'])  : null,
+            'document_type'   => trim($postData['document_type']   ?? ''),
+            'document_number' => trim($postData['document_number'] ?? ''),
+            'address'         => !empty($postData['address'])  ? trim($postData['address'])  : null,
+            'phone'           => !empty($postData['phone'])    ? trim($postData['phone'])    : null,
+            'email'           => trim($postData['email']       ?? ''),
+            'position'        => trim($postData['position']    ?? ''),
+            'password'        => trim($postData['password']    ?? ''),
+            'status'          => isset($postData['status']) ? (int) $postData['status'] : 1,
+            'image'           => null,
+        ];
+    }
+
+    private function mapIndexRow($user, $currentUserId)
+    {
+        $isActive = ((int) $user['status']) === 1;
+        return [
+            'id'                  => (int) $user['id'],
+            'name'                => $user['name']            ?? '',
+            'first_surname'       => $user['first_surname']   ?? '',
+            'document_type'       => $user['document_type']   ?? '',
+            'document_number'     => $user['document_number'] ?? '',
+            'email'               => $user['email']           ?? '',
+            'image'               => !empty($user['image']) ? $user['image'] : 'user_default.jpg',
+            'position_label'      => !empty($user['position']) ? $user['position'] : 'N/A',
+            'status'              => (int) $user['status'],
+            'status_label'        => $isActive ? 'Active' : 'Inactive',
+            'status_badge_class'  => $isActive ? 'badge-success' : 'badge-danger',
+            'status_btn_class'    => $isActive ? 'btn-danger' : 'btn-success',
+            'status_icon_class'   => $isActive ? 'fa-user-slash' : 'fa-user-check',
+            'alert_title'         => $isActive ? 'Deactivate User?' : 'Activate User?',
+            'confirm_button_text' => $isActive ? 'Yes, deactivate' : 'Yes, activate',
+            'can_toggle_status'   => ((int) $user['id']) !== $currentUserId,
+        ];
+    }
+
     private function processPermissions($userId, $postData)
     {
-        $authService      = new AuthorizationService();
-        $allPermissions   = $authService->getAllPermissions();
-        $selectedIds      = isset($postData['permissions']) ? $postData['permissions'] : [];
+        $authService    = new AuthorizationService();
+        $allPermissions = $authService->getAllPermissions();
+        $selectedIds    = isset($postData['permissions']) ? $postData['permissions'] : [];
 
         foreach ($allPermissions as $permission) {
             $permId = $permission['id'];
@@ -327,7 +431,7 @@ class UserController
             }
         }
 
-        $this->model->updatePermissionsTimestamp($userId);
+        $this->userModel->updatePermissionsTimestamp($userId);
 
         if ($userId === ($_SESSION['user_id'] ?? null)) {
             $permissions = $authService->getUserPermissions($userId);

@@ -1,134 +1,100 @@
 <?php
 
-/**
- * Password Reset Controller
- *
- * @package ProyectoBase
- * @subpackage App\Controllers\Auth
- * @author Jandres25
- * @version 1.0
- */
-
 namespace App\Controllers\Auth;
 
+use App\Core\Controller;
 use App\Models\User;
 use App\Services\MailService;
 
-class PasswordResetController
+class PasswordResetController extends Controller
 {
-    private $userModel;
-    private $mailService;
+    private User $userModel;
+    private MailService $mailService;
 
     public function __construct()
     {
-        $this->userModel = new User();
+        $this->userModel   = new User();
         $this->mailService = new MailService();
-
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
     }
 
-    /**
-     * Handles the request for a password reset token.
-     */
-    public function requestReset()
+    public function requestReset(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-                $_SESSION['message'] = 'Security error.';
+        $this->csrfCheck();
+
+        $email = trim($_POST['email'] ?? '');
+
+        if (empty($email)) {
+            $_SESSION['message'] = 'Email is required.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'forgot-password');
+        }
+
+        // Generic message to avoid user enumeration
+        $genericMessage = 'If the email is registered, you will receive a reset link.';
+
+        if (!$this->userModel->emailExists($email)) {
+            if (env('DEBUG')) {
+                $_SESSION['message'] = 'The email address is not registered in our system (DEBUG mode).';
                 $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
+                $this->redirect(URL . 'forgot-password');
             }
 
-            $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+            $_SESSION['message'] = $genericMessage;
+            $_SESSION['icon']    = 'info';
+            $this->redirect(URL . 'login');
+        }
 
-            if (empty($email)) {
-                $_SESSION['message'] = 'Email is required.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
+        $token  = bin2hex(random_bytes(32));
+        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-            if (!$this->userModel->emailExists($email)) {
-                if (env('DEBUG')) {
-                    $_SESSION['message'] = 'The email address is not registered in our system (DEBUG mode).';
-                    $_SESSION['icon']    = 'error';
-                    header('Location: ' . $_SERVER['HTTP_REFERER']);
-                } else {
-                    // For security, don't confirm the user doesn't exist in production.
-                    $_SESSION['message'] = 'If the email is registered, you will receive a reset link.';
-                    $_SESSION['icon']    = 'success';
-                    header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
-                }
-                exit;
-            }
+        if ($this->userModel->setResetToken($email, $token, $expiry)) {
+            $this->mailService->sendPasswordResetEmail($email, $token);
+        }
 
-            $token = bin2hex(random_bytes(32));
-            $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        regenerateCSRFToken();
 
-            if ($this->userModel->setResetToken($email, $token, $expiry)) {
-                $this->mailService->sendPasswordResetEmail($email, $token);
-            }
+        $_SESSION['message'] = $genericMessage;
+        $_SESSION['icon']    = 'success';
+        $this->redirect(URL . 'login');
+    }
 
-            $_SESSION['message'] = 'If the email is registered, you will receive a reset link.';
+    public function resetPassword(): void
+    {
+        $this->csrfCheck();
+
+        $token    = $_POST['token']            ?? '';
+        $password = $_POST['password']         ?? '';
+        $confirm  = $_POST['confirm_password'] ?? '';
+
+        if (empty($token) || empty($password) || $password !== $confirm) {
+            $_SESSION['message'] = 'Invalid data or passwords do not match.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'reset-password?token=' . urlencode($token));
+        }
+
+        if (strlen($password) < 8) {
+            $_SESSION['message'] = 'Password must be at least 8 characters.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'reset-password?token=' . urlencode($token));
+        }
+
+        $user = $this->userModel->getUserByResetToken($token);
+
+        if (!$user) {
+            $_SESSION['message'] = 'The link has expired or is invalid.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        if ($this->userModel->resetPassword($user['id'], $password)) {
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Password updated successfully. You can now log in.';
             $_SESSION['icon']    = 'success';
-            header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
-            exit;
+        } else {
+            $_SESSION['message'] = 'Error updating password. Please try again.';
+            $_SESSION['icon']    = 'error';
         }
-    }
 
-    /**
-     * Handles the password reset process.
-     */
-    public function resetPassword()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-                $_SESSION['message'] = 'Security error.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            $token    = $_POST['token'] ?? '';
-            $password = $_POST['password'] ?? '';
-            $confirm  = $_POST['confirm_password'] ?? '';
-
-            if (empty($token) || empty($password) || $password !== $confirm) {
-                $_SESSION['message'] = 'Invalid data or passwords do not match.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            if (strlen($password) < 8) {
-                $_SESSION['message'] = 'Password must be at least 8 characters.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            $user = $this->userModel->getUserByResetToken($token);
-
-            if (!$user) {
-                $_SESSION['message'] = 'The link has expired or is invalid.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
-                exit;
-            }
-
-            if ($this->userModel->resetPassword($user['id'], $password)) {
-                $_SESSION['message'] = 'Password updated successfully. You can now log in.';
-                $_SESSION['icon']    = 'success';
-                header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
-            } else {
-                $_SESSION['message'] = 'Error updating password.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-            }
-            exit;
-        }
+        $this->redirect(URL . 'login');
     }
 }

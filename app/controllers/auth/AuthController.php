@@ -1,116 +1,115 @@
 <?php
 
-/**
- * Authentication Controller
- *
- * Handles user login and logout.
- *
- * @package ProyectoBase
- * @subpackage App\Controllers\Auth
- * @author Jandres25
- * @version 1.0
- */
-
 namespace App\Controllers\Auth;
 
+use App\Core\Controller;
 use App\Models\User;
 
-class AuthController
+class AuthController extends Controller
 {
-    /**
-     * User model
-     * @var User
-     */
-    private $model;
+    private User $userModel;
 
     public function __construct()
     {
-        $this->model = new User();
-
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->userModel = new User();
     }
 
-    /**
-     * Renders the login form.
-     */
-    public function showLoginForm()
+    public function showLoginForm(): void
     {
-        require_once __DIR__ . '/../../../views/auth/login.php';
+        $this->renderStandalone('auth/login');
     }
 
-    /**
-     * Processes the login form (POST).
-     */
-    public function login()
+    public function login(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-                $_SESSION['message'] = 'Security error. Please try again.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
+        $this->csrfCheck();
 
-            $identifier = isset($_POST['identifier']) ? trim($_POST['identifier']) : '';
-            $password   = isset($_POST['password'])   ? trim($_POST['password'])   : '';
-            $errors     = [];
+        $identifier = trim($_POST['identifier'] ?? '');
+        $password   = trim($_POST['password']   ?? '');
 
-            if (empty($identifier)) {
-                $errors[] = 'Please enter your email or document number.';
-            }
-
-            if (empty($password)) {
-                $errors[] = 'Please enter your password.';
-            }
-
-            if (!empty($errors)) {
-                $_SESSION['message'] = $errors[0];
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
-
-            if ($isEmail) {
-                $user = $this->model->loginByEmail($identifier, $password);
-            } else {
-                $user = $this->model->loginByDocumentNumber($identifier, $password);
-            }
-
-            if (!$user) {
-                $_SESSION['message'] = 'Incorrect credentials.';
-                $_SESSION['icon']    = 'error';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            if ((int)$user['status'] === 0) {
-                $_SESSION['message'] = 'Your account is deactivated. Please contact an administrator.';
-                $_SESSION['icon']    = 'warning';
-                header('Location: ' . $_SERVER['HTTP_REFERER']);
-                exit;
-            }
-
-            $this->initSession($user);
-
-            $_SESSION['message'] = 'Welcome, ' . $_SESSION['user_name'];
-            $_SESSION['icon']    = 'success';
-            header('Location: ' . $GLOBALS['URL']);
-            exit;
+        if (empty($identifier) || empty($password)) {
+            $_SESSION['message'] = 'Please fill in all fields.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
         }
 
-        header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
+        $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
+        $user    = $isEmail
+            ? $this->userModel->loginByEmail($identifier, $password)
+            : $this->userModel->loginByDocumentNumber($identifier, $password);
+
+        if (!$user) {
+            $_SESSION['message'] = 'Incorrect credentials.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        if ((int) $user['status'] === 0) {
+            $_SESSION['message'] = 'Your account is deactivated. Please contact an administrator.';
+            $_SESSION['icon']    = 'warning';
+            $this->redirect(URL . 'login');
+        }
+
+        $this->initSession($user);
+        regenerateCSRFToken();
+
+        $_SESSION['message'] = 'Welcome, ' . $_SESSION['user_name'];
+        $_SESSION['icon']    = 'success';
+        $this->redirect(URL);
     }
 
-    /**
-     * Stores the authenticated user's data in the session.
-     *
-     * @param array $user  User row from the database
-     */
-    private function initSession($user)
+    public function logout(): void
+    {
+        $_SESSION = [];
+
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params['path'], $params['domain'],
+                $params['secure'], $params['httponly']
+            );
+        }
+
+        session_destroy();
+        $this->redirect(URL . 'login');
+    }
+
+    public function showForgotPasswordForm(): void
+    {
+        $this->renderStandalone('auth/forgot_password');
+    }
+
+    public function showResetPasswordForm(): void
+    {
+        $token = trim($_GET['token'] ?? '');
+
+        if (empty($token)) {
+            $_SESSION['message'] = 'Invalid or missing token.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        $user = $this->userModel->getUserByResetToken($token);
+
+        if (!$user) {
+            $_SESSION['message'] = 'The link has expired or is invalid.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        $this->renderStandalone('auth/reset_password', compact('token'));
+    }
+
+    public function requestPasswordReset(): void
+    {
+        (new PasswordResetController())->requestReset();
+    }
+
+    public function resetPassword(): void
+    {
+        (new PasswordResetController())->resetPassword();
+    }
+
+    private function initSession(array $user): void
     {
         session_regenerate_id(true);
 
@@ -131,31 +130,7 @@ class AuthController
             $permissions = $authService->getUserPermissions($user['id']);
             $_SESSION['user_permissions'] = array_column($permissions, 'name');
         }
-    }
 
-    /**
-     * Destroys the session and redirects to the login page.
-     */
-    public function logout()
-    {
-        $_SESSION = [];
-
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
-            );
-        }
-
-        session_destroy();
-
-        header('Location: ' . $GLOBALS['URL'] . 'views/auth/login.php');
-        exit;
+        $_SESSION['permissions_ts'] = date('Y-m-d H:i:s');
     }
 }

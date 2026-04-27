@@ -13,11 +13,11 @@
 
 namespace App\Models;
 
-use App\Core\BaseModel;
+use App\Core\Model;
 use PDO;
 use PDOException;
 
-class User extends BaseModel
+class User extends Model
 {
     /**
      * Users table name

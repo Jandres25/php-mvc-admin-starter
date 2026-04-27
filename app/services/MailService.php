@@ -26,7 +26,7 @@ class MailService
      */
     public function sendPasswordResetEmail($email, $token)
     {
-        $resetLink = $GLOBALS['URL'] . "views/auth/reset_password.php?token=" . $token;
+        $resetLink = URL . 'reset-password?token=' . $token;
 
         $subject = "Password Reset - Base System";
         $message = "
