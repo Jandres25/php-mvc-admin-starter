@@ -41,11 +41,11 @@ $(document).ready(function () {
         let url, loadingMsg, successBtn;
 
         if (action === 'create') {
-            url = `${baseUrl}app/controllers/permissions/create_permission_ajax.php`;
+            url = `${baseUrl}permissions/create`;
             loadingMsg = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             successBtn = '<i class="fas fa-save"></i> Save';
         } else {
-            url = `${baseUrl}app/controllers/permissions/update_permission_ajax.php`;
+            url = `${baseUrl}permissions/update`;
             loadingMsg = '<i class="fas fa-spinner fa-spin"></i> Updating...';
             successBtn = '<i class="fas fa-save"></i> Update';
         }

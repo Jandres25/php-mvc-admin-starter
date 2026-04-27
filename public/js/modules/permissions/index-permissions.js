@@ -59,7 +59,7 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `${baseUrl}app/controllers/permissions/toggle_permission_status_ajax.php`,
+                    url: `${baseUrl}permissions/toggle-status`,
                     type: 'POST',
                     dataType: 'json',
                     data: { id, current_status: currentStatus, csrf_token: csrfToken },

@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `${baseUrl}app/controllers/users/toggle_user_status.php`,
+                    url: `${baseUrl}users/toggle-status`,
                     type: 'POST',
                     dataType: 'json',
                     data: { id: userId, current_status: currentStatus, csrf_token: csrfToken },
