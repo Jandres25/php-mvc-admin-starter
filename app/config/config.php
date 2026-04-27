@@ -19,6 +19,26 @@ require_once __DIR__ . '/autoload.php';
 $timezone = env('TIMEZONE');
 date_default_timezone_set($timezone);
 
+$appUrl = rtrim((string) env('APP_URL', ''), '/') . '/';
+if ($appUrl === '/') {
+    $appUrl = '/';
+}
+$appVersion = (string) env('APP_VERSION', '1.0.0');
+
+if (!defined('URL')) {
+    define('URL', $appUrl);
+}
+
+if (!defined('APP_VERSION')) {
+    define('APP_VERSION', $appVersion);
+}
+
+if (!defined('APP_BASE_PATH')) {
+    $parsedPath = parse_url(URL, PHP_URL_PATH);
+    $normalizedPath = rtrim((string) $parsedPath, '/');
+    define('APP_BASE_PATH', $normalizedPath === '' ? '/' : $normalizedPath);
+}
+
 return [
     'database' => [
         'host' => env('DB_HOST'),
@@ -30,8 +50,8 @@ return [
     'app' => [
         'timezone' => $timezone,
         'name' => 'ProyectoBase',
-        'url' => env('APP_URL'),
+        'url' => URL,
         'debug' => env('DEBUG'),
-        'version' => env('APP_VERSION', '1.0.0')
+        'version' => APP_VERSION
     ]
 ];

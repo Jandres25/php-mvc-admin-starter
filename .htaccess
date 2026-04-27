@@ -1,4 +1,0 @@
-# Ajusta estas rutas si el proyecto está en un subdirectorio diferente
-ErrorDocument 404 /php-mvc-admin-starter/views/errors/404.php
-ErrorDocument 403 /php-mvc-admin-starter/views/errors/403.php
-ErrorDocument 500 /php-mvc-admin-starter/views/errors/500.html
