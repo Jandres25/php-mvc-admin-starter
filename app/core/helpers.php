@@ -13,8 +13,12 @@ if (!function_exists('isAuthenticated')) {
 }
 
 if (!function_exists('checkSessionTimeout')) {
-    function checkSessionTimeout(int $timeout = 86400): bool
+    function checkSessionTimeout(?int $timeout = null): bool
     {
+        if ($timeout === null) {
+            $timeout = (int) env('SESSION_LIFETIME', 1800);
+            if ($timeout <= 0) { $timeout = 1800; }
+        }
         if (isset($_SESSION['last_access'])) {
             if (time() - $_SESSION['last_access'] >= $timeout) {
                 session_unset();
@@ -24,6 +28,15 @@ if (!function_exists('checkSessionTimeout')) {
         }
         $_SESSION['last_access'] = time();
         return true;
+    }
+}
+
+if (!function_exists('tryAutoLoginFromRememberCookie')) {
+    function tryAutoLoginFromRememberCookie(): bool
+    {
+        if (isAuthenticated()) { return true; }
+        $svc = new \App\Services\RememberMeService();
+        return $svc->attemptLogin();
     }
 }
 

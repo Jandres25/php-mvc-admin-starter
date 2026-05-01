@@ -52,6 +52,10 @@ class AuthController extends Controller
         $this->initSession($user);
         regenerateCSRFToken();
 
+        if (!empty($_POST['remember']) && $_POST['remember'] === '1') {
+            (new \App\Services\RememberMeService())->issue((int) $user['id']);
+        }
+
         $_SESSION['message'] = 'Welcome, ' . $_SESSION['user_name'];
         $_SESSION['icon']    = 'success';
         $this->redirect(URL);
@@ -59,6 +63,10 @@ class AuthController extends Controller
 
     public function logout(): void
     {
+        if (isset($_SESSION['user_id'])) {
+            (new \App\Services\RememberMeService())->clear((int) $_SESSION['user_id']);
+        }
+
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {

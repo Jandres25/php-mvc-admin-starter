@@ -793,6 +793,55 @@ class User extends Model
         }
     }
 
+    public function setRememberToken(int $userId, string $tokenHash, string $expires): bool
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "UPDATE users SET remember_token = :token, remember_token_expires = :expires WHERE id = :id"
+            );
+            $stmt->bindParam(':token',   $tokenHash, PDO::PARAM_STR);
+            $stmt->bindParam(':expires', $expires,   PDO::PARAM_STR);
+            $stmt->bindParam(':id',      $userId,    PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    public function findByRememberToken(string $tokenHash): array|false
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT * FROM users
+                 WHERE remember_token = :token
+                   AND remember_token_expires > NOW()
+                   AND status = 1
+                 LIMIT 1"
+            );
+            $stmt->bindParam(':token', $tokenHash, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    public function clearRememberToken(int $userId): bool
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "UPDATE users SET remember_token = NULL, remember_token_expires = NULL WHERE id = :id"
+            );
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
     /**
      * Returns total, active and inactive user counts.
      *

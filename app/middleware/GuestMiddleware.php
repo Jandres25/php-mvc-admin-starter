@@ -6,7 +6,10 @@ class GuestMiddleware implements MiddlewareInterface
 {
     public function handle(): void
     {
-        if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
+        if (!isAuthenticated()) {
+            tryAutoLoginFromRememberCookie();
+        }
+        if (isAuthenticated()) {
             header('Location: ' . URL);
             exit;
         }

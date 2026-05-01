@@ -7,8 +7,10 @@
     <title>Base System | Sign In</title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="<?= URL ?>css/lib/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= URL ?>css/lib/fontawesome/all.min.css">
     <link rel="stylesheet" href="<?= URL ?>css/lib/adminlte/adminlte.min.css">
+    <link rel="stylesheet" href="<?= URL ?>css/lib/bootstrap/icheck-bootstrap.min.css">
     <link rel="stylesheet" href="<?= URL ?>css/core/webfonts.css">
     <link rel="icon" type="image/png" href="<?= URL ?>img/e-commerce_logo.png">
     <link rel="stylesheet" href="<?= URL ?>css/modules/login/login.css">
@@ -46,6 +48,15 @@
                                 <div class="input-group-text password-toggle" title="Show/Hide password">
                                     <span class="fas fa-eye-slash toggle-password" id="toggle-password"></span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <div class="icheck-primary">
+                                <input type="checkbox" id="remember" name="remember" value="1">
+                                <label for="remember">Remember me</label>
                             </div>
                         </div>
                     </div>
