@@ -27,6 +27,8 @@ chmod 777 public/uploads/users/
 
 > **Note:** Apache runs as `daemon` on LAMPP. The uploads directory must be world-writable (`777`) or owned by the web server user, otherwise `move_uploaded_file()` silently fails.
 
+> **Note:** `APP_URL` must include `/public` at the end (e.g. `http://localhost/ProyectoBase/public`). Without it the router cannot resolve routes and assets will not load. This is a common issue when running under XAMPP/WAMP on Windows, where no VirtualHost points directly to `public/`.
+
 **Requirements:** PHP 8.2+ with PDO and GD extensions, Apache/Nginx, MariaDB/MySQL.
 
 **Default credentials:** `admin@sistema.com` / `admin123`
