@@ -17,7 +17,7 @@ mysql -u root -p < database/seeder.sql
 
 # 2. Configure environment
 cp .env.example .env
-# Edit .env: DB_HOST, DB_NAME, DB_USER, DB_PASS, APP_URL, TIMEZONE
+# Edit .env: DB_HOST, DB_NAME, DB_USER, DB_PASS, APP_URL, TIMEZONE, SESSION_LIFETIME, REMEMBER_ME_LIFETIME
 
 # 3. Create upload directory and set write permissions
 mkdir -p public/uploads/users
@@ -37,7 +37,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.1.0`
+**Current release tag:** `3.2.0`
 
 ## No Build Process
 
@@ -50,6 +50,7 @@ This is a pure PHP application. There are no npm, Composer, Makefile, or test su
 All HTTP requests are routed through `public/index.php` (Front Controller) via Apache rewriting. The `App\Core\Router` matches the URI and HTTP method against `routes/web.php`, runs registered middleware, then dispatches to the appropriate controller method.
 
 Clean URL examples:
+
 - `/` or `/dashboard` — dashboard
 - `/login` — login page
 - `/users/create` — create user form
@@ -58,7 +59,7 @@ Clean URL examples:
 
 **Entry point:** `public/index.php` starts the session, loads `app/config/config.php` and `app/core/helpers.php`, then instantiates the router.
 
-**Helpers:** `app/core/helpers.php` defines the global functions `isAuthenticated()`, `checkSessionTimeout()`, `checkSessionSecurity()`, `getCurrentUser()`, `refreshPermissionsIfStale()`, `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`. It is loaded once at the entry point.
+**Helpers:** `app/core/helpers.php` defines the global functions `isAuthenticated()`, `checkSessionTimeout()`, `checkSessionSecurity()`, `getCurrentUser()`, `refreshPermissionsIfStale()`, `tryAutoLoginFromRememberCookie()`, `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`. It is loaded once at the entry point.
 
 ### MVC Structure
 
@@ -69,7 +70,7 @@ app/
 ├── core/         # Controller.php, Model.php, Router.php, AssetRegistry.php, helpers.php
 ├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── models/       # App\Models
-└── services/     # App\Services (AuthorizationService, ImageService, MailService)
+└── services/     # App\Services (AuthorizationService, ImageService, MailService, RememberMeService)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
 views/            # PHP templates; layouts/header.php pulls in all CSS/JS
@@ -94,8 +95,9 @@ Permission names are checked against `$_SESSION['user_permissions']` (cached at 
 `AuthorizationService::isAdmin()` is memoized per-request via `static array $adminCache` — safe to call multiple times in the same request without extra DB queries.
 
 **Middleware:** Route-level protection is declared in `routes/web.php` via the `middleware` key:
-- `'auth'` — `AuthMiddleware`: validates session, timeout, anti-hijacking, then calls `refreshPermissionsIfStale()`.
-- `'guest'` — `GuestMiddleware`: redirects authenticated users away from login/forgot-password pages.
+
+- `'auth'` — `AuthMiddleware`: attempts auto-login from remember-me cookie if no session, then validates session timeout and anti-hijacking, then calls `refreshPermissionsIfStale()`.
+- `'guest'` — `GuestMiddleware`: attempts auto-login from remember-me cookie before checking session; redirects authenticated users away from login/forgot-password pages.
 - `'perm:NAME'` — `PermissionMiddleware`: checks `AuthorizationService::hasPermissionByName()` for the given permission name; returns 403 view on failure.
 
 ### AJAX Pattern

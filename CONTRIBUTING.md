@@ -66,14 +66,14 @@ All PHP classes, methods, and files must include PHPDoc documentation:
 ```php
 /**
  * Brief description of the class/method/file
- * 
+ *
  * Detailed description if necessary
- * 
+ *
  * @package ProyectoBase
  * @subpackage [Module Name] (e.g., Controllers\Users, Models, Services)
  * @author Jandres25
  * @version 1.0
- * 
+ *
  * @param type $parameter Description of parameter (for methods)
  * @return type Description of return value (for methods)
  * @throws ExceptionType Description of when exception is thrown
@@ -87,9 +87,9 @@ JavaScript functions and modules should include JSDoc documentation:
 ```javascript
 /**
  * filename.js - Brief description
- * 
+ *
  * Detailed description of the module's purpose
- * 
+ *
  * @package ProyectoBase
  * @subpackage JavaScript\[Module]
  * @author Jandres25
@@ -102,7 +102,7 @@ JavaScript functions and modules should include JSDoc documentation:
  * @returns {type} Description of return value
  */
 function myFunction(parameter) {
-    // Implementation
+  // Implementation
 }
 ```
 
@@ -111,6 +111,7 @@ function myFunction(parameter) {
 We follow [Conventional Commits](https://conventionalcommits.org/) for commit messages:
 
 ### Format
+
 ```
 <type>[optional scope]: <description>
 
@@ -120,6 +121,7 @@ We follow [Conventional Commits](https://conventionalcommits.org/) for commit me
 ```
 
 ### Types
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation only changes
@@ -130,6 +132,7 @@ We follow [Conventional Commits](https://conventionalcommits.org/) for commit me
 - `chore`: Maintenance tasks
 
 ### Examples
+
 ```bash
 feat: add user profile image upload functionality
 fix: resolve session timeout issue in admin panel
@@ -151,20 +154,24 @@ When your changes affect session/permissions flow, AJAX endpoint patterns, local
 
 ```markdown
 ## Description
+
 Brief description of what this PR does.
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Documentation update
 - [ ] Code refactoring
 
 ## Testing
+
 - [ ] Tested locally
 - [ ] Added/updated tests
 - [ ] Documentation updated
 
 ## Checklist
+
 - [ ] PHPDoc/JSDoc documentation added
 - [ ] CHANGELOG.md updated
 - [ ] Code follows project standards
@@ -206,7 +213,7 @@ When adding new features, follow the existing project structure:
 │   ├── controllers/      # Feature controllers (auth/, users/, permissions/, dashboard/)
 │   ├── middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 │   ├── models/           # App\Models
-│   ├── services/         # App\Services (AuthorizationService, ImageService, MailService)
+│   ├── services/         # App\Services (AuthorizationService, ImageService, MailService, RememberMeService)
 │   └── config/           # Bootstrap: autoloader, .env loader, DB singleton, config array
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates

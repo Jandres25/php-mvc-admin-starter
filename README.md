@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.1.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.2.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
 
@@ -14,7 +14,7 @@ A PHP starter template with authentication, user management, and role-based perm
 
 ## Features
 
-- **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout
+- **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout, persistent remember-me cookie
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Permission control** — Granular per-user permissions, adaptive navigation menu
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
@@ -64,10 +64,15 @@ DB_USER=root
 DB_PASS=yourpassword
 DB_CHARSET=utf8mb4
 
-APP_URL=http://localhost/php-mvc-admin-starter
+APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.1.0
+APP_VERSION=3.2.0
+
+# Session & Remember Me
+SESSION_LIFETIME=1800
+REMEMBER_ME_LIFETIME=2592000
+REMEMBER_ME_COOKIE_NAME=remember_me
 
 # SMTP Configuration (Optional)
 MAIL_HOST=smtp.gmail.com
@@ -114,7 +119,7 @@ app/
 ├── core/         # Controller.php, Model.php, Router.php, AssetRegistry.php, helpers.php
 ├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── models/       # App\Models
-└── services/     # App\Services (AuthorizationService, ImageService, MailService)
+└── services/     # App\Services (AuthorizationService, ImageService, MailService, RememberMeService)
 routes/           # web.php — all route definitions
 views/            # PHP templates; layouts/header.php and footer.php wrap content
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)
@@ -141,7 +146,9 @@ libs/             # Vendored libraries (TCPDF, PHPMailer)
 - XSS prevention via `htmlspecialchars()` at the view layer on all output
 - Session cookie flags: `httponly`, `SameSite=Lax`, `use_strict_mode`
 - Session hijacking protection (IP and User-Agent validation)
-- Session ID regeneration on every login
+- Session ID regeneration on every login and on every remember-me auto-login
+- Remember-me cookie: `HttpOnly`, `SameSite=Lax`, `Secure` (HTTPS); token stored as SHA-256 hash, rotated on every use
+- Configurable session lifetime via `SESSION_LIFETIME` in `.env`
 - Permission cache in session — navigation checks require zero DB queries per page load
 - Users cannot deactivate or change the status of their own account
 
