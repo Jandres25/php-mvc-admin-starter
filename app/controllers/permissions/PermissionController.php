@@ -55,7 +55,7 @@ class PermissionController extends Controller
             'description' => trim($_POST['description'] ?? '') ?: null,
         ];
 
-        $data = $this->permissionModel->sanitizeData($data);
+        $data = $this->permissionModel->trimInput($data);
 
         if (empty($data['name'])) {
             $this->jsonResponse(['success' => false, 'message' => 'Permission name is required.']);
@@ -100,7 +100,7 @@ class PermissionController extends Controller
             'description' => trim($_POST['description'] ?? '') ?: $current['description'],
         ];
 
-        $data = $this->permissionModel->sanitizeData($data);
+        $data = $this->permissionModel->trimInput($data);
 
         if (empty($data['name'])) {
             $this->jsonResponse(['success' => false, 'message' => 'Permission name is required.']);

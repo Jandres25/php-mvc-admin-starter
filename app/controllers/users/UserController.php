@@ -198,7 +198,7 @@ class UserController extends Controller
 
     private function save()
     {
-        $data   = $this->userModel->sanitizeData($this->prepareUserData($_POST));
+        $data   = $this->userModel->trimInput($this->prepareUserData($_POST));
         $errors = $this->userModel->validateData($data);
 
         if (!empty($errors)) {
@@ -252,7 +252,7 @@ class UserController extends Controller
             }
         }
 
-        $data          = $this->userModel->sanitizeData($data);
+        $data          = $this->userModel->trimInput($data);
         $data['image'] = $oldImage;
 
         $errors = $this->userModel->validateData($data, $id);

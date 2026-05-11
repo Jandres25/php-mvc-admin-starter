@@ -83,7 +83,7 @@ abstract class Model
         $this->query($sql, [$id]);
     }
 
-    public function sanitizeData($data)
+    public function trimInput($data)
     {
         $sanitized = [];
         foreach ($data as $key => $value) {
