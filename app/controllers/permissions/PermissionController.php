@@ -5,7 +5,6 @@ namespace App\Controllers\Permissions;
 use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\User;
-use App\Services\AuthorizationService;
 
 class PermissionController extends Controller
 {
@@ -161,7 +160,6 @@ class PermissionController extends Controller
     {
         $this->csrfCheck();
 
-        $authService  = new AuthorizationService();
         $userId       = filter_var($_POST['user_id']       ?? 0, FILTER_VALIDATE_INT);
         $permissionId = filter_var($_POST['permission_id'] ?? 0, FILTER_VALIDATE_INT);
 
@@ -169,10 +167,9 @@ class PermissionController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
         }
 
-        $ok = $authService->assignPermission($userId, $permissionId);
+        $ok = $this->permissionModel->assign($userId, $permissionId);
         if ($ok) {
-            $userModel = new User();
-            $userModel->updatePermissionsTimestamp($userId);
+            (new User())->updatePermissionsTimestamp($userId);
             regenerateCSRFToken();
             $_SESSION['message'] = 'User assigned successfully.';
             $_SESSION['icon']    = 'success';
@@ -185,7 +182,6 @@ class PermissionController extends Controller
     {
         $this->csrfCheck();
 
-        $authService  = new AuthorizationService();
         $userId       = filter_var($_POST['user_id']       ?? 0, FILTER_VALIDATE_INT);
         $permissionId = filter_var($_POST['permission_id'] ?? 0, FILTER_VALIDATE_INT);
 
@@ -193,10 +189,9 @@ class PermissionController extends Controller
             $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
         }
 
-        $ok = $authService->revokePermission($userId, $permissionId);
+        $ok = $this->permissionModel->revoke($userId, $permissionId);
         if ($ok) {
-            $userModel = new User();
-            $userModel->updatePermissionsTimestamp($userId);
+            (new User())->updatePermissionsTimestamp($userId);
             regenerateCSRFToken();
             $_SESSION['message'] = 'Permission revoked successfully.';
             $_SESSION['icon']    = 'success';

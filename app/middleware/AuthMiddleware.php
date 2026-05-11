@@ -2,27 +2,25 @@
 
 namespace App\Middleware;
 
+use App\Core\Auth;
+
 class AuthMiddleware implements MiddlewareInterface
 {
     public function handle(): void
     {
-        if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-            if (tryAutoLoginFromRememberCookie()) {
-                $_SESSION['last_access'] = time();
-                refreshPermissionsIfStale();
+        if (!Auth::check()) {
+            if (Auth::attemptRememberLogin()) {
                 return;
             }
 
-            if (!checkSessionTimeout() || !checkSessionSecurity()) {
-                $_SESSION['message'] = 'Session expired due to inactivity. Please log in again.';
-                $_SESSION['icon']    = 'warning';
-            }
+            $_SESSION['message'] = 'Session expired due to inactivity. Please log in again.';
+            $_SESSION['icon']    = 'warning';
             header('Location: ' . URL . 'login');
             exit;
         }
 
-        if (!checkSessionTimeout() || !checkSessionSecurity()) {
-            if (!tryAutoLoginFromRememberCookie()) {
+        if (!Auth::checkTimeout() || !Auth::checkSecurity()) {
+            if (!Auth::attemptRememberLogin()) {
                 $_SESSION['message'] = 'Session expired due to inactivity. Please log in again.';
                 $_SESSION['icon']    = 'warning';
                 header('Location: ' . URL . 'login');
@@ -30,6 +28,6 @@ class AuthMiddleware implements MiddlewareInterface
             }
         }
 
-        refreshPermissionsIfStale();
+        Auth::refreshPermissionsIfStale();
     }
 }

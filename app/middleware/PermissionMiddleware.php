@@ -13,10 +13,7 @@ class PermissionMiddleware implements MiddlewareInterface
 
     public function handle(): void
     {
-        $userId      = $_SESSION['user_id'] ?? null;
-        $authService = new \App\Services\AuthorizationService();
-
-        if (!$authService->hasPermissionByName($userId, $this->permission)) {
+        if (!\App\Core\Auth::hasPermission($this->permission)) {
             \App\Core\ErrorHandler::forbidden();
         }
     }

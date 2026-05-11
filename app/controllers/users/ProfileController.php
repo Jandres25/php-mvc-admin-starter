@@ -13,60 +13,20 @@
 
 namespace App\Controllers\Users;
 
+use App\Core\Auth;
+use App\Core\Controller;
 use App\Models\User;
 use App\Services\ImageService;
 
-class ProfileController
+class ProfileController extends Controller
 {
-    /**
-     * User model
-     * @var User
-     */
-    private $model;
-
-    /**
-     * Image service
-     * @var ImageService
-     */
-    private $imageService;
+    protected $model;
+    private ImageService $imageService;
 
     public function __construct()
     {
         $this->model        = new User();
         $this->imageService = new ImageService(__DIR__ . '/../../../public/uploads/users/');
-
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-    }
-
-    /**
-     * Returns the current user's data, or redirects if not authenticated.
-     *
-     * @return array
-     */
-    public function showProfile()
-    {
-        global $URL;
-
-        if (!isset($_SESSION['user_id'])) {
-            $_SESSION['message'] = 'You must log in to access your profile.';
-            $_SESSION['icon']    = 'warning';
-            header('Location: ' . $URL . 'views/auth/login.php');
-            exit;
-        }
-
-        $id   = $_SESSION['user_id'];
-        $user = $this->model->getById($id);
-
-        if (!$user) {
-            $_SESSION['message'] = 'User not found.';
-            $_SESSION['icon']    = 'error';
-            header('Location: ' . $URL . 'index.php');
-            exit;
-        }
-
-        return $user;
     }
 
     /**
@@ -80,11 +40,11 @@ class ProfileController
             return ['success' => false, 'message' => 'Access not allowed.', 'icon' => 'warning', 'redirect' => 'views/users/profile.php'];
         }
 
-        if (!isset($_SESSION['user_id'])) {
+        if (!Auth::check()) {
             return ['success' => false, 'message' => 'Session not started.', 'icon' => 'error', 'redirect' => 'views/auth/login.php'];
         }
 
-        $id          = $_SESSION['user_id'];
+        $id          = Auth::id();
         $currentUser = $this->model->getById($id);
 
         if (!$currentUser) {
@@ -126,22 +86,17 @@ class ProfileController
         return ['success' => false, 'message' => 'Error updating profile: ' . ($this->model->getLastError() ?: 'Unknown error.'), 'icon' => 'error', 'redirect' => 'views/users/profile.php'];
     }
 
-    /**
-     * Handles the AJAX password change from the profile page.
-     *
-     * @return array
-     */
     public function updatePasswordAjax()
     {
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             return ['success' => false, 'message' => 'Access not allowed.'];
         }
 
-        if (!isset($_SESSION['user_id'])) {
+        if (!Auth::check()) {
             return ['success' => false, 'message' => 'Session not started.'];
         }
 
-        $id              = $_SESSION['user_id'];
+        $id              = Auth::id();
         $currentPassword = isset($_POST['current_password']) ? trim($_POST['current_password']) : '';
         $newPassword     = isset($_POST['new_password'])     ? trim($_POST['new_password'])     : '';
         $confirmPassword = isset($_POST['confirm_password']) ? trim($_POST['confirm_password']) : '';

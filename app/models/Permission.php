@@ -451,4 +451,52 @@ class Permission extends Model
             return [];
         }
     }
+
+    /**
+     * Assigns a permission to a user (idempotent).
+     */
+    public function assign(int $userId, int $permissionId): bool
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT COUNT(*) FROM user_permissions WHERE user_id = :uid AND permission_id = :pid"
+            );
+            $stmt->bindParam(':uid', $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':pid', $permissionId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($stmt->fetchColumn() > 0) {
+                return true;
+            }
+
+            $stmt = $this->connection->prepare(
+                "INSERT INTO user_permissions (user_id, permission_id) VALUES (:uid, :pid)"
+            );
+            $stmt->bindParam(':uid', $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':pid', $permissionId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Revokes a permission from a user (idempotent).
+     */
+    public function revoke(int $userId, int $permissionId): bool
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "DELETE FROM user_permissions WHERE user_id = :uid AND permission_id = :pid"
+            );
+            $stmt->bindParam(':uid', $userId,       PDO::PARAM_INT);
+            $stmt->bindParam(':pid', $permissionId, PDO::PARAM_INT);
+            $stmt->execute();
+            return true;
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
 }

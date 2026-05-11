@@ -2,10 +2,10 @@
 
 namespace App\Controllers\Dashboard;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\User;
-use App\Services\AuthorizationService;
 
 class DashboardController extends Controller
 {
@@ -13,17 +13,15 @@ class DashboardController extends Controller
     {
         $userModel       = new User();
         $permissionModel = new Permission();
-        $authService     = new AuthorizationService();
-        $currentUserId   = (int) ($_SESSION['user_id'] ?? 0);
 
         $this->render(
             'dashboard/index',
             [
-                'userStats'           => $userModel->getStatistics(),
-                'permStats'           => $permissionModel->getStatistics(),
-                'recentUsers'         => $userModel->getRecent(5),
-                'canManageUsers'      => $authService->hasPermissionByName($currentUserId, 'users'),
-                'canManagePermissions'=> $authService->hasPermissionByName($currentUserId, 'permissions'),
+                'userStats'            => $userModel->getStatistics(),
+                'permStats'            => $permissionModel->getStatistics(),
+                'recentUsers'          => $userModel->getRecent(5),
+                'canManageUsers'       => Auth::hasPermission('users'),
+                'canManagePermissions' => Auth::hasPermission('permissions'),
             ]
         );
     }

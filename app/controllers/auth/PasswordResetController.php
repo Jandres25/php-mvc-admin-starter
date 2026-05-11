@@ -44,10 +44,9 @@ class PasswordResetController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $token  = bin2hex(random_bytes(32));
-        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        $token = $this->userModel->createPasswordResetToken($email);
 
-        if ($this->userModel->setResetToken($email, $token, $expiry)) {
+        if ($token !== null) {
             $this->mailService->sendPasswordResetEmail($email, $token);
         }
 

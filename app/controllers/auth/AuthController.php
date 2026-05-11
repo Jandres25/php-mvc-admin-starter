@@ -2,7 +2,9 @@
 
 namespace App\Controllers\Auth;
 
+use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\Permission;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -49,11 +51,16 @@ class AuthController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $this->initSession($user);
+        $permModel = new Permission();
+        $permNames = strtolower($user['position'] ?? '') === 'administrator'
+            ? ['*']
+            : array_column($permModel->getByUserId((int) $user['id']), 'name');
+
+        Auth::login($user, $permNames);
         regenerateCSRFToken();
 
         if (!empty($_POST['remember']) && $_POST['remember'] === '1') {
-            (new \App\Services\RememberMeService())->issue((int) $user['id']);
+            Auth::issueRememberCookie((int) $user['id']);
         }
 
         $_SESSION['message'] = 'Welcome, ' . $_SESSION['user_name'];
@@ -63,21 +70,7 @@ class AuthController extends Controller
 
     public function logout(): void
     {
-        if (isset($_SESSION['user_id'])) {
-            (new \App\Services\RememberMeService())->clear((int) $_SESSION['user_id']);
-        }
-
-        $_SESSION = [];
-
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params['path'], $params['domain'],
-                $params['secure'], $params['httponly']
-            );
-        }
-
-        session_destroy();
+        Auth::logout((int) ($_SESSION['user_id'] ?? 0));
         $this->redirect(URL . 'login');
     }
 
@@ -117,28 +110,4 @@ class AuthController extends Controller
         (new PasswordResetController())->resetPassword();
     }
 
-    private function initSession(array $user): void
-    {
-        session_regenerate_id(true);
-
-        $_SESSION['user_id']       = $user['id'];
-        $_SESSION['user_name']     = $user['name'] . ' ' . $user['first_surname'];
-        $_SESSION['user_email']    = $user['email'];
-        $_SESSION['user_position'] = $user['position'];
-        $_SESSION['user_image']    = $user['image'] ?? 'user_default.jpg';
-        $_SESSION['authenticated'] = true;
-        $_SESSION['last_access']   = time();
-        $_SESSION['ip']            = $_SERVER['REMOTE_ADDR'];
-        $_SESSION['user_agent']    = $_SERVER['HTTP_USER_AGENT'];
-
-        if (strtolower($user['position']) === 'administrator') {
-            $_SESSION['user_permissions'] = ['*'];
-        } else {
-            $authService = new \App\Services\AuthorizationService();
-            $permissions = $authService->getUserPermissions($user['id']);
-            $_SESSION['user_permissions'] = array_column($permissions, 'name');
-        }
-
-        $_SESSION['permissions_ts'] = date('Y-m-d H:i:s');
-    }
 }

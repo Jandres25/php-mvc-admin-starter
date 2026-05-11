@@ -85,7 +85,7 @@
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
-                            <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'profile')) : ?>
+                            <?php if (\App\Core\Auth::hasPermission('profile')) : ?>
                                 <a href="<?= URL; ?>profile" class="btn btn-default btn-flat">Profile</a>
                             <?php endif; ?>
                             <a href="<?= URL; ?>logout" class="btn btn-default btn-flat float-right">Log Out</a>
@@ -121,7 +121,7 @@
                         </li>
 
                         <!-- Administration -->
-                        <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'users') || $authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) : ?>
+                        <?php if (\App\Core\Auth::hasPermission('users') || \App\Core\Auth::hasPermission('permissions')) : ?>
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon fas fa-user-shield"></i>
@@ -131,7 +131,7 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'users')) : ?>
+                                    <?php if (\App\Core\Auth::hasPermission('users')) : ?>
                                         <li class="nav-item">
                                             <a href="<?= URL; ?>users" class="nav-link">
                                                 <i class="fas fa-user-alt nav-icon"></i>
@@ -139,7 +139,7 @@
                                             </a>
                                         </li>
                                     <?php endif; ?>
-                                    <?php if ($authService->hasPermissionByName($_SESSION['user_id'], 'permissions')) : ?>
+                                    <?php if (\App\Core\Auth::hasPermission('permissions')) : ?>
                                         <li class="nav-item">
                                             <a href="<?= URL; ?>permissions" class="nav-link">
                                                 <i class="fas fa-key nav-icon"></i>

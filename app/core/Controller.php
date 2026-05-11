@@ -10,8 +10,7 @@ abstract class Controller
     {
         extract($data);
 
-        $currentUser = getCurrentUser();
-        $authService = new \App\Services\AuthorizationService();
+        $currentUser = \App\Core\Auth::user();
 
         $layoutData = [
             'content'        => $this->getView($view, $data),
@@ -90,7 +89,7 @@ abstract class Controller
 
     protected function requireLogin()
     {
-        if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+        if (!\App\Core\Auth::check()) {
             $this->redirect(URL . 'login');
         }
     }
@@ -99,10 +98,7 @@ abstract class Controller
     {
         $this->requireLogin();
 
-        $userId      = $_SESSION['user_id'] ?? null;
-        $authService = new \App\Services\AuthorizationService();
-
-        if (!$authService->hasPermissionByName($userId, $permission)) {
+        if (!\App\Core\Auth::hasPermission($permission)) {
             \App\Core\ErrorHandler::forbidden();
         }
     }
