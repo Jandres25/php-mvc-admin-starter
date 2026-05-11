@@ -4,18 +4,20 @@ namespace App\Controllers\Users;
 
 use App\Core\Controller;
 use App\Models\User;
+use App\Models\Permission;
 use App\Services\ImageService;
-use App\Services\AuthorizationService;
 
 class UserController extends Controller
 {
     private $userModel;
+    private $permissionModel;
     private $imageService;
 
     public function __construct()
     {
-        $this->userModel    = new User();
-        $this->imageService = new ImageService(__DIR__ . '/../../../public/uploads/users/');
+        $this->userModel       = new User();
+        $this->permissionModel = new Permission();
+        $this->imageService    = new ImageService(__DIR__ . '/../../../public/uploads/users/');
     }
 
     public function index()
@@ -33,8 +35,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $authService    = new AuthorizationService();
-        $allPermissions = $authService->getAllPermissions();
+        $allPermissions = $this->permissionModel->getAllActive();
 
         $this->render(
             'users/create',
@@ -46,10 +47,9 @@ class UserController extends Controller
 
     public function show($id = null)
     {
-        $authService     = new AuthorizationService();
         $user            = $this->getUserOrRedirect((int) $id);
-        $userPermissions = $authService->getUserPermissions((int) $user['id']);
-        $isAdminUser     = $authService->isAdmin((int) $user['id']);
+        $userPermissions = $this->permissionModel->getByUserId((int) $user['id']);
+        $isAdminUser     = strtolower($user['position'] ?? '') === 'administrator';
 
         $this->render(
             'users/show',
@@ -62,10 +62,9 @@ class UserController extends Controller
 
     public function edit($id = null)
     {
-        $authService         = new AuthorizationService();
         $user                = $this->getUserOrRedirect((int) $id);
-        $allPermissions      = $authService->getAllPermissions();
-        $assignedPermissions = $authService->getAssignedPermissions((int) $user['id']);
+        $allPermissions      = $this->permissionModel->getAllActive();
+        $assignedPermissions = $this->permissionModel->getAssignedIds((int) $user['id']);
 
         $this->render(
             'users/update',
@@ -392,24 +391,13 @@ class UserController extends Controller
 
     private function processPermissions($userId, $postData)
     {
-        $authService    = new AuthorizationService();
-        $allPermissions = $authService->getAllPermissions();
-        $selectedIds    = isset($postData['permissions']) ? $postData['permissions'] : [];
-
-        foreach ($allPermissions as $permission) {
-            $permId = $permission['id'];
-            if (in_array($permId, $selectedIds)) {
-                $authService->assignPermission($userId, $permId);
-            } else {
-                $authService->revokePermission($userId, $permId);
-            }
-        }
+        $selectedIds  = $postData['permissions'] ?? [];
+        $permNames    = $this->permissionModel->syncForUser($userId, $selectedIds);
 
         $this->userModel->updatePermissionsTimestamp($userId);
 
         if ($userId === ($_SESSION['user_id'] ?? null)) {
-            $permissions = $authService->getUserPermissions($userId);
-            $_SESSION['user_permissions'] = array_column($permissions, 'name');
+            $_SESSION['user_permissions'] = $permNames;
             $_SESSION['permissions_ts']   = date('Y-m-d H:i:s');
         }
     }

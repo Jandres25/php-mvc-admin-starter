@@ -346,4 +346,109 @@ class Permission extends Model
             return 0;
         }
     }
+
+    /**
+     * Returns id and name of all active permissions.
+     *
+     * @return array
+     */
+    public function getAllActive(): array
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT id, name FROM {$this->tabla} WHERE status = 1 ORDER BY name"
+            );
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Returns the permission IDs assigned to a user.
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function getAssignedIds(int $userId): array
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT permission_id FROM user_permissions WHERE user_id = :user_id"
+            );
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'permission_id');
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Returns id and name of active permissions assigned to a user.
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function getByUserId(int $userId): array
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT p.id, p.name
+                FROM user_permissions up
+                JOIN {$this->tabla} p ON up.permission_id = p.id
+                WHERE up.user_id = :user_id AND p.status = 1
+            ");
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Replaces all permissions for a user in a single transaction.
+     * Returns the resulting permission names (used to refresh the session cache).
+     *
+     * @param int   $userId
+     * @param array $ids  Permission IDs to assign
+     * @return array  Permission names after sync
+     */
+    public function syncForUser(int $userId, array $ids): array
+    {
+        try {
+            $this->connection->beginTransaction();
+
+            $stmt = $this->connection->prepare(
+                "DELETE FROM user_permissions WHERE user_id = :user_id"
+            );
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            foreach ($ids as $permId) {
+                $permId = (int) $permId;
+                if ($permId <= 0) {
+                    continue;
+                }
+                $stmt = $this->connection->prepare(
+                    "INSERT INTO user_permissions (user_id, permission_id) VALUES (:user_id, :permission_id)"
+                );
+                $stmt->bindParam(':user_id',       $userId, PDO::PARAM_INT);
+                $stmt->bindParam(':permission_id', $permId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $this->connection->commit();
+            return array_column($this->getByUserId($userId), 'name');
+        } catch (PDOException $e) {
+            $this->connection->rollBack();
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
 }
