@@ -103,9 +103,7 @@ abstract class Controller
         $authService = new \App\Services\AuthorizationService();
 
         if (!$authService->hasPermissionByName($userId, $permission)) {
-            http_response_code(403);
-            $this->renderStandalone('errors/403');
-            exit;
+            \App\Core\ErrorHandler::forbidden();
         }
     }
 }

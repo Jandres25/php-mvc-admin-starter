@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>404 - Page Not Found</title>
+    <title>500 - Internal Server Error</title>
     <link rel="stylesheet" href="<?= defined('URL') ? URL : '/' ?>css/lib/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="<?= defined('URL') ? URL : '/' ?>css/lib/adminlte/adminlte.min.css">
     <link rel="stylesheet" href="<?= defined('URL') ? URL : '/' ?>css/lib/fontawesome/all.min.css">
@@ -23,9 +23,9 @@
 
 <body>
     <div class="text-center">
-        <h1 class="display-1 font-weight-bold text-warning">404</h1>
-        <h3 class="mb-3">Page Not Found</h3>
-        <p class="text-muted mb-4">The page you are looking for does not exist or has been moved.</p>
+        <h1 class="display-1 font-weight-bold text-danger">500</h1>
+        <h3 class="mb-3">Internal Server Error</h3>
+        <p class="text-muted mb-4">Something went wrong. Please try again later.</p>
         <a href="<?= defined('URL') ? URL : '/' ?>" class="btn btn-primary">
             <i class="fas fa-home mr-1"></i> Back to Home
         </a>

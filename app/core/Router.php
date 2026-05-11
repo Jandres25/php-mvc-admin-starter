@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use App\Core\ErrorHandler;
+
 class Router
 {
     protected $routes = [];
@@ -39,14 +41,7 @@ class Router
             }
         }
 
-        http_response_code(404);
-        $errorView = dirname(__DIR__, 2) . '/views/errors/404.php';
-        if (file_exists($errorView)) {
-            require $errorView;
-        } else {
-            echo '404 - Page Not Found';
-        }
-        exit;
+        ErrorHandler::notFound();
     }
 
     protected function runMiddleware(array $middlewares): void
@@ -98,17 +93,13 @@ class Router
         }
 
         if (!class_exists($controllerClass)) {
-            http_response_code(500);
-            echo "Controller not found: $controllerClass";
-            exit;
+            ErrorHandler::serverError("Controller not found: $controllerClass");
         }
 
         $instance = new $controllerClass();
 
         if (!method_exists($instance, $methodName)) {
-            http_response_code(500);
-            echo "Method not found: $methodName in $controllerClass";
-            exit;
+            ErrorHandler::serverError("Method not found: $methodName in $controllerClass");
         }
 
         return call_user_func_array([$instance, $methodName], $this->params);

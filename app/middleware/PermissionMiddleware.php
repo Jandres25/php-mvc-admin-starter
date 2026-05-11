@@ -17,9 +17,7 @@ class PermissionMiddleware implements MiddlewareInterface
         $authService = new \App\Services\AuthorizationService();
 
         if (!$authService->hasPermissionByName($userId, $this->permission)) {
-            http_response_code(403);
-            require dirname(__DIR__, 2) . '/views/errors/403.php';
-            exit;
+            \App\Core\ErrorHandler::forbidden();
         }
     }
 }
