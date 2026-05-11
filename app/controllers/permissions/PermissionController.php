@@ -18,11 +18,8 @@ class PermissionController extends Controller
 
     public function pageIndex()
     {
-        $permissions = [];
-        foreach ($this->permissionModel->getAllWithUserCount() as $permission) {
-            $permissions[] = $this->mapIndexRow($permission);
-        }
-        $statistics = $this->permissionModel->getStatistics();
+        $permissions = $this->permissionModel->getAllWithUserCount();
+        $statistics  = $this->permissionModel->getStatistics();
 
         $this->render(
             'permissions/index',
@@ -251,25 +248,4 @@ class PermissionController extends Controller
         return $permission;
     }
 
-    private function mapIndexRow(array $permission)
-    {
-        $isActive   = ((int) $permission['status']) === 1;
-        $totalUsers = isset($permission['total_users']) ? (int) $permission['total_users'] : 0;
-
-        return [
-            'id'                 => (int) $permission['id'],
-            'name'               => $permission['name'] ?? '',
-            'description'        => !empty($permission['description']) ? $permission['description'] : 'N/A',
-            'description_raw'    => $permission['description'] ?? '',
-            'status'             => (int) $permission['status'],
-            'status_label'       => $isActive ? 'Active' : 'Inactive',
-            'status_badge_class' => $isActive ? 'badge-success' : 'badge-danger',
-            'status_btn_class'   => $isActive ? 'btn-danger' : 'btn-success',
-            'status_btn_title'   => $isActive ? 'Deactivate' : 'Activate',
-            'status_icon_class'  => $isActive ? 'fa-times' : 'fa-check',
-            'total_users'        => $totalUsers,
-            'users_badge_class'  => $totalUsers > 0 ? 'badge-primary' : 'badge-secondary',
-            'users_label'        => $totalUsers === 1 ? 'user' : 'users',
-        ];
-    }
 }

@@ -53,7 +53,9 @@
                             <tbody>
                                 <?php
                                 $counter = 1;
-                                foreach ($users as $user) : ?>
+                                foreach ($users as $user):
+                                    $isActive = ((int) $user['status']) === 1;
+                                ?>
                                     <tr>
                                         <td class="text-center"><?= $counter++; ?></td>
                                         <td><?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?></td>
@@ -61,11 +63,11 @@
                                         <td><?= htmlspecialchars($user['document_number']); ?></td>
                                         <td><?= htmlspecialchars($user['email']); ?></td>
                                         <td class="text-center">
-                                            <img src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>" loading="lazy" alt="Profile picture of <?= htmlspecialchars($user['name']); ?>" class="img-thumbnail" width="30">
+                                            <img src="<?= URL ?>uploads/users/<?= htmlspecialchars(!empty($user['image']) ? $user['image'] : 'user_default.jpg'); ?>" loading="lazy" alt="Profile picture of <?= htmlspecialchars($user['name']); ?>" class="img-thumbnail" width="30">
                                         </td>
-                                        <td><?= htmlspecialchars($user['position_label']); ?></td>
+                                        <td><?= htmlspecialchars(!empty($user['position']) ? $user['position'] : 'N/A'); ?></td>
                                         <td class="text-center">
-                                            <span class="badge <?= htmlspecialchars($user['status_badge_class']); ?> badge-pill p-2"><?= htmlspecialchars($user['status_label']); ?></span>
+                                            <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2"><?= $isActive ? 'Active' : 'Inactive'; ?></span>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
@@ -75,14 +77,14 @@
                                                 <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Editar usuario">
                                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </a>
-                                                <?php if ($user['can_toggle_status']): ?>
-                                                    <button type="button" class="btn <?= htmlspecialchars($user['status_btn_class']); ?> btn-sm btn-toggle-status"
-                                                        aria-label="<?= htmlspecialchars($user['confirm_button_text']); ?> user <?= htmlspecialchars($user['name']); ?>"
+                                                <?php if (((int) $user['id']) !== $currentUserId): ?>
+                                                    <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
+                                                        aria-label="<?= $isActive ? 'Yes, deactivate' : 'Yes, activate'; ?> user <?= htmlspecialchars($user['name']); ?>"
                                                         data-id="<?= $user['id']; ?>"
                                                         data-status="<?= $user['status']; ?>"
                                                         data-name="<?= htmlspecialchars($user['name']); ?>"
-                                                        data-toggle="tooltip" title="<?= htmlspecialchars($user['alert_title']); ?>">
-                                                        <i class="fas <?= htmlspecialchars($user['status_icon_class']); ?>" aria-hidden="true"></i>
+                                                        data-toggle="tooltip" title="<?= $isActive ? 'Deactivate User?' : 'Activate User?'; ?>">
+                                                        <i class="fas <?= $isActive ? 'fa-user-slash' : 'fa-user-check'; ?>" aria-hidden="true"></i>
                                                     </button>
                                                 <?php endif; ?>
                                             </div>

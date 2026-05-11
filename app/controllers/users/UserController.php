@@ -21,14 +21,11 @@ class UserController extends Controller
     public function index()
     {
         $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
-        $users = [];
-        foreach ($this->userModel->getAll() as $user) {
-            $users[] = $this->mapIndexRow($user, $currentUserId);
-        }
+        $users         = $this->userModel->getAll();
 
         $this->render(
             'users/index',
-            compact('users'),
+            compact('users', 'currentUserId'),
             ['datatables', 'datatables-export'],
             ['users/index-users']
         );
@@ -390,29 +387,6 @@ class UserController extends Controller
             'password'        => trim($postData['password']    ?? ''),
             'status'          => isset($postData['status']) ? (int) $postData['status'] : 1,
             'image'           => null,
-        ];
-    }
-
-    private function mapIndexRow($user, $currentUserId)
-    {
-        $isActive = ((int) $user['status']) === 1;
-        return [
-            'id'                  => (int) $user['id'],
-            'name'                => $user['name']            ?? '',
-            'first_surname'       => $user['first_surname']   ?? '',
-            'document_type'       => $user['document_type']   ?? '',
-            'document_number'     => $user['document_number'] ?? '',
-            'email'               => $user['email']           ?? '',
-            'image'               => !empty($user['image']) ? $user['image'] : 'user_default.jpg',
-            'position_label'      => !empty($user['position']) ? $user['position'] : 'N/A',
-            'status'              => (int) $user['status'],
-            'status_label'        => $isActive ? 'Active' : 'Inactive',
-            'status_badge_class'  => $isActive ? 'badge-success' : 'badge-danger',
-            'status_btn_class'    => $isActive ? 'btn-danger' : 'btn-success',
-            'status_icon_class'   => $isActive ? 'fa-user-slash' : 'fa-user-check',
-            'alert_title'         => $isActive ? 'Deactivate User?' : 'Activate User?',
-            'confirm_button_text' => $isActive ? 'Yes, deactivate' : 'Yes, activate',
-            'can_toggle_status'   => ((int) $user['id']) !== $currentUserId,
         ];
     }
 

@@ -79,18 +79,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($permissions as $permission): ?>
+                                    <?php foreach ($permissions as $permission):
+                                        $isActive   = ((int) $permission['status']) === 1;
+                                        $totalUsers = (int) ($permission['total_users'] ?? 0);
+                                    ?>
                                         <tr>
                                             <td class="text-center"><?= $permission['id']; ?></td>
                                             <td><?= htmlspecialchars($permission['name']); ?></td>
-                                            <td><?= htmlspecialchars($permission['description']); ?></td>
+                                            <td><?= htmlspecialchars(!empty($permission['description']) ? $permission['description'] : 'N/A'); ?></td>
                                             <td class="text-center">
-                                                <span class="badge <?= htmlspecialchars($permission['users_badge_class']); ?> badge-pill p-2">
-                                                    <?= $permission['total_users']; ?> <?= $permission['users_label']; ?>
+                                                <span class="badge <?= $totalUsers > 0 ? 'badge-primary' : 'badge-secondary'; ?> badge-pill p-2">
+                                                    <?= $totalUsers; ?> <?= $totalUsers === 1 ? 'user' : 'users'; ?>
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge <?= htmlspecialchars($permission['status_badge_class']); ?> badge-pill p-2"><?= htmlspecialchars($permission['status_label']); ?></span>
+                                                <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2"><?= $isActive ? 'Active' : 'Inactive'; ?></span>
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
@@ -100,16 +103,16 @@
                                                     <button type="button" class="btn btn-warning btn-sm btn-edit"
                                                         data-id="<?= $permission['id']; ?>"
                                                         data-name="<?= htmlspecialchars($permission['name']); ?>"
-                                                        data-description="<?= htmlspecialchars($permission['description_raw']); ?>"
+                                                        data-description="<?= htmlspecialchars($permission['description'] ?? ''); ?>"
                                                         data-toggle="tooltip" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button type="button" class="btn <?= htmlspecialchars($permission['status_btn_class']); ?> btn-sm btn-toggle-status"
+                                                    <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
                                                         data-id="<?= $permission['id']; ?>"
                                                         data-current-status="<?= $permission['status']; ?>"
-                                                        data-users="<?= $permission['total_users']; ?>"
-                                                        data-toggle="tooltip" title="<?= htmlspecialchars($permission['status_btn_title']); ?>">
-                                                        <i class="fas <?= htmlspecialchars($permission['status_icon_class']); ?>"></i>
+                                                        data-users="<?= $totalUsers; ?>"
+                                                        data-toggle="tooltip" title="<?= $isActive ? 'Deactivate' : 'Activate'; ?>">
+                                                        <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>"></i>
                                                     </button>
                                                 </div>
                                             </td>
