@@ -37,7 +37,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.2.0`
+**Current release tag:** `3.3.0`
 
 ## No Build Process
 
@@ -59,7 +59,7 @@ Clean URL examples:
 
 **Entry point:** `public/index.php` starts the session, loads `app/config/config.php` and `app/core/helpers.php`, then instantiates the router.
 
-**Helpers:** `app/core/helpers.php` defines the global functions `isAuthenticated()`, `checkSessionTimeout()`, `checkSessionSecurity()`, `getCurrentUser()`, `refreshPermissionsIfStale()`, `tryAutoLoginFromRememberCookie()`, `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`. It is loaded once at the entry point.
+**Helpers:** `app/core/helpers.php` defines only three global CSRF functions: `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`. All auth/session concerns live in `App\Core\Auth`.
 
 ### MVC Structure
 
@@ -67,10 +67,10 @@ Clean URL examples:
 app/
 ├── config/       # Bootstrap: autoloader, .env loader, DB singleton, config array
 ├── controllers/  # Feature controllers (auth/, users/, permissions/, dashboard/)
-├── core/         # Controller.php, Model.php, Router.php, AssetRegistry.php, helpers.php
+├── core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── models/       # App\Models
-└── services/     # App\Services (AuthorizationService, ImageService, MailService, RememberMeService)
+└── services/     # App\Services (ImageService, MailService)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
 views/            # PHP templates; layouts/header.php pulls in all CSS/JS
@@ -86,19 +86,31 @@ libs/             # Vendored libraries (TCPDF, PHPMailer)
 
 `app/config/Connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements.
 
+### Auth Hub — `App\Core\Auth`
+
+All authentication, session, remember-me, and permission cache concerns are centralised in the static class `App\Core\Auth`. No instantiation needed.
+
+Key methods: `Auth::check()`, `Auth::id()`, `Auth::user()`, `Auth::isAdmin()`, `Auth::hasPermission(string $name)`, `Auth::login()`, `Auth::logout()`, `Auth::checkTimeout()`, `Auth::checkSecurity()`, `Auth::refreshPermissionsIfStale()`, `Auth::issueRememberCookie()`, `Auth::attemptRememberLogin()`.
+
+See `docs/ACCESS_CONTROL.md` for the full method reference and flows.
+
 ### Permissions
 
-`app/services/AuthorizationService.php` checks whether a user has a named permission (e.g., `'users'`, `'permissions'`, `'admin'`). Use `$authService->hasPermissionByName($userId, 'permission_name')` to gate access. Navigation items and action buttons are conditionally rendered based on these checks.
+`Auth::hasPermission(string $name)` is the standard check for menu/page/action gating. It reads from `$_SESSION['user_permissions']` — no DB query per call.
 
-Permission names are checked against `$_SESSION['user_permissions']` (cached at login). The cache is automatically refreshed by `refreshPermissionsIfStale()` in `helpers.php` — called on every request by `AuthMiddleware` — which compares `$_SESSION['permissions_ts']` against the `permissions_updated_at` column in `users`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
+Administrators always get `['*']` in their session cache. Non-admins get an array of permission name strings loaded from `user_permissions` at login.
 
-`AuthorizationService::isAdmin()` is memoized per-request via `static array $adminCache` — safe to call multiple times in the same request without extra DB queries.
+The permission cache is refreshed automatically by `Auth::refreshPermissionsIfStale()` — called by `AuthMiddleware` on every authenticated request — comparing `$_SESSION['permissions_ts']` against `users.permissions_updated_at`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
 
 **Middleware:** Route-level protection is declared in `routes/web.php` via the `middleware` key:
 
-- `'auth'` — `AuthMiddleware`: attempts auto-login from remember-me cookie if no session, then validates session timeout and anti-hijacking, then calls `refreshPermissionsIfStale()`.
+- `'auth'` — `AuthMiddleware`: attempts auto-login from remember-me cookie if no session, then validates timeout and anti-hijacking, then calls `Auth::refreshPermissionsIfStale()`.
 - `'guest'` — `GuestMiddleware`: attempts auto-login from remember-me cookie before checking session; redirects authenticated users away from login/forgot-password pages.
-- `'perm:NAME'` — `PermissionMiddleware`: checks `AuthorizationService::hasPermissionByName()` for the given permission name; returns 403 view on failure.
+- `'perm:NAME'` — `PermissionMiddleware`: calls `Auth::hasPermission($name)`; returns 403 view on failure.
+
+### Error Handling
+
+`App\Core\ErrorHandler` handles 403, 404, and 500 responses. It auto-detects AJAX requests (via `X-Requested-With` header) and returns JSON or the corresponding HTML view under `views/errors/`.
 
 ### AJAX Pattern
 
@@ -131,8 +143,9 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 ## Coding Conventions
 
 - **Namespaces:** use `App\Controllers\*`, `App\Models\*`, `App\Services\*`, and `App\Core\*` consistently.
-- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST. All helpers live in `app/core/helpers.php`.
-- **Input sanitization:** Use `trim()` at the model layer (`sanitizeData()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
+- **Auth checks:** use `Auth::check()`, `Auth::hasPermission()`, `Auth::id()`, `Auth::user()` — never read `$_SESSION` directly for auth state outside of `App\Core\Auth`.
+- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST. All three functions live in `app/core/helpers.php`.
+- **Input sanitization:** Use `trim()` at the model layer (`trimInput()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImageService`.
 - **JS:** ES6+ with JSDoc comments. Use `SweetAlert2` for confirmations, `DataTables` for lists, `Select2` for dropdowns.

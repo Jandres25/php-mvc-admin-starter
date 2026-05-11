@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2026-05-11
+
+### Added
+
+- **`App\Core\Auth`** — static hub that centralises all authentication, session, remember-me, and permission-cache concerns. Replaces `AuthorizationService` and `RememberMeService` as the single source of truth for auth state.
+  - Session state: `check()`, `id()`, `user()`, `isAdmin()`, `hasPermission()`, `permissions()`
+  - Login / logout lifecycle: `login()`, `logout()`
+  - Session validation: `checkTimeout()`, `checkSecurity()`
+  - Permission cache: `refreshPermissionsIfStale()`
+  - Remember-me: `issueRememberCookie()`, `attemptRememberLogin()`, `clearRememberCookie()`
+
+- **`App\Core\ErrorHandler`** — handles 403, 404, and 500 responses; auto-detects AJAX via `X-Requested-With` and returns JSON or the HTML error view.
+
+- **`Permission::assign(int $userId, int $permissionId)`** and **`Permission::revoke()`** — idempotent single-row operations on `user_permissions`; replace the equivalent methods that were in `AuthorizationService`.
+
+- **`User::createPasswordResetToken(string $email)`** — generates token + expiry and delegates to `setResetToken()`; returns the raw token or `null`.
+
+### Changed
+
+- `AuthMiddleware`, `GuestMiddleware`, `PermissionMiddleware` — all calls to old helper functions and `AuthorizationService` replaced with `Auth::` static methods.
+- `AuthController` — `initSession()` private method removed; replaced with `Auth::login()`. `logout()` now delegates entirely to `Auth::logout()`. Remember-me cookie issued via `Auth::issueRememberCookie()`.
+- `PasswordResetController` — uses `User::createPasswordResetToken()` instead of inline token generation.
+- `ProfileController` — now extends `App\Core\Controller`; removed `global $URL` and bare `$_SESSION` auth checks; uses `Auth::check()` / `Auth::id()`.
+- `DashboardController` — permission checks use `Auth::hasPermission()` instead of `AuthorizationService`.
+- `PermissionController` — `assignUser()` and `revokeUser()` use `Permission::assign()` / `Permission::revoke()` instead of `AuthorizationService`.
+- `UserController` — permission sync uses `Permission::syncForUser()`.
+- `Controller::render()` — `$currentUser` populated via `Auth::user()`; `$authService` variable removed.
+- `Controller::requireLogin()` / `requirePermission()` — use `Auth::check()` and `Auth::hasPermission()`.
+- `views/layouts/header.php` — navigation permission gates use `\App\Core\Auth::hasPermission()`.
+- `app/core/helpers.php` — reduced to three CSRF functions only (`generateCSRFToken`, `verifyCSRFToken`, `regenerateCSRFToken`). All session/auth helpers removed.
+- `app/core/Model.php` — `sanitizeData()` renamed to `trimInput()` for clarity.
+
+### Removed
+
+- `app/services/AuthorizationService.php` — fully absorbed into `App\Core\Auth` (session/permission checks) and `App\Models\Permission` (persistence).
+- `app/services/RememberMeService.php` — fully absorbed into `App\Core\Auth`.
+- `helpers.php` global functions: `isAuthenticated()`, `checkSessionTimeout()`, `checkSessionSecurity()`, `getCurrentUser()`, `refreshPermissionsIfStale()`, `tryAutoLoginFromRememberCookie()`.
+
 ## [3.2.0] - 2026-05-01
 
 ### Added
@@ -395,7 +433,8 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.2.0...HEAD
+[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.3.0...HEAD
+[3.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.1...3.1.0
 [3.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.0...3.0.1
