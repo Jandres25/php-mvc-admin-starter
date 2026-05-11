@@ -726,14 +726,29 @@ class User extends Model
     }
 
     /**
-     * Stores a password reset token for a user identified by email.
+     * Generates a password reset token, persists it, and returns the raw token.
+     * Returns null if the email is not found or the update fails.
+     *
+     * @param string $email
+     * @return string|null  Raw token to include in the reset link
+     */
+    public function createPasswordResetToken(string $email): ?string
+    {
+        $token  = bin2hex(random_bytes(32));
+        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        return $this->setResetToken($email, $token, $expiry) ? $token : null;
+    }
+
+    /**
+     * Persist password reset token and expiry for a user identified by email.
      *
      * @param string $email
      * @param string $token
-     * @param string $expiry DATETIME string
+     * @param string $expiry  DateTime string (Y-m-d H:i:s)
      * @return bool
      */
-    public function setResetToken($email, $token, $expiry)
+    public function setResetToken(string $email, string $token, string $expiry): bool
     {
         try {
             $stmt = $this->connection->prepare(
