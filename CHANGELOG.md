@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2026-05-12
+
+### Added
+
+- **Composer** introduced as dependency manager. `vendor/autoload.php` coexists with the custom PSR-4 autoloader — Composer handles third-party packages, the custom autoloader handles `App\*` classes.
+- **`phpmailer/phpmailer` v6.12** — replaces the manually vendored `libs/PHPMailer-master/`.
+- **`vlucas/phpdotenv` v5.6** — replaces the hand-rolled `app/config/env.php` parser. `env()` helper moved to `app/core/helpers.php` with identical type-casting semantics.
+- **`tecnickcom/tcpdf` v6.11** — replaces the manually vendored `libs/TCPDF-main/`.
+
+### Changed
+
+- `app/config/config.php` — loads `vendor/autoload.php` (conditional) before the custom autoloader; bootstraps phpdotenv via `Dotenv::createImmutable()->safeLoad()`.
+- `app/core/helpers.php` — `env()` global helper added; CSRF functions unchanged.
+- `app/services/MailService.php` — removed three `require_once` lines pointing to `libs/PHPMailer-master/src/`; resolved via Composer autoloader.
+- `public/index.php` — removed redundant `require_once helpers.php` (now loaded inside `config.php`).
+- `README.md` — `composer install` added as step 2 of the installation guide.
+
+### Removed
+
+- `libs/PHPMailer-master/` — replaced by `phpmailer/phpmailer` Composer package.
+- `libs/TCPDF-main/` — replaced by `tecnickcom/tcpdf` Composer package.
+- `libs/` directory — fully removed; no vendored libraries remain.
+- `app/config/env.php` — replaced by `vlucas/phpdotenv` + `env()` wrapper in `helpers.php`.
+
+---
+
 ## [3.3.0] - 2026-05-11
 
 ### Added
@@ -433,11 +459,10 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
-[Unreleased]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.3.0...HEAD
+[3.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.1...3.1.0
-[3.0.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.1...3.0.0
 [2.3.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/2.2.0...2.3.0

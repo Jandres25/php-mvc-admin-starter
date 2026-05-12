@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.3.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.4.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
 
@@ -70,7 +70,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.2.0
+APP_VERSION=3.4.0
 
 # Session & Remember Me
 SESSION_LIFETIME=1800
@@ -117,7 +117,7 @@ The autoloader automatically resolves any class whose namespace matches the dire
 
 ```
 app/
-├── config/       # Bootstrap: PSR-4 autoloader, PDO singleton, .env helpers
+├── config/       # Bootstrap: PSR-4 autoloader, PDO singleton, phpdotenv bootstrap
 ├── controllers/  # Feature controllers (auth/, users/, permissions/, dashboard/)
 ├── core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
@@ -126,7 +126,7 @@ app/
 routes/           # web.php — all route definitions
 views/            # PHP templates; layouts/header.php and footer.php wrap content
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)
-libs/             # Vendored libraries (TCPDF, PHPMailer)
+vendor/           # Composer dependencies (not committed — run composer install)
 ```
 
 **Request flow:** All HTTP requests are routed through `public/index.php` via Apache rewriting. `App\Core\Router` matches the URI and method against `routes/web.php`, runs declared middleware (auth, guest, perm:NAME), and dispatches to the controller method. Clean URLs like `/users`, `/users/5/edit`, `/permissions/3` replace the old direct-file access pattern.
@@ -135,10 +135,10 @@ libs/             # Vendored libraries (TCPDF, PHPMailer)
 
 | Layer        | Technology                                                    |
 | ------------ | ------------------------------------------------------------- |
-| Backend      | PHP 8.2, PDO, custom PSR-4 autoloader                         |
+| Backend      | PHP 8.2, PDO, custom PSR-4 autoloader, Composer               |
+| Dependencies | PHPMailer, TCPDF, phpdotenv (via Composer)                    |
 | UI framework | AdminLTE 3, Bootstrap 4, FontAwesome                          |
 | JavaScript   | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |
-| PDF          | TCPDF                                                         |
 | Database     | MySQL / MariaDB                                               |
 
 ## Security

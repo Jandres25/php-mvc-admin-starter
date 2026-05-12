@@ -26,6 +26,9 @@ Thank you for considering contributing to ProyectoBase! This document outlines t
 git clone https://github.com/yourusername/php-mvc-admin-starter.git
 cd php-mvc-admin-starter
 
+# Install dependencies
+composer install
+
 # Set up upstream remote
 git remote add upstream https://github.com/Jandres25/php-mvc-admin-starter.git
 
@@ -223,7 +226,7 @@ When adding new features, follow the existing project structure:
 │   ├── auth/             # Login, forgot password, reset password
 │   └── errors/           # 403, 404 error pages
 ├── database/             # schema.sql and seeder.sql
-├── libs/                 # Vendored libraries (PHPMailer)
+├── vendor/               # Composer dependencies (not committed — run composer install)
 ├── docs/                 # Project documentation for developers and AI
 └── .claude/              # AI assistant configurations and custom skills
 ```

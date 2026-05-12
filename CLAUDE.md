@@ -4,22 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PHP MVC admin starter with authentication, user management, and permission-based access control. Uses AdminLTE 3 UI, PDO/MySQL, and a custom PSR-4 autoloader (no Composer).
+PHP MVC admin starter with authentication, user management, and permission-based access control. Uses AdminLTE 3 UI, PDO/MySQL, a custom PSR-4 autoloader, and Composer for third-party dependencies.
 
 > **Note for AI Agents:** See `docs/AI_SETUP.md` for details on how this project orchestrates AI skills and MCP servers. Custom skills for interacting with this repository should be placed in `.claude/skills/`.
 
 ## Setup
 
 ```bash
-# 1. Import database schema and seed data
+# 1. Install dependencies
+composer install
+
+# 2. Import database schema and seed data
 mysql -u root -p < database/schema.sql
 mysql -u root -p < database/seeder.sql
 
-# 2. Configure environment
+# 3. Configure environment
 cp .env.example .env
 # Edit .env: DB_HOST, DB_NAME, DB_USER, DB_PASS, APP_URL, TIMEZONE, SESSION_LIFETIME, REMEMBER_ME_LIFETIME
 
-# 3. Create upload directory and set write permissions
+# 4. Create upload directory and set write permissions
 mkdir -p public/uploads/users
 cp public/img/user_default.jpg public/uploads/users/
 chmod 777 public/uploads/users/
@@ -37,11 +40,11 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.3.0`
+**Current release tag:** `3.4.0`
 
 ## No Build Process
 
-This is a pure PHP application. There are no npm, Composer, Makefile, or test suite commands. Frontend assets (CSS/JS) are static files in `public/`. There is no formal test suite — testing is done manually via browser.
+This is a pure PHP application. There are no npm, Makefile, or test suite commands. Run `composer install` once after cloning to install third-party dependencies into `vendor/`. Frontend assets (CSS/JS) are static files in `public/`. There is no formal test suite — testing is done manually via browser.
 
 ## Architecture
 

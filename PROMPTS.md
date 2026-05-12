@@ -39,7 +39,7 @@ Actúa como desarrollador PHP Senior especializado en arquitectura MVC
 y patrones de diseño.
 
 [Contexto]
-Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework, sin Composer).
+Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/MySQL.
 Módulo activo: _______________
 
@@ -57,7 +57,7 @@ _______________
 - AJAX: devolver JSON con $this->jsonResponse(); sesión-feedback con $_SESSION['message'] + $_SESSION['icon'] antes del JSON si hay location.reload()
 - DataTables + SweetAlert2 para listas y confirmaciones — nunca alert() o confirm() nativo
 - Select2 en modales: inicializar con dropdownParent explícito
-- No introducir librerías nuevas sin aprobación del líder técnico
+- No introducir librerías nuevas (vía Composer o manual) sin aprobación del líder técnico
 
 [Formato de salida]
 _______________
@@ -75,7 +75,7 @@ Actúa como desarrollador PHP Senior especializado en arquitectura MVC
 y patrones de diseño.
 
 [Contexto]
-Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework, sin Composer).
+Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/MySQL.
 Módulo activo: [nombre del módulo — ej: users, permissions, dashboard]
 
@@ -124,7 +124,7 @@ Actúa como desarrollador PHP Senior especializado en debugging
 de aplicaciones MVC y MySQL.
 
 [Contexto]
-Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework, sin Composer).
+Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack: PHP 8.2+, PDO/MySQL, jQuery, AdminLTE 3.
 Archivo donde ocurre el error: [ruta completa]
 Método/función afectada: [nombre]
@@ -204,7 +204,7 @@ Actúa como arquitecto de software PHP con experiencia en sistemas MVC
 custom, diseño de base de datos y patrones de diseño (Repository, Service Layer).
 
 [Contexto]
-Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework, sin Composer).
+Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack actual: App\Core\Router, middleware por ruta, PSR-4 custom autoloader,
               PDO singleton (Connection::getInstance()), App\Core\Auth (hub de sesión/permisos).
 Módulos existentes: auth, users, permissions, dashboard.
@@ -218,7 +218,7 @@ Opciones que estoy considerando:
 
 [Restricciones]
 - No introducir frameworks (ni Laravel, ni Symfony)
-- No introducir Composer ni gestores de dependencias externos
+- No introducir librerías nuevas vía Composer sin aprobación del líder técnico
 - Mantener compatibilidad con Router, Connection singleton y el autoloader actual
 - La solución debe poder implementarla un dev junior sin romper lo que existe
 - Nuevos servicios van en app/services/ (ImageService y MailService como referencia); la lógica de auth/sesión va en App\Core\Auth
@@ -243,7 +243,7 @@ Actúa como desarrollador PHP Senior especializado en arquitectura MVC,
 diseño de base de datos y seguridad web.
 
 [Contexto]
-Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework, sin Composer).
+Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/MySQL.
 Módulo nuevo: [nombre]
 
@@ -271,7 +271,7 @@ Criterios de aceptación:
 - Permisos gateados con Auth::hasPermission() o middleware perm:NAME en routes/web.php
 - Registrar el permiso nuevo en database/seeder.sql
 - PHPDoc en clases y métodos; JSDoc en funciones JS
-- No introducir librerías nuevas
+- No introducir librerías nuevas vía Composer sin aprobación del líder técnico
 
 [Formato de salida]
 Devuelve en este orden:
@@ -289,5 +289,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: v3.3.0_
+_Última actualización: v3.4.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._
