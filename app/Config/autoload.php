@@ -33,19 +33,11 @@ function customAutoload($class)
         $subParts = array_slice($parts, 1);
         $appBase  = $basePath . DIRECTORY_SEPARATOR . 'app';
 
-        // Try PascalCase first (post-Phase-3 layout), then lowercase fallback (app/config/ not yet renamed)
-        $candidates = [
-            implode(DIRECTORY_SEPARATOR, $subParts),
-            strtolower(implode(DIRECTORY_SEPARATOR, $subParts)),
-        ];
-
-        foreach ($candidates as $sub) {
-            $dir  = $sub !== '' ? $appBase . DIRECTORY_SEPARATOR . $sub : $appBase;
-            $file = $dir . DIRECTORY_SEPARATOR . $className . '.php';
-            if (file_exists($file)) {
-                require_once $file;
-                return;
-            }
+        $sub  = implode(DIRECTORY_SEPARATOR, $subParts);
+        $dir  = $sub !== '' ? $appBase . DIRECTORY_SEPARATOR . $sub : $appBase;
+        $file = $dir . DIRECTORY_SEPARATOR . $className . '.php';
+        if (file_exists($file)) {
+            require_once $file;
         }
     }
 }
