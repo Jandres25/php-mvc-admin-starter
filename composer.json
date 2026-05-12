@@ -3,7 +3,8 @@
     "description": "PHP MVC admin starter with authentication, user management and permission-based access control",
     "type": "project",
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "phpmailer/phpmailer": "^6.9"
     },
     "config": {
         "optimize-autoloader": true,

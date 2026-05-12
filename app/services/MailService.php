@@ -6,10 +6,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require_once __DIR__ . '/../../libs/PHPMailer-master/src/Exception.php';
-require_once __DIR__ . '/../../libs/PHPMailer-master/src/PHPMailer.php';
-require_once __DIR__ . '/../../libs/PHPMailer-master/src/SMTP.php';
-
 /**
  * Mail Service
  *
@@ -61,7 +57,7 @@ class MailService
 
             // Custom error output for debugging
             if (env('DEBUG')) {
-                $mail->Debugoutput = function($str, $level) {
+                $mail->Debugoutput = function ($str, $level) {
                     error_log("SMTP DEBUG [$level]: $str");
                 };
             }
