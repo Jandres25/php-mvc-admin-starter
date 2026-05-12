@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PHP MVC admin starter with authentication, user management, and permission-based access control. Uses AdminLTE 3 UI, PDO/MySQL, a custom PSR-4 autoloader, and Composer for third-party dependencies.
+PHP MVC admin starter with authentication, user management, and permission-based access control. Uses AdminLTE 3 UI, PDO/MySQL, and Composer with native PSR-4 autoloading.
 
 > **Note for AI Agents:** See `docs/AI_SETUP.md` for details on how this project orchestrates AI skills and MCP servers. Custom skills for interacting with this repository should be placed in `.claude/skills/`.
 
@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.4.0`
+**Current release tag:** `3.5.0`
 
 ## No Build Process
 
@@ -60,34 +60,34 @@ Clean URL examples:
 - `/users` (POST) — store new user
 - `/users/5/edit` — edit user
 
-**Entry point:** `public/index.php` starts the session, loads `app/config/config.php` and `app/core/helpers.php`, then instantiates the router.
+**Entry point:** `public/index.php` starts the session and loads `app/Config/config.php`. Config bootstraps `vendor/autoload.php` (Composer PSR-4 + `files` for helpers) and phpdotenv, then instantiates the router.
 
-**Helpers:** `app/core/helpers.php` defines only three global CSRF functions: `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`. All auth/session concerns live in `App\Core\Auth`.
+**Helpers:** `app/Core/helpers.php` defines only three global CSRF functions: `generateCSRFToken()`, `verifyCSRFToken()`, and `regenerateCSRFToken()`, plus the `env()` wrapper. Loaded automatically by Composer via `autoload.files`. All auth/session concerns live in `App\Core\Auth`.
 
 ### MVC Structure
 
 ```
 app/
-├── config/       # Bootstrap: autoloader, .env loader, DB singleton, config array
-├── controllers/  # Feature controllers (auth/, users/, permissions/, dashboard/)
-├── core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
-├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
-├── models/       # App\Models
-└── services/     # App\Services (ImageService, MailService)
+├── Config/       # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
+├── Controllers/  # Feature controllers (Auth/, Users/, Permissions/, Dashboard/)
+├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
+├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
+├── Models/       # App\Models
+└── Services/     # App\Services (ImageService, MailService)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
 views/            # PHP templates; layouts/header.php pulls in all CSS/JS
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php
-libs/             # Vendored libraries (TCPDF, PHPMailer)
+vendor/           # Composer dependencies (not committed — run composer install)
 ```
 
-### Custom Autoloader
+### PSR-4 Autoloading via Composer
 
-`app/config/autoload.php` implements PSR-4-like loading: namespace separators map to lowercase directory paths relative to the project root, with explicit support for `App\...` classes under `app/`. Register once in `app/config/config.php`.
+Composer resolves all `App\*` classes natively via the mapping `"App\\": "app/"` in `composer.json`. No custom autoloader exists. `app/Core/helpers.php` is loaded automatically via `autoload.files`. Run `composer dump-autoload -o` after adding new classes or changing the mapping.
 
 ### Database Connection
 
-`app/config/Connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements.
+`app/Config/Connection.php` exposes a singleton `Connection::getInstance()` returning a configured PDO object. All queries use prepared statements.
 
 ### Auth Hub — `App\Core\Auth`
 
@@ -147,7 +147,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 
 - **Namespaces:** use `App\Controllers\*`, `App\Models\*`, `App\Services\*`, and `App\Core\*` consistently.
 - **Auth checks:** use `Auth::check()`, `Auth::hasPermission()`, `Auth::id()`, `Auth::user()` — never read `$_SESSION` directly for auth state outside of `App\Core\Auth`.
-- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST. All three functions live in `app/core/helpers.php`.
+- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST. All three functions live in `app/Core/helpers.php`.
 - **Input sanitization:** Use `trim()` at the model layer (`trimInput()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImageService`.

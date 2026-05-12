@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.4.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.5.0-green)](CHANGELOG.md)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
 
@@ -18,7 +18,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Permission control** — Granular per-user permissions, adaptive navigation menu
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
-- **Composer-managed** — Custom PSR-4 autoloader for `App\*`; Composer handles third-party packages
+- **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard
 - **PDF generation** — Built-in report generation with TCPDF
 - **Full UI toolkit** — DataTables, Select2, SweetAlert2, Chart.js, jQuery Validate included
@@ -70,7 +70,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.4.0
+APP_VERSION=3.5.0
 
 # Session & Remember Me
 SESSION_LIFETIME=1800
@@ -90,8 +90,8 @@ MAIL_FROM_NAME="Admin Starter"
 
 This project is designed to be extended. To add a module (e.g. `Products`):
 
-1. **Controller** — Create `app/controllers/products/ProductController.php` with namespace `App\Controllers\Products`, extending `App\Core\Controller`
-2. **Model** — Create `app/models/Product.php` with namespace `App\Models`, extending `App\Core\Model`
+1. **Controller** — Create `app/Controllers/Products/ProductController.php` with namespace `App\Controllers\Products`, extending `App\Core\Controller`
+2. **Model** — Create `app/Models/Product.php` with namespace `App\Models`, extending `App\Core\Model`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
 4. **Routes** — Add entries to `routes/web.php`:
    ```php
@@ -117,12 +117,12 @@ The autoloader automatically resolves any class whose namespace matches the dire
 
 ```
 app/
-├── config/       # Bootstrap: PSR-4 autoloader, PDO singleton, phpdotenv bootstrap
-├── controllers/  # Feature controllers (auth/, users/, permissions/, dashboard/)
-├── core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
-├── middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
-├── models/       # App\Models
-└── services/     # App\Services (ImageService, MailService)
+├── Config/       # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
+├── Controllers/  # Feature controllers (Auth/, Users/, Permissions/, Dashboard/)
+├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
+├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
+├── Models/       # App\Models
+└── Services/     # App\Services (ImageService, MailService)
 routes/           # web.php — all route definitions
 views/            # PHP templates; layouts/header.php and footer.php wrap content
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)
@@ -135,7 +135,7 @@ vendor/           # Composer dependencies (not committed — run composer instal
 
 | Layer        | Technology                                                    |
 | ------------ | ------------------------------------------------------------- |
-| Backend      | PHP 8.2, PDO, custom PSR-4 autoloader, Composer               |
+| Backend      | PHP 8.2, PDO, Composer (native PSR-4 autoloading)             |
 | Dependencies | PHPMailer, TCPDF, phpdotenv (via Composer)                    |
 | UI framework | AdminLTE 3, Bootstrap 4, FontAwesome                          |
 | JavaScript   | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |

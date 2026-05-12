@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2026-05-12
+
+### Changed
+
+- All `app/` subdirectories renamed to PascalCase (`config/` → `Config/`, `controllers/` → `Controllers/`, `core/` → `Core/`, `middleware/` → `Middleware/`, `models/` → `Models/`, `services/` → `Services/`) to align with PSR-4 standard.
+- `composer.json` — `autoload.psr-4` mapping `"App\\": "app/"` now resolves all `App\*` classes natively; `autoload.files` path updated to `app/Core/helpers.php`.
+- `app/Config/config.php` — removed `require_once autoload.php`; Composer handles all autoloading.
+- `public/index.php` — removed hardcoded `require_once app/Core/Router.php`; resolved via Composer PSR-4.
+- `README.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `PROMPTS.md` — directory references updated to PascalCase.
+
+### Removed
+
+- `app/Config/autoload.php` — custom `spl_autoload_register` implementation fully replaced by Composer native PSR-4.
+
+---
+
 ## [3.4.0] - 2026-05-12
 
 ### Added
@@ -459,6 +475,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.1.0...3.2.0

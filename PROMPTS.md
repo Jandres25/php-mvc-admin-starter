@@ -80,8 +80,8 @@ Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/My
 Módulo activo: [nombre del módulo — ej: users, permissions, dashboard]
 
 Estructura de archivos relevante:
-- app/controllers/[modulo]/[Modulo]Controller.php
-- app/models/[Modulo].php
+- app/Controllers/[Modulo]/[Modulo]Controller.php
+- app/Models/[Modulo].php
 - views/[modulo]/[vista].php
 - public/js/modules/[modulo]/[script].js
 - routes/web.php (registrar rutas nuevas aquí)
@@ -101,7 +101,7 @@ Descripción: [criterios de aceptación]
 - DataTables para listados; SweetAlert2 para confirmaciones destructivas
 - Select2 para dropdowns; con dropdownParent si está dentro de un modal
 - Permisos gateados con Auth::hasPermission() (session cache, sin query) o middleware perm:NAME en routes/web.php
-- No inventar métodos de core que no existan en app/core/
+- No inventar métodos de core que no existan en app/Core/
 
 [Formato de salida]
 Devuelve en este orden:
@@ -221,7 +221,7 @@ Opciones que estoy considerando:
 - No introducir librerías nuevas vía Composer sin aprobación del líder técnico
 - Mantener compatibilidad con Router, Connection singleton y el autoloader actual
 - La solución debe poder implementarla un dev junior sin romper lo que existe
-- Nuevos servicios van en app/services/ (ImageService y MailService como referencia); la lógica de auth/sesión va en App\Core\Auth
+- Nuevos servicios van en app/Services/ (ImageService y MailService como referencia); la lógica de auth/sesión va en App\Core\Auth
 
 [Formato de salida]
 1. Recomendación directa (cuál opción y por qué en 3 líneas)
@@ -277,8 +277,8 @@ Criterios de aceptación:
 Devuelve en este orden:
 1. SQL: ALTER/CREATE TABLE + INSERT en seeder para el permiso nuevo
 2. Rutas a agregar en routes/web.php
-3. app/models/[Modulo].php
-4. app/controllers/[modulo]/[Modulo]Controller.php
+3. app/Models/[Modulo].php
+4. app/Controllers/[Modulo]/[Modulo]Controller.php
 5. views/[modulo]/index.php
 6. views/[modulo]/create.php (si aplica)
 7. views/[modulo]/update.php (si aplica)
@@ -289,5 +289,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: v3.4.0_
+_Última actualización: v3.5.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

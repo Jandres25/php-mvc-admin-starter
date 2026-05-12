@@ -212,12 +212,12 @@ When adding new features, follow the existing project structure:
 │       ├── core/         # Core styles
 │       └── modules/      # Feature-specific CSS
 ├── app/
-│   ├── core/             # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
-│   ├── controllers/      # Feature controllers (auth/, users/, permissions/, dashboard/)
-│   ├── middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
-│   ├── models/           # App\Models
-│   ├── services/         # App\Services (ImageService, MailService)
-│   └── config/           # Bootstrap: autoloader, .env loader, DB singleton, config array
+│   ├── Core/             # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
+│   ├── Controllers/      # Feature controllers (Auth/, Users/, Permissions/, Dashboard/)
+│   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
+│   ├── Models/           # App\Models
+│   ├── Services/         # App\Services (ImageService, MailService)
+│   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates
 │   ├── layouts/          # Layout components (header, footer, messages)
