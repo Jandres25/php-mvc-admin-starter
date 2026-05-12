@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.3.0-green)](CHANGELOG.md)
 
-A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture, **with no Composer dependencies or external frameworks**.
+A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
 
 > A solid starting point for PHP web applications that need a secure admin panel out of the box.
 
@@ -18,7 +18,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Permission control** — Granular per-user permissions, adaptive navigation menu
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
-- **No Composer** — Custom PSR-4 autoloader; zero external dependencies to manage
+- **Composer-managed** — Custom PSR-4 autoloader for `App\*`; Composer handles third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard
 - **PDF generation** — Built-in report generation with TCPDF
 - **Full UI toolkit** — DataTables, Select2, SweetAlert2, Chart.js, jQuery Validate included
@@ -36,15 +36,18 @@ A PHP starter template with authentication, user management, and role-based perm
 git clone https://github.com/Jandres25/php-mvc-admin-starter.git
 cd php-mvc-admin-starter
 
-# 2. Import the database
+# 2. Install dependencies
+composer install
+
+# 3. Import the database
 mysql -u root -p < database/schema.sql
 mysql -u root -p < database/seeder.sql
 
-# 3. Set up the environment
+# 4. Set up the environment
 cp .env.example .env
 # Edit .env with your credentials (see Configuration section)
 
-# 4. Create the uploads directory
+# 5. Create the uploads directory
 mkdir -p public/uploads/users
 cp public/img/user_default.jpg public/uploads/users/
 ```
