@@ -12,8 +12,6 @@
  * @version 1.0
  */
 
-require_once __DIR__ . '/env.php';
-
 $composerAutoload = __DIR__ . '/../../vendor/autoload.php';
 if (file_exists($composerAutoload)) {
     require_once $composerAutoload;
@@ -21,6 +19,11 @@ if (file_exists($composerAutoload)) {
 unset($composerAutoload);
 
 require_once __DIR__ . '/autoload.php';
+require_once __DIR__ . '/../core/helpers.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
+$dotenv->safeLoad();
+unset($dotenv);
 
 // Set the timezone, falling back to a default if not defined
 $timezone = env('TIMEZONE');
