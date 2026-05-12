@@ -19,7 +19,6 @@ if (file_exists($composerAutoload)) {
 unset($composerAutoload);
 
 require_once __DIR__ . '/autoload.php';
-require_once __DIR__ . '/../core/helpers.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
 $dotenv->safeLoad();
