@@ -16,7 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once dirname(__DIR__) . '/app/config/config.php';
-require_once dirname(__DIR__) . '/app/core/Router.php';
+require_once dirname(__DIR__) . '/app/Core/Router.php';
 
 // Initialize and dispatch the request
 $router = new App\Core\Router();

@@ -20,48 +20,34 @@ function customAutoload($class)
 {
     $class = ltrim($class, '\\');
 
-    // Split namespace (directories) from the class name
     $parts = explode('\\', $class);
     if (empty($parts)) {
         return;
     }
 
     $className = array_pop($parts);
+    $basePath  = dirname(__DIR__, 2);
 
-    // Namespaces map to lowercase directories; the class name retains its capitalization
-    $directory = strtolower(implode(DIRECTORY_SEPARATOR, $parts));
-
-    // Build the file path based on the namespace
-    $basePath = dirname(__DIR__, 2);
-    $file = $basePath . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR . $className . '.php';
-
-    // Check if the file exists and load it
-    if (file_exists($file)) {
-        require_once $file;
-        return;
-    }
-
-    // Explicit fallback for App\* classes
+    // App\* classes: map to app/<SubPath>/<ClassName>.php
     if (($parts[0] ?? null) === 'App') {
-        $appSubPath = strtolower(implode(DIRECTORY_SEPARATOR, array_slice($parts, 1)));
-        $appDir = $basePath . DIRECTORY_SEPARATOR . 'app';
-        if ($appSubPath !== '') {
-            $appDir .= DIRECTORY_SEPARATOR . $appSubPath;
-        }
+        $subParts = array_slice($parts, 1);
+        $appBase  = $basePath . DIRECTORY_SEPARATOR . 'app';
 
-        $appFile = $appDir . DIRECTORY_SEPARATOR . $className . '.php';
-        if (file_exists($appFile)) {
-            require_once $appFile;
-            return;
-        }
+        // Try PascalCase first (post-Phase-3 layout), then lowercase fallback (app/config/ not yet renamed)
+        $candidates = [
+            implode(DIRECTORY_SEPARATOR, $subParts),
+            strtolower(implode(DIRECTORY_SEPARATOR, $subParts)),
+        ];
 
-        $appFileLower = $appDir . DIRECTORY_SEPARATOR . strtolower($className) . '.php';
-        if (file_exists($appFileLower)) {
-            require_once $appFileLower;
-            return;
+        foreach ($candidates as $sub) {
+            $dir  = $sub !== '' ? $appBase . DIRECTORY_SEPARATOR . $sub : $appBase;
+            $file = $dir . DIRECTORY_SEPARATOR . $className . '.php';
+            if (file_exists($file)) {
+                require_once $file;
+                return;
+            }
         }
     }
-
 }
 
 // Register the autoload function
