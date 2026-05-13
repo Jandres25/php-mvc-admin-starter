@@ -27,3 +27,9 @@ bash.exe.stackdump
 *.sql
 !database/schema.sql
 !database/seeder.sql
+
+# PHPUnit
+/.phpunit.cache/
+/.phpunit.result.cache
+/tests/coverage/
+/.env.testing
