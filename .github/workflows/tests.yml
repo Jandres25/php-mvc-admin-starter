@@ -1,0 +1,93 @@
+name: tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  unit:
+    name: Unit Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ["8.2"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo, pdo_mysql, gd, mbstring
+          coverage: none
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit --testsuite=Unit
+
+  integration:
+    name: Integration Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ["8.2"]
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: php_mvc_admin_starter_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo, pdo_mysql, gd, mbstring
+          coverage: none
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Prepare .env.testing
+        run: |
+          cat > .env.testing <<EOF
+          DB_HOST=127.0.0.1
+          DB_NAME=php_mvc_admin_starter_test
+          DB_USER=root
+          DB_PASS=root
+          DB_CHARSET=utf8
+          APP_URL=http://localhost/test
+          TIMEZONE=UTC
+          SESSION_LIFETIME=3600
+          REMEMBER_ME_LIFETIME=604800
+          REMEMBER_ME_COOKIE_NAME=remember_me
+          EOF
+
+      - name: Load schema into test DB
+        # Skip CREATE DATABASE and USE statements — the DB is already created
+        # by the MySQL service container and selected via the connection string.
+        run: >-
+          grep -v -E '^\s*(CREATE DATABASE|USE )' database/schema.sql
+          | mysql -h 127.0.0.1 -u root -proot php_mvc_admin_starter_test
+
+      - name: Run integration tests
+        run: vendor/bin/phpunit --testsuite=Integration
