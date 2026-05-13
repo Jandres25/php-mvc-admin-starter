@@ -40,11 +40,46 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.5.0`
+**Current release tag:** `3.6.0`
 
 ## No Build Process
 
-This is a pure PHP application. There are no npm, Makefile, or test suite commands. Run `composer install` once after cloning to install third-party dependencies into `vendor/`. Frontend assets (CSS/JS) are static files in `public/`. There is no formal test suite — testing is done manually via browser.
+This is a pure PHP application. There are no npm or Makefile commands. Run `composer install` once after cloning to install dependencies into `vendor/`. Frontend assets (CSS/JS) are static files in `public/`.
+
+## Testing
+
+PHPUnit 11 is configured with two suites:
+
+```bash
+vendor/bin/phpunit                   # run all suites
+vendor/bin/phpunit --testsuite=Unit  # unit tests only (no DB required)
+vendor/bin/phpunit --testsuite=Integration  # integration tests (requires DB)
+```
+
+**Unit suite** (`tests/Unit/`) — covers `Auth`, `Router`, `helpers`, `ImageService`. No DB, no session start needed. Runs in < 2 s.
+
+**Integration suite** (`tests/Integration/`) — covers `User` model, `Permission` model, and `Auth` cross-model flows (`refreshPermissionsIfStale`, `attemptRememberLogin`). Requires a separate test DB.
+
+**Test DB setup (one time):**
+
+```bash
+# 1. Create the test database
+mysql -u root -p -e "CREATE DATABASE php_mvc_admin_starter_test CHARACTER SET utf8;"
+
+# 2. Copy and configure .env.testing
+cp .env.testing.example .env.testing
+# Edit .env.testing: set DB_HOST, DB_USER, DB_PASS to match your local MySQL
+```
+
+The `IntegrationTestCase` loads `database/schema.sql` + `tests/fixtures/sql/minimal_seed.sql` automatically on the first run, and wraps each test in a transaction that is rolled back on teardown — so the test DB stays clean between runs.
+
+**Conventions:**
+
+- Test classes live under `tests/Unit/` or `tests/Integration/`, mirroring the `app/` directory structure.
+- Base classes: `tests/TestCase.php` (unit) and `tests/IntegrationTestCase.php` (integration).
+- Image fixtures for `ImageService` tests are in `tests/fixtures/images/`.
+- Auth unit tests manipulate `$_SESSION` directly — no `session_start()` call needed in unit tests.
+- CI runs both suites automatically on every push/PR via `.github/workflows/tests.yml`.
 
 ## Architecture
 

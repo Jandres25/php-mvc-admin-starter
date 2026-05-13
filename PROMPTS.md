@@ -289,5 +289,51 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: v3.5.0_
+## Plantilla 6 — Agregar tests para una clase existente
+
+Usar cuando: se quiere aumentar la cobertura de una clase del proyecto con PHPUnit.
+
+```
+[Rol]
+Actúa como desarrollador PHP Senior especializado en testing con PHPUnit 11
+y arquitectura MVC custom sin framework.
+
+[Contexto]
+Proyecto: php-mvc-admin-starter — PHP 8.2+, PDO/MySQL, Composer PSR-4.
+Suite activa: [Unit | Integration]
+Clase a testear: [ruta completa — ej: app/Core/Auth.php]
+
+Infraestructura disponible:
+- tests/TestCase.php          — base para Unit; limpia $_SESSION/$_SERVER en setUp/tearDown
+- tests/IntegrationTestCase.php — base para Integration; carga .env.testing, beginTransaction/rollBack por test
+- tests/fixtures/images/      — sample.jpg (50×50), sample.png (80×40), corrupt.txt
+- tests/fixtures/sql/minimal_seed.sql — 1 admin, 1 editor, 2 permisos, 1 asignación
+
+[Tarea]
+Escribir tests PHPUnit para [nombre de la clase], cubriendo:
+[lista de métodos o comportamientos a cubrir]
+
+[Restricciones]
+- No modificar clases de producción para hacerlas testeables
+- Unit tests: manipular $_SESSION/$_SERVER/$_COOKIE directamente — no usar session_start() salvo
+  que el SUT llame session_destroy() (en ese caso iniciar sesión en setUp() y destruirla en tearDown())
+- Integration tests: extender IntegrationTestCase; usar self::$pdo para queries de verificación directa
+- Si el SUT tiene su propia transacción (ej: syncForUser), desactivar useTransactions=false en la
+  clase de test y recargar seed manualmente con self::reloadSeed()
+- No mockear PDO — los integration tests usan DB real
+- ImageService: testear validaciones previas (MIME, size, error code) sin mockear move_uploaded_file();
+  resizeImage/deleteImage usan archivos reales en /tmp o en tests/fixtures/images/
+- set_error_handler() para suprimir warnings de CLI (setcookie, etc.) debe ir acompañado de
+  restore_error_handler() inmediatamente después — nunca dejar el handler instalado
+- Nombres de métodos de test: test_[método]_[condición]_[resultado esperado]
+
+[Formato de salida]
+1. Archivo de test completo con namespace Tests\[Unit|Integration]\[Módulo]
+2. Si se necesita algún fixture nuevo (SQL o imagen), indicarlo antes del código
+3. Explicación en 2 líneas de cualquier decisión técnica no obvia
+```
+
+---
+
+_Última actualización: v3.6.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

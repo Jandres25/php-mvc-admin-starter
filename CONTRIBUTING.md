@@ -143,11 +143,29 @@ docs: update installation instructions in README
 refactor: reorganize user controller methods
 ```
 
+## Testing
+
+Run the test suite before submitting a PR:
+
+```bash
+vendor/bin/phpunit --testsuite=Unit         # always required
+vendor/bin/phpunit --testsuite=Integration  # required when touching models or Auth
+```
+
+**Unit tests** live in `tests/Unit/` and require no DB. **Integration tests** live in `tests/Integration/` and need a local test DB — see the _Testing_ section in `README.md` for one-time setup.
+
+When adding a new feature or fixing a bug:
+
+- Add or update tests in the matching suite.
+- Unit tests for logic in `app/Core/` or `app/Services/`.
+- Integration tests for anything that touches a model or `Auth` cross-model flows.
+- Do not write tests for controllers — those are covered by manual browser testing.
+
 ## Pull Request Process
 
 1. **Update Documentation**: Ensure all new code is properly documented
 2. **Update CHANGELOG**: Add your changes to the `[Unreleased]` section
-3. **Test Your Changes**: Verify all functionality works as expected
+3. **Run tests**: `vendor/bin/phpunit` must pass locally before opening the PR
 4. **Code Review**: Request review from maintainers
 5. **Address Feedback**: Make necessary changes based on review comments
 
@@ -169,8 +187,9 @@ Brief description of what this PR does.
 
 ## Testing
 
-- [ ] Tested locally
-- [ ] Added/updated tests
+- [ ] `vendor/bin/phpunit --testsuite=Unit` passes
+- [ ] `vendor/bin/phpunit --testsuite=Integration` passes (if models/Auth touched)
+- [ ] New tests added for the changed logic
 - [ ] Documentation updated
 
 ## Checklist

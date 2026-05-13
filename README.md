@@ -4,7 +4,8 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.5.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.6.0-green)](CHANGELOG.md)
+[![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
 
@@ -131,6 +132,29 @@ vendor/           # Composer dependencies (not committed — run composer instal
 
 **Request flow:** All HTTP requests are routed through `public/index.php` via Apache rewriting. `App\Core\Router` matches the URI and method against `routes/web.php`, runs declared middleware (auth, guest, perm:NAME), and dispatches to the controller method. Clean URLs like `/users`, `/users/5/edit`, `/permissions/3` replace the old direct-file access pattern.
 
+## Testing
+
+```bash
+# Run all tests
+vendor/bin/phpunit
+
+# Unit tests only (no DB required, ~2 s)
+vendor/bin/phpunit --testsuite=Unit
+
+# Integration tests (requires a test DB — see below)
+vendor/bin/phpunit --testsuite=Integration
+```
+
+**Test DB setup (one time):**
+
+```bash
+mysql -u root -p -e "CREATE DATABASE php_mvc_admin_starter_test CHARACTER SET utf8;"
+cp .env.testing.example .env.testing
+# Edit .env.testing with your local DB credentials
+```
+
+Tests run automatically on every push and PR via GitHub Actions (see `.github/workflows/tests.yml`).
+
 ## Tech Stack
 
 | Layer        | Technology                                                    |
@@ -140,6 +164,7 @@ vendor/           # Composer dependencies (not committed — run composer instal
 | UI framework | AdminLTE 3, Bootstrap 4, FontAwesome                          |
 | JavaScript   | jQuery, DataTables, Select2, SweetAlert2, Chart.js, Moment.js |
 | Database     | MySQL / MariaDB                                               |
+| Testing      | PHPUnit 11 (unit + integration suites, GitHub Actions CI)     |
 
 ## Security
 
@@ -160,6 +185,7 @@ vendor/           # Composer dependencies (not committed — run composer instal
 - [docs/SEEDING.md](docs/SEEDING.md) — seeded users, rerun behavior, and permission matrix
 - [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md) — session guards and permission cache flow
 - [docs/AJAX_AND_MODULES.md](docs/AJAX_AND_MODULES.md) — AJAX endpoint and frontend module conventions
+- [docs/TESTING.md](docs/TESTING.md) — test suites, DB setup, base classes, fixtures, and conventions
 
 ## AI Integration
 

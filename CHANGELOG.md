@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.0] - 2026-05-13
+
+### Added
+
+- **PHPUnit 11 test suite** — two independent suites with 115 tests and 158 assertions:
+  - `Unit` suite (`tests/Unit/`) — covers `App\Core\Auth`, `App\Core\Router`, `app/Core/helpers.php`, and `App\Services\ImageService`. No DB required; runs in < 2 s.
+  - `Integration` suite (`tests/Integration/`) — covers `App\Models\User`, `App\Models\Permission`, and cross-model `Auth` flows (`refreshPermissionsIfStale`, `attemptRememberLogin`). Uses a dedicated test DB with per-test transaction rollback for isolation.
+- `tests/bootstrap.php` — loads Composer autoloader, defines `BASE_PATH`/`APP_PATH` constants, and buffers output to prevent "headers already sent" noise in CLI.
+- `tests/TestCase.php` — base class for all suites: resets `$_SESSION`, `$_POST`, `$_GET`, `$_COOKIE`, and snapshots/restores `$_SERVER` around each test.
+- `tests/IntegrationTestCase.php` — loads `.env.testing` via phpdotenv, resets the `Connection` singleton via reflection, runs schema + seed once per suite, and wraps each test in a `beginTransaction` / `rollBack` cycle.
+- `tests/fixtures/images/` — 50×50 JPEG, 80×40 PNG (with alpha), and a corrupt `.txt` for `ImageService` tests.
+- `tests/fixtures/sql/minimal_seed.sql` — minimal dataset (1 admin, 1 editor, 2 permissions, 1 assignment) for fast integration test runs.
+- `.env.testing.example` — template for local test DB configuration.
+- **GitHub Actions workflow** (`.github/workflows/tests.yml`) — two jobs on every push/PR:
+  - `unit` — installs PHP 8.2 + extensions, runs `phpunit --testsuite=Unit` (no DB).
+  - `integration` — spins up a MySQL 8.0 service container, loads the schema, generates `.env.testing` at runtime, and runs `phpunit --testsuite=Integration`.
+
+### Changed
+
+- `composer.json` — added `phpunit/phpunit ^11.0` to `require-dev`, `Tests\\` PSR-4 mapping to `autoload-dev`, and `test`, `test:unit`, `test:integration` scripts.
+- `.gitignore` — added `/.phpunit.cache/`, `/.phpunit.result.cache`, `/tests/coverage/`, `/.env.testing`; added `!tests/fixtures/sql/minimal_seed.sql` exception to the `*.sql` exclusion rule.
+
+---
+
 ## [3.5.0] - 2026-05-12
 
 ### Changed
@@ -475,6 +499,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.6.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.5.0...3.6.0
 [3.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.2.0...3.3.0
