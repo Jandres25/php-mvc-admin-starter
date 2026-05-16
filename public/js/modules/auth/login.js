@@ -44,16 +44,7 @@ $(document).ready(function() {
             $('#btn-login').prop('disabled', true);
             $('#btn-icon').removeClass('fa-sign-in-alt').addClass('fa-spinner fa-spin');
 
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                title: 'Signing in...',
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            ToastUtils.loading('Signing in...');
 
             setTimeout(() => {
                 form.submit();

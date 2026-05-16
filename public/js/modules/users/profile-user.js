@@ -49,6 +49,8 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
+    ToastUtils.loading('Processing...');
+
     fetch(`${baseUrl}users/change-password`, {
         method: 'POST',
         body: new FormData(this)
@@ -57,24 +59,20 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
         .then(data => {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-key mr-1"></i> Change password';
+            Swal.close();
 
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Password updated',
-                    text: 'The session will be closed.',
-                    allowOutsideClick: false,
-                    confirmButtonText: 'Accept'
-                }).then(() => {
+                ToastUtils.success('Password updated', 'The session will be closed.').then(() => {
                     window.location.href = `${baseUrl}logout`;
                 });
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                ToastUtils.error('Error', data.message);
             }
         })
         .catch(() => {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-key mr-1"></i> Change password';
-            Swal.fire({ icon: 'error', title: 'Error', text: 'An error occurred while processing the request.' });
+            Swal.close();
+            ToastUtils.error('Error', 'An error occurred while processing the request.');
         });
 });

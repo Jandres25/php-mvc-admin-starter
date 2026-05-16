@@ -31,16 +31,7 @@ $(document).ready(function() {
             $('#btn-reset').prop('disabled', true);
             $('#btn-icon').removeClass('fa-lock').addClass('fa-spinner fa-spin');
 
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                title: 'Updating password...',
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            ToastUtils.loading('Updating password...');
 
             setTimeout(() => {
                 form.submit();
