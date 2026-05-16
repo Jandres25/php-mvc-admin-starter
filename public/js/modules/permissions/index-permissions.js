@@ -47,35 +47,38 @@ $(document).ready(function () {
         const action = currentStatus == 1 ? 'deactivate' : 'activate';
         const actionCapitalized = action.charAt(0).toUpperCase() + action.slice(1);
 
-        Swal.fire({
-            title: `${actionCapitalized} this permission?`,
-            text: `The permission will be ${action}d.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: currentStatus == 1 ? '#d33' : '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: `Yes, ${action}`,
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `${baseUrl}permissions/toggle-status`,
-                    type: 'POST',
-                    dataType: 'json',
-                    data: { id, current_status: currentStatus, csrf_token: csrfToken },
-                    success: function (response) {
-                        if (response.success) {
-                            location.reload();
-                        } else {
-                            ToastUtils.error('Error', response.message);
+        AlertUtils.confirm(
+            `${actionCapitalized} this permission?`,
+            `The permission will be ${action}d.`,
+            () => {
+                ToastUtils.loadingWithMinTime(`${actionCapitalized}ing...`, () => {
+                    $.ajax({
+                        url: `${baseUrl}permissions/toggle-status`,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: { id, current_status: currentStatus, csrf_token: csrfToken },
+                        success: function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.close();
+                                ToastUtils.error('Error', response.message);
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error(xhr.responseText);
+                            Swal.close();
+                            ToastUtils.error('Error', 'A communication error occurred with the server.');
                         }
-                    },
-                    error: function (xhr) {
-                        console.error(xhr.responseText);
-                        ToastUtils.error('Error', 'A communication error occurred with the server.');
-                    }
-                });
+                    });
+                }, 800);
+            },
+            {
+                confirmText: `Yes, ${action}`,
+                confirmColor: currentStatus == 1 ? '#d33' : '#28a745',
+                cancelColor: '#6c757d',
+                cancelText: 'Cancel'
             }
-        });
+        );
     });
 });

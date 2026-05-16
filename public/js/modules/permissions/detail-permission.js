@@ -70,38 +70,40 @@ $(document).ready(function () {
         const name = $(this).data('name');
         const $btn = $(this);
 
-        Swal.fire({
-            title: 'Revoke permission?',
-            html: `This permission will be removed from <b>${name}</b>.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, revoke',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-
-            $btn.prop('disabled', true);
-
-            $.ajax({
-                url: `${baseUrl}permissions/revoke-user`,
-                type: 'POST',
-                dataType: 'json',
-                data: { user_id: userId, permission_id: permissionId, csrf_token: csrfToken },
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        ToastUtils.error('Error', response.message);
-                        $btn.prop('disabled', false);
-                    }
-                },
-                error: function () {
-                    ToastUtils.error('Error', 'A communication error occurred with the server.');
-                    $btn.prop('disabled', false);
-                }
-            });
-        });
+        AlertUtils.confirm(
+            'Revoke permission?',
+            null,
+            () => {
+                $btn.prop('disabled', true);
+                ToastUtils.loadingWithMinTime('Revoking...', () => {
+                    $.ajax({
+                        url: `${baseUrl}permissions/revoke-user`,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: { user_id: userId, permission_id: permissionId, csrf_token: csrfToken },
+                        success: function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.close();
+                                ToastUtils.error('Error', response.message);
+                                $btn.prop('disabled', false);
+                            }
+                        },
+                        error: function () {
+                            Swal.close();
+                            ToastUtils.error('Error', 'A communication error occurred with the server.');
+                            $btn.prop('disabled', false);
+                        }
+                    });
+                }, 800);
+            },
+            {
+                html: `This permission will be removed from <b>${name}</b>.`,
+                confirmText: 'Yes, revoke',
+                cancelColor: '#6c757d',
+                cancelText: 'Cancel'
+            }
+        );
     });
 });

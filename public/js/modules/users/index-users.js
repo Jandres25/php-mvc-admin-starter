@@ -28,52 +28,43 @@ document.addEventListener('DOMContentLoaded', function () {
         const alertText = currentStatus == 1 ? 'The user will not be able to access the system.' : 'The user will be able to access the system again.';
         const confirmText = currentStatus == 1 ? 'Yes, deactivate' : 'Yes, activate';
 
-        Swal.fire({
-            title: alertTitle,
-            text: alertText,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: currentStatus == 1 ? '#d33' : '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: confirmText,
-            cancelButtonText: 'Cancel',
-            allowOutsideClick: false,
-            allowEscapeKey: true,
-            buttonsStyling: true,
-            reverseButtons: false,
-            focusConfirm: false,
-            focusCancel: true,
-            customClass: {
-                container: 'swal-mobile-container'
-            },
-            didOpen: () => {
-                const swalContainer = document.querySelector('.swal2-container');
-                if (swalContainer) {
-                    swalContainer.style.zIndex = '9999';
-                    swalContainer.style.position = 'fixed';
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `${baseUrl}users/toggle-status`,
-                    type: 'POST',
-                    dataType: 'json',
-                    data: { id: userId, current_status: currentStatus, csrf_token: csrfToken },
-                    success: function (response) {
-                        if (response.success) {
-                            location.reload();
-                        } else {
-                            ToastUtils.error('Error', response.message);
-                        }
+        AlertUtils.confirm(
+            alertTitle,
+            alertText,
+            () => {
+                ToastUtils.loadingWithMinTime(
+                    currentStatus == 1 ? 'Deactivating...' : 'Activating...',
+                    () => {
+                        $.ajax({
+                            url: `${baseUrl}users/toggle-status`,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: { id: userId, current_status: currentStatus, csrf_token: csrfToken },
+                            success: function (response) {
+                                if (response.success) {
+                                    location.reload();
+                                } else {
+                                    Swal.close();
+                                    ToastUtils.error('Error', response.message);
+                                }
+                            },
+                            error: function (xhr) {
+                                console.error(xhr.responseText);
+                                Swal.close();
+                                ToastUtils.error('Error', 'A communication error occurred with the server.');
+                            }
+                        });
                     },
-                    error: function (xhr) {
-                        console.error(xhr.responseText);
-                        ToastUtils.error('Error', 'A communication error occurred with the server.');
-                    }
-                });
+                    800
+                );
+            },
+            {
+                confirmText,
+                confirmColor: currentStatus == 1 ? '#d33' : '#28a745',
+                cancelColor: '#6c757d',
+                cancelText: 'Cancel'
             }
-        });
+        );
     }
 
     document.body.addEventListener('click', function (e) {

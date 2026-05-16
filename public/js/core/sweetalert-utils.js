@@ -196,7 +196,7 @@ const AlertUtils = {
     confirm: function (title, text, onConfirm, options = {}) {
         return Swal.fire({
             title: title,
-            text: text,
+            ...(options.html ? { html: options.html } : { text: text }),
             icon: options.icon || 'warning',
             showCancelButton: true,
             confirmButtonColor: options.confirmColor || '#d33',
