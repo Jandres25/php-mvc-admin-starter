@@ -15,10 +15,5 @@ $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
 
 // Show enlarged image on click
 $('.profile-user-img').on('click', function () {
-    Swal.fire({
-        imageUrl: $(this).attr('src'),
-        imageAlt: 'Profile image',
-        confirmButtonText: 'Close',
-        customClass: { image: 'img-fluid' }
-    });
+    AlertUtils.image($(this).attr('src'), 'Profile image');
 });

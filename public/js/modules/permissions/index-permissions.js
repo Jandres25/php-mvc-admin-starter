@@ -40,7 +40,7 @@ $(document).ready(function () {
         const users = $(this).data('users');
 
         if (currentStatus == 1 && users > 0) {
-            showToast(errorDeactivateMessage, 'error');
+            ToastUtils.error('Error', errorDeactivateMessage);
             return;
         }
 

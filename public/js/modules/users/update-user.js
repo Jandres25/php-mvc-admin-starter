@@ -190,12 +190,12 @@ $(document).ready(function () {
     // Select/deselect all permissions buttons
     $('#select-all').click(function () {
         $('input[name="permissions[]"]').prop('checked', true);
-        Swal.fire({ position: 'top-end', icon: 'success', title: 'All permissions selected', showConfirmButton: false, timer: 3000, toast: true });
+        ToastUtils.success('All permissions selected');
     });
 
     $('#deselect-all').click(function () {
         $('input[name="permissions[]"]').prop('checked', false);
-        Swal.fire({ position: 'top-end', icon: 'info', title: 'All permissions deselected', showConfirmButton: false, timer: 3000, toast: true });
+        ToastUtils.info('All permissions deselected');
     });
 
 });
