@@ -9,14 +9,14 @@ document.getElementById('image').addEventListener('change', function (e) {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-        Swal.fire({ icon: 'error', title: 'File too large', text: 'The file must not exceed 2 MB.' });
+        ToastUtils.error('File too large', 'The file must not exceed 2 MB.');
         e.target.value = '';
         return;
     }
 
     const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowed.includes(file.type)) {
-        Swal.fire({ icon: 'error', title: 'Invalid format', text: 'Only JPG, PNG, GIF, and WEBP are allowed.' });
+        ToastUtils.error('Invalid format', 'Only JPG, PNG, GIF, and WEBP are allowed.');
         e.target.value = '';
         return;
     }
@@ -41,7 +41,7 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
     const confirmPassword = document.getElementById('confirm_password').value;
 
     if (newPassword !== confirmPassword) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Passwords do not match.' });
+        ToastUtils.error('Error', 'Passwords do not match.');
         return;
     }
 

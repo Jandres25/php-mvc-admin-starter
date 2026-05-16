@@ -67,12 +67,12 @@ $(document).ready(function () {
                         if (response.success) {
                             location.reload();
                         } else {
-                            Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                            ToastUtils.error('Error', response.message);
                         }
                     },
                     error: function (xhr) {
                         console.error(xhr.responseText);
-                        Swal.fire({ icon: 'error', title: 'Error', text: 'A communication error occurred with the server.' });
+                        ToastUtils.error('Error', 'A communication error occurred with the server.');
                     }
                 });
             }

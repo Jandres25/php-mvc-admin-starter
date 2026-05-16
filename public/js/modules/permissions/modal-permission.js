@@ -63,13 +63,13 @@ $(document).ready(function () {
                     $('#modalPermission').modal('hide');
                     location.reload();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                    ToastUtils.error('Error', response.message);
                     $('#btnSavePermission').prop('disabled', false).html(successBtn);
                 }
             },
             error: function (xhr) {
                 console.error(xhr.responseText);
-                Swal.fire({ icon: 'error', title: 'Error', text: 'A communication error occurred with the server.' });
+                ToastUtils.error('Error', 'A communication error occurred with the server.');
                 $('#btnSavePermission').prop('disabled', false).html(successBtn);
             }
         });

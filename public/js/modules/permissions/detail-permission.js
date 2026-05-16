@@ -31,7 +31,7 @@ $(document).ready(function () {
     $('#btnConfirmAssign').on('click', function () {
         const userId = $('#selectUser').val();
         if (!userId) {
-            Swal.fire({ icon: 'warning', title: 'Select a user', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+            ToastUtils.warning('Select a user', '', 2500);
             return;
         }
 
@@ -48,12 +48,12 @@ $(document).ready(function () {
                     $('#modalAssignUser').modal('hide');
                     location.reload();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                    ToastUtils.error('Error', response.message);
                     $btn.prop('disabled', false).html('<i class="fas fa-user-plus mr-1"></i> Assign');
                 }
             },
             error: function () {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'A communication error occurred with the server.' });
+                ToastUtils.error('Error', 'A communication error occurred with the server.');
                 $btn.prop('disabled', false).html('<i class="fas fa-user-plus mr-1"></i> Assign');
             }
         });
@@ -93,12 +93,12 @@ $(document).ready(function () {
                     if (response.success) {
                         location.reload();
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.message });
+                        ToastUtils.error('Error', response.message);
                         $btn.prop('disabled', false);
                     }
                 },
                 error: function () {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'A communication error occurred with the server.' });
+                    ToastUtils.error('Error', 'A communication error occurred with the server.');
                     $btn.prop('disabled', false);
                 }
             });
