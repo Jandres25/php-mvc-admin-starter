@@ -38,41 +38,31 @@ $(document).ready(function () {
         const action = $('#permissionAction').val();
         const formData = $(this).serialize();
 
-        let url, loadingMsg, successBtn;
+        const url = action === 'create' ? `${baseUrl}permissions/create` : `${baseUrl}permissions/update`;
+        const toastMsg = action === 'create' ? 'Creating permission...' : 'Updating permission...';
 
-        if (action === 'create') {
-            url = `${baseUrl}permissions/create`;
-            loadingMsg = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            successBtn = '<i class="fas fa-save"></i> Save';
-        } else {
-            url = `${baseUrl}permissions/update`;
-            loadingMsg = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            successBtn = '<i class="fas fa-save"></i> Update';
-        }
+        $('#modalPermission').modal('hide');
 
-        $.ajax({
-            url,
-            type: 'POST',
-            dataType: 'json',
-            data: formData,
-            beforeSend: function () {
-                $('#btnSavePermission').prop('disabled', true).html(loadingMsg);
-            },
-            success: function (response) {
-                if (response.success) {
-                    $('#modalPermission').modal('hide');
-                    location.reload();
-                } else {
-                    ToastUtils.error('Error', response.message);
-                    $('#btnSavePermission').prop('disabled', false).html(successBtn);
+        ToastUtils.loadingWithMinTime(toastMsg, () => {
+            $.ajax({
+                url,
+                type: 'POST',
+                dataType: 'json',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        Swal.close();
+                        ToastUtils.error('Error', response.message);
+                    }
+                },
+                error: function () {
+                    Swal.close();
+                    ToastUtils.error('Error', 'A communication error occurred with the server.');
                 }
-            },
-            error: function (xhr) {
-                console.error(xhr.responseText);
-                ToastUtils.error('Error', 'A communication error occurred with the server.');
-                $('#btnSavePermission').prop('disabled', false).html(successBtn);
-            }
-        });
+            });
+        }, 800);
     });
 
     // Reset on modal close

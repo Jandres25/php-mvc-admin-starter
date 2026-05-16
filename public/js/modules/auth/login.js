@@ -44,9 +44,7 @@ $(document).ready(function() {
             $('#btn-login').prop('disabled', true);
             $('#btn-icon').removeClass('fa-sign-in-alt').addClass('fa-spinner fa-spin');
 
-            ToastUtils.loading('Signing in...');
-
-            setTimeout(() => {
+            ToastUtils.loadingWithMinTime('Signing in...', () => {
                 form.submit();
             }, 800);
         }

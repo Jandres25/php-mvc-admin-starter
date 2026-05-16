@@ -21,9 +21,7 @@ $(document).ready(function() {
             $('#btn-request').prop('disabled', true);
             $('#btn-icon').removeClass('fa-envelope').addClass('fa-spinner fa-spin');
             
-            ToastUtils.loading('Sending request...');
-
-            setTimeout(() => {
+            ToastUtils.loadingWithMinTime('Sending reset link...', () => {
                 form.submit();
             }, 800);
         }

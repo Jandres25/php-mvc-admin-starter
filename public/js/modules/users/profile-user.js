@@ -47,32 +47,46 @@ document.getElementById('formChangePassword').addEventListener('submit', functio
 
     const btn = document.getElementById('btnChangePassword');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating password...';
 
-    ToastUtils.loading('Processing...');
-
-    fetch(`${baseUrl}users/change-password`, {
-        method: 'POST',
-        body: new FormData(this)
-    })
-        .then(r => r.json())
-        .then(data => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-key mr-1"></i> Change password';
-            Swal.close();
-
-            if (data.success) {
-                ToastUtils.success('Password updated', 'The session will be closed.').then(() => {
-                    window.location.href = `${baseUrl}logout`;
-                });
-            } else {
-                ToastUtils.error('Error', data.message);
-            }
+    const form = this;
+    ToastUtils.loadingWithMinTime('Updating password...', () => {
+        fetch(`${baseUrl}users/change-password`, {
+            method: 'POST',
+            body: new FormData(form)
         })
-        .catch(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-key mr-1"></i> Change password';
-            Swal.close();
-            ToastUtils.error('Error', 'An error occurred while processing the request.');
-        });
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-key mr-1"></i> Change password';
+                Swal.close();
+
+                if (data.success) {
+                    ToastUtils.success('Password updated', 'The session will be closed.').then(() => {
+                        window.location.href = `${baseUrl}logout`;
+                    });
+                } else {
+                    ToastUtils.error('Error', data.message);
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-key mr-1"></i> Change password';
+                Swal.close();
+                ToastUtils.error('Error', 'An error occurred while processing the request.');
+            });
+    }, 800);
+});
+
+// ─── Update profile info (form submit) ──────────────────────────────────────
+
+document.querySelector('form[action$="profile"]').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const btn = this.querySelector('[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    const form = this;
+    ToastUtils.loadingWithMinTime('Updating profile...', () => {
+        form.submit();
+    }, 800);
 });

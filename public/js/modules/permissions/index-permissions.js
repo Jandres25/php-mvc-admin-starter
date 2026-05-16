@@ -51,7 +51,7 @@ $(document).ready(function () {
             `${actionCapitalized} this permission?`,
             `The permission will be ${action}d.`,
             () => {
-                ToastUtils.loadingWithMinTime(`${actionCapitalized}ing...`, () => {
+                ToastUtils.loadingWithMinTime(`${actionCapitalized}ing permission...`, () => {
                     $.ajax({
                         url: `${baseUrl}permissions/toggle-status`,
                         type: 'POST',
@@ -65,8 +65,7 @@ $(document).ready(function () {
                                 ToastUtils.error('Error', response.message);
                             }
                         },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
+                        error: function () {
                             Swal.close();
                             ToastUtils.error('Error', 'A communication error occurred with the server.');
                         }

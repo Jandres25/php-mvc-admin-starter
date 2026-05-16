@@ -84,7 +84,9 @@ $(document).ready(function () {
             const $btn = $(form).find('[type="submit"]');
             $btn.prop('disabled', true)
                 .html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
-            form.submit();
+            ToastUtils.loadingWithMinTime('Updating user...', () => {
+                form.submit();
+            }, 800);
         }
     });
 

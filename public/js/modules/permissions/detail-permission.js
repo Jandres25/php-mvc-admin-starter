@@ -35,28 +35,28 @@ $(document).ready(function () {
             return;
         }
 
-        const $btn = $(this);
-        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Assigning...');
+        $('#modalAssignUser').modal('hide');
 
-        $.ajax({
-            url: `${baseUrl}permissions/assign-user`,
-            type: 'POST',
-            dataType: 'json',
-            data: { user_id: userId, permission_id: permissionId, csrf_token: csrfToken },
-            success: function (response) {
-                if (response.success) {
-                    $('#modalAssignUser').modal('hide');
-                    location.reload();
-                } else {
-                    ToastUtils.error('Error', response.message);
-                    $btn.prop('disabled', false).html('<i class="fas fa-user-plus mr-1"></i> Assign');
+        ToastUtils.loadingWithMinTime('Assigning user...', () => {
+            $.ajax({
+                url: `${baseUrl}permissions/assign-user`,
+                type: 'POST',
+                dataType: 'json',
+                data: { user_id: userId, permission_id: permissionId, csrf_token: csrfToken },
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        Swal.close();
+                        ToastUtils.error('Error', response.message);
+                    }
+                },
+                error: function () {
+                    Swal.close();
+                    ToastUtils.error('Error', 'A communication error occurred with the server.');
                 }
-            },
-            error: function () {
-                ToastUtils.error('Error', 'A communication error occurred with the server.');
-                $btn.prop('disabled', false).html('<i class="fas fa-user-plus mr-1"></i> Assign');
-            }
-        });
+            });
+        }, 800);
     });
 
     // Reset on modal close
@@ -75,7 +75,7 @@ $(document).ready(function () {
             null,
             () => {
                 $btn.prop('disabled', true);
-                ToastUtils.loadingWithMinTime('Revoking...', () => {
+                ToastUtils.loadingWithMinTime('Revoking permission...', () => {
                     $.ajax({
                         url: `${baseUrl}permissions/revoke-user`,
                         type: 'POST',

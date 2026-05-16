@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alertText,
             () => {
                 ToastUtils.loadingWithMinTime(
-                    currentStatus == 1 ? 'Deactivating...' : 'Activating...',
+                    currentStatus == 1 ? 'Deactivating user...' : 'Activating user...',
                     () => {
                         $.ajax({
                             url: `${baseUrl}users/toggle-status`,
@@ -48,8 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     ToastUtils.error('Error', response.message);
                                 }
                             },
-                            error: function (xhr) {
-                                console.error(xhr.responseText);
+                            error: function () {
                                 Swal.close();
                                 ToastUtils.error('Error', 'A communication error occurred with the server.');
                             }

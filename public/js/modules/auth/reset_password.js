@@ -31,9 +31,7 @@ $(document).ready(function() {
             $('#btn-reset').prop('disabled', true);
             $('#btn-icon').removeClass('fa-lock').addClass('fa-spinner fa-spin');
 
-            ToastUtils.loading('Updating password...');
-
-            setTimeout(() => {
+            ToastUtils.loadingWithMinTime('Updating password...', () => {
                 form.submit();
             }, 800);
         }
