@@ -57,15 +57,15 @@
                         </ul>
 
                         <div class="d-flex justify-content-between">
-                            <a href="<?= URL ?>permissions" class="btn btn-default">
-                                <i class="fas fa-arrow-left"></i> Back
-                            </a>
                             <button type="button" class="btn btn-warning btn-edit"
                                 data-id="<?= $permission['id']; ?>"
                                 data-name="<?= htmlspecialchars($permission['name']); ?>"
                                 data-description="<?= htmlspecialchars($permission['description'] ?? ''); ?>">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
+                            <a href="<?= URL ?>permissions" class="btn btn-default">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
                         </div>
                     </div>
                 </div>

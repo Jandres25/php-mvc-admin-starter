@@ -71,10 +71,10 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="<?= URL ?>users/<?= $user['id'] ?>" class="btn btn-info btn-sm" aria-label="View user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Ver usuario">
+                                                <a href="<?= URL ?>users/<?= $user['id'] ?>" class="btn btn-info btn-sm" aria-label="View user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="View user">
                                                     <i class="fas fa-eye" aria-hidden="true"></i>
                                                 </a>
-                                                <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Editar usuario">
+                                                <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Edit user">
                                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </a>
                                                 <?php if (((int) $user['id']) !== $currentUserId): ?>
