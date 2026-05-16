@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.6.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.7.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.

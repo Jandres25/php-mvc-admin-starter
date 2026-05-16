@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2026-05-16
+
+### Added
+
+- **`public/js/core/sweetalert-utils.js`** — centralised SweetAlert2 utility layer:
+  - `ToastUtils`: `success`, `error`, `warning`, `info`, `loading`, `loadingWithMinTime(message, action, minMs)` — guarantees a minimum display time before running the async action, eliminating the flash-of-loading pattern
+  - `AlertUtils`: `confirm(title, text, onConfirm, options)` (supports `options.html` for rich body text), `confirmDelete`, `welcome(name)` (animated login popup), `image(src, alt, confirmButtonText)` (lightbox viewer)
+
+### Changed
+
+- **`views/layouts/footer.php`** — loads `sweetalert-utils.js` globally after `ui-components.js`; all module scripts now have `ToastUtils` and `AlertUtils` available without extra imports
+- **`views/layouts/messages.php`** — rewritten to use `ToastUtils[icon](message)` for flash messages and `AlertUtils.welcome(name)` for `$_SESSION['welcome_user']`; removed nested `if` structure
+- **`app/Controllers/Auth/AuthController.php`** — login success now sets `$_SESSION['welcome_user']` instead of `$_SESSION['message']` + `$_SESSION['icon']`, triggering the dedicated welcome popup
+- **All JS modules** — removed every inline `Swal.fire()` call; `ToastUtils.loadingWithMinTime()` replaces bare `Swal.showLoading()` + `setTimeout` patterns; `AlertUtils.confirm()` replaces inline confirm dialogs:
+  - `public/js/modules/auth/login.js`, `forgot_password.js`, `reset_password.js` — submit handlers use `loadingWithMinTime` with descriptive messages
+  - `public/js/modules/users/create-user.js`, `update-user.js` — form submit uses `loadingWithMinTime`
+  - `public/js/modules/users/index-users.js` — toggle status uses `AlertUtils.confirm` + `loadingWithMinTime`
+  - `public/js/modules/users/profile-user.js` — password change and profile update use `loadingWithMinTime`; password change success shows `ToastUtils.success` before redirecting to logout
+  - `public/js/modules/users/show-user.js` — profile image lightbox uses `AlertUtils.image`
+  - `public/js/modules/permissions/index-permissions.js` — toggle status uses `AlertUtils.confirm` + `loadingWithMinTime`
+  - `public/js/modules/permissions/modal-permission.js` — modal closed before `loadingWithMinTime` (modal-first pattern to avoid z-index conflicts)
+  - `public/js/modules/permissions/detail-permission.js` — assign and revoke use modal-first pattern + `loadingWithMinTime`; revoke confirm uses `options.html` for rich body text
+- **`views/auth/login.php`**, **`forgot_password.php`**, **`reset_password.php`** — include `sweetalert-utils.js` manually (auth views do not use `footer.php`)
+- **`views/users/index.php`** — corrected Spanish tooltips (`"Ver usuario"` → `"View user"`, `"Editar usuario"` → `"Edit user"`)
+- **`views/permissions/detail.php`** — reordered action buttons (Edit before Back)
+- **`docs/AJAX_AND_MODULES.md`** — added SweetAlert2 utilities section documenting `ToastUtils`, `AlertUtils`, `loadingWithMinTime` pattern, and modal-first pattern; updated flash message section with `$_SESSION['welcome_user']`; updated load order to include `sweetalert-utils.js`
+- **`CLAUDE.md`**, **`PROMPTS.md`** — updated conventions and prompt templates to reflect `ToastUtils`/`AlertUtils` as the required SweetAlert2 interface
+
+### Removed
+
+- All direct `Swal.fire()` calls from module scripts — `sweetalert-utils.js` is the single declaration point for all SweetAlert2 behavior
+- `console.error` and `console.log` calls from all JS modules
+- `docs/SWEETALERT_MIGRATION.md` — temporary migration plan, no longer needed
+
+---
+
 ## [3.6.0] - 2026-05-13
 
 ### Added
@@ -499,6 +535,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.7.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.6.0...3.7.0
 [3.6.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.5.0...3.6.0
 [3.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.3.0...3.4.0

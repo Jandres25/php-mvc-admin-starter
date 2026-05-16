@@ -55,7 +55,7 @@ _______________
 - Passwords: password_hash(PASSWORD_DEFAULT) al guardar, password_verify() al validar
 - Uploads: siempre a través de ImageService
 - AJAX: devolver JSON con $this->jsonResponse(); sesión-feedback con $_SESSION['message'] + $_SESSION['icon'] antes del JSON si hay location.reload()
-- DataTables + SweetAlert2 para listas y confirmaciones — nunca alert() o confirm() nativo
+- DataTables para listas; ToastUtils/AlertUtils (sweetalert-utils.js) para notificaciones y confirmaciones — nunca Swal.fire() directo ni alert()/confirm() nativo
 - Select2 en modales: inicializar con dropdownParent explícito
 - No introducir librerías nuevas (vía Composer o manual) sin aprobación del líder técnico
 
@@ -98,7 +98,7 @@ Descripción: [criterios de aceptación]
 - Sanitización en el modelo, escape en la vista
 - AJAX endpoints devuelven JSON via $this->jsonResponse()
 - Feedback post-reload: $_SESSION['message'] + $_SESSION['icon'] antes del JSON
-- DataTables para listados; SweetAlert2 para confirmaciones destructivas
+- DataTables para listados; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
 - Select2 para dropdowns; con dropdownParent si está dentro de un modal
 - Permisos gateados con Auth::hasPermission() (session cache, sin query) o middleware perm:NAME en routes/web.php
 - No inventar métodos de core que no existan en app/Core/
@@ -265,9 +265,9 @@ Criterios de aceptación:
 - Seguir el patrón MVC del módulo users como referencia exacta
 - Rutas declaradas en routes/web.php con middlewares auth + perm:[nombre] donde aplique
 - CSRF en todos los formularios POST y endpoints AJAX
-- DataTables para listados, SweetAlert2 para confirmaciones, Select2 para dropdowns
+- DataTables para listados; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo; Select2 para dropdowns
 - Borrado lógico con is_active — nunca DELETE físico en tablas de negocio
-- AJAX: $this->jsonResponse(); feedback de sesión si el JS hace location.reload()
+- AJAX: $this->jsonResponse(); feedback con $_SESSION['message'] + $_SESSION['icon'] si el JS hace location.reload(); $_SESSION['welcome_user'] para popup de bienvenida
 - Permisos gateados con Auth::hasPermission() o middleware perm:NAME en routes/web.php
 - Registrar el permiso nuevo en database/seeder.sql
 - PHPDoc en clases y métodos; JSDoc en funciones JS
@@ -335,5 +335,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.6.0_
+_Última actualización: v3.7.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

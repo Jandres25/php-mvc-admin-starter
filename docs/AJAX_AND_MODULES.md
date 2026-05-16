@@ -33,11 +33,18 @@ When the JS success flow ends with `location.reload()`, set the flash message be
 
 ```php
 $_SESSION['message'] = 'User status updated.';
-$_SESSION['icon']    = 'success';
+$_SESSION['icon']    = 'success';   // success | error | warning | info
 $this->jsonResponse(['success' => true]);
 ```
 
-The toast is displayed after reload by `views/layouts/messages.php`.
+`views/layouts/messages.php` picks these up and calls `ToastUtils[icon](message)` on the reloaded page.
+
+For the welcome popup shown after login, use `$_SESSION['welcome_user']` instead — `messages.php` calls `AlertUtils.welcome(name)` for it:
+
+```php
+$_SESSION['welcome_user'] = $_SESSION['user_name'];
+$this->redirect('dashboard');
+```
 
 ## Frontend module structure
 
@@ -68,26 +75,92 @@ Asset resolution is handled by `App\Core\AssetRegistry` and rendered in `layouts
 1. Bootstrap + AdminLTE
 2. Conditional plugin JS
 3. `public/js/core/ui-components.js`
-4. Module scripts
+4. `public/js/core/sweetalert-utils.js` — `ToastUtils` and `AlertUtils` available globally from here
+5. Module scripts
 
 Do not place page inline scripts that depend on Bootstrap plugins before `footer.php`.
+
+Auth views (`views/auth/*.php`) do not use `footer.php` — they must include `sweetalert-utils.js` manually before their module script.
 
 ## AJAX URL targets
 
 JS modules should call the clean routes registered in `routes/web.php`:
 
-| Action                    | Old path (removed)                                       | New route                         |
-|---------------------------|----------------------------------------------------------|-----------------------------------|
-| Check email uniqueness    | `app/controllers/users/check_email.php`                  | `POST /users/check-email`         |
-| Check document uniqueness | `app/controllers/users/check_document.php`               | `POST /users/check-document`      |
-| Toggle user status        | `app/controllers/users/toggle_user_status.php`           | `POST /users/toggle-status`       |
-| Change password (AJAX)    | `app/controllers/users/ajax_change_password.php`         | `POST /users/change-password`     |
-| Create permission         | `app/controllers/permissions/create_permission_ajax.php` | `POST /permissions/create`        |
-| Update permission         | `app/controllers/permissions/update_permission_ajax.php` | `POST /permissions/update`        |
-| Toggle permission status  | `app/controllers/permissions/toggle_permission_status_ajax.php` | `POST /permissions/toggle-status` |
-| Assign user to permission | `app/controllers/permissions/assign_user_permission_ajax.php` | `POST /permissions/assign-user`  |
-| Revoke user permission    | `app/controllers/permissions/revoke_user_permission_ajax.php` | `POST /permissions/revoke-user`  |
+| Action                    | Old path (removed)                                                  | New route                            |
+| ------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
+| Check email uniqueness    | `app/controllers/users/check_email.php`                             | `POST /users/check-email`            |
+| Check document uniqueness | `app/controllers/users/check_document.php`                          | `POST /users/check-document`         |
+| Toggle user status        | `app/controllers/users/toggle_user_status.php`                      | `POST /users/toggle-status`          |
+| Change password (AJAX)    | `app/controllers/users/ajax_change_password.php`                    | `POST /users/change-password`        |
+| Create permission         | `app/controllers/permissions/create_permission_ajax.php`            | `POST /permissions/create`           |
+| Update permission         | `app/controllers/permissions/update_permission_ajax.php`            | `POST /permissions/update`           |
+| Toggle permission status  | `app/controllers/permissions/toggle_permission_status_ajax.php`     | `POST /permissions/toggle-status`    |
+| Assign user to permission | `app/controllers/permissions/assign_user_permission_ajax.php`       | `POST /permissions/assign-user`      |
+| Revoke user permission    | `app/controllers/permissions/revoke_user_permission_ajax.php`       | `POST /permissions/revoke-user`      |
 | Get users without perm    | `app/controllers/permissions/get_users_without_permission_ajax.php` | `GET /permissions/get-users-without` |
+
+## SweetAlert2 utilities
+
+All SweetAlert2 usage must go through `public/js/core/sweetalert-utils.js`. Never call `Swal.fire()` directly in module scripts.
+
+### ToastUtils
+
+| Method                                                  | Purpose                                                           |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| `ToastUtils.success(title, text?)`                      | Green toast                                                       |
+| `ToastUtils.error(title, text?)`                        | Red toast                                                         |
+| `ToastUtils.warning(title, text?, duration?)`           | Orange toast                                                      |
+| `ToastUtils.info(title, text?)`                         | Blue toast                                                        |
+| `ToastUtils.loading(message)`                           | Blocking loading dialog (no timer)                                |
+| `ToastUtils.loadingWithMinTime(message, action, minMs)` | Show loading, guarantee minimum display time, then run `action()` |
+
+### AlertUtils
+
+| Method                                                 | Purpose                                                |
+| ------------------------------------------------------ | ------------------------------------------------------ |
+| `AlertUtils.confirm(title, text, onConfirm, options?)` | Confirmation dialog; `options.html` for rich body text |
+| `AlertUtils.confirmDelete(title, text, onConfirm)`     | Red confirm pre-configured for destructive actions     |
+| `AlertUtils.welcome(name)`                             | Animated welcome popup (used at login)                 |
+| `AlertUtils.image(src, alt?, confirmButtonText?)`      | Lightbox image viewer                                  |
+
+### loadingWithMinTime pattern
+
+Use this for every CRUD action (create, update, delete, toggle-status, assign, revoke):
+
+```js
+ToastUtils.loadingWithMinTime('Creating user...', () => {
+    $.ajax({
+        ...
+        success: function (response) {
+            if (response.success) {
+                location.reload();          // Swal closes naturally with the page reload
+            } else {
+                Swal.close();
+                ToastUtils.error('Error', response.message);
+            }
+        },
+        error: function () {
+            Swal.close();
+            ToastUtils.error('Error', 'A communication error occurred with the server.');
+        }
+    });
+}, 800);
+```
+
+### Modal-first pattern
+
+When an AJAX action is triggered from inside a Bootstrap modal, close the modal **before** showing the loading toast to avoid z-index/backdrop conflicts:
+
+```js
+$("#myModal").modal("hide");
+ToastUtils.loadingWithMinTime(
+  "Saving...",
+  () => {
+    /* ajax */
+  },
+  800,
+);
+```
 
 ## Select2 and validation conventions
 

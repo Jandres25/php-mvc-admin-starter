@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.6.0`
+**Current release tag:** `3.7.0`
 
 ## No Build Process
 
@@ -154,15 +154,15 @@ The permission cache is refreshed automatically by `Auth::refreshPermissionsIfSt
 
 Controller methods that handle AJAX calls return JSON via `$this->jsonResponse($data)`. CSRF tokens are generated via `generateCSRFToken()` (global in `helpers.php`) and validated with `$this->csrfCheck()` (calls `verifyCSRFToken()` internally); call `regenerateCSRFToken()` after every successful POST. AJAX routes are declared in `routes/web.php` like any other route and protected by the same middleware.
 
-When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` in the PHP endpoint before echoing the JSON — `messages.php` will pick them up and fire the SweetAlert2 toast on the reloaded page.
+When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` before calling `jsonResponse()` — `messages.php` will call `ToastUtils[icon](message)` on the reloaded page. For the welcome popup on first login, set `$_SESSION['welcome_user']` instead; `messages.php` calls `AlertUtils.welcome()` for it.
 
 Additional reference: `docs/ACCESS_CONTROL.md` and `docs/AJAX_AND_MODULES.md`.
 
 ### Frontend Modules
 
-Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (AJAX helpers, DataTables setup, jQuery Validate config) are in `public/js/core/`. All third-party libraries are already bundled in `public/js/lib/` and `public/css/lib/`.
+Feature-specific JS lives in `public/js/modules/{feature}/`. Core utilities (DataTables setup, jQuery Validate config, SweetAlert2 wrappers) are in `public/js/core/`. All third-party libraries are already bundled in `public/js/lib/` and `public/css/lib/`.
 
-**Loading order:** `footer.php` loads Bootstrap and AdminLTE, then conditional plugins (`$plugins`), then `public/js/core/ui-components.js` (auto-initializes Select2 and tooltips via `ComponentUtils.initAll()`), then `$module_scripts`. Always register page-specific JS via `$module_scripts = ['feature/file']` at the top of the view — never use inline `<script>` blocks before `footer.php`, as Bootstrap plugins (e.g. `.tab()`) will not yet be available.
+**Loading order:** `footer.php` loads Bootstrap and AdminLTE, then conditional plugins (`$plugins`), then `public/js/core/ui-components.js` (auto-initializes Select2 and tooltips via `ComponentUtils.initAll()`), then `public/js/core/sweetalert-utils.js` (exposes `ToastUtils` and `AlertUtils` globally), then `$module_scripts`. Always register page-specific JS via `$module_scripts = ['feature/file']` at the top of the view — never use inline `<script>` blocks before `footer.php`, as Bootstrap plugins (e.g. `.tab()`) will not yet be available.
 
 `public/css/core/ui-components.css` is loaded globally in `header.php` and requires no per-page declaration.
 
@@ -176,7 +176,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 
 **Form validation:** Pass `['select2', 'validate']` as the plugins argument. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `/users/check-email` or `/users/check-document`.
 
-**Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly.
+**Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include `sweetalert-utils.js` and the validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly.
 
 ## Coding Conventions
 
@@ -186,7 +186,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 - **Input sanitization:** Use `trim()` at the model layer (`trimInput()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImageService`.
-- **JS:** ES6+ with JSDoc comments. Use `SweetAlert2` for confirmations, `DataTables` for lists, `Select2` for dropdowns.
+- **JS:** ES6+ with JSDoc comments. Use `ToastUtils` and `AlertUtils` from `public/js/core/sweetalert-utils.js` for all SweetAlert2 interactions — never call `Swal.fire()` directly in module scripts. Use `DataTables` for lists, `Select2` for dropdowns.
 - **Select2 auto-init:** `ComponentUtils.initAll()` (called automatically on `DOMContentLoaded` by `ui-components.js`) initializes every `.select2` element on the page. Do not call `initializeSelect2()` manually in module scripts unless extra options are needed.
 - **Select2 in modals:** When a Select2 element lives inside a Bootstrap modal, call `initializeSelect2('#selectId', { dropdownParent: $('#modalId') })` explicitly. `ComponentUtils.initAll()` cannot apply `dropdownParent` globally, so modal selects need targeted initialization. Without `dropdownParent`, Bootstrap's focus trap closes the dropdown immediately. Populate options from PHP `<option>` elements (server-side) rather than AJAX to avoid re-initialization conflicts.
 - **AdminLTE cards:** `card-outline card-{color}` classes go on the outer `div.card`, **never** on `div.card-header`. Adding them to the header instead of the card silently breaks the colored left border style.
