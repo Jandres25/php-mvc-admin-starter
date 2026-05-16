@@ -1,26 +1,22 @@
-<?php
-
-if ((isset($_SESSION['message'])) && (isset($_SESSION['icon']))) {
-    $message = $_SESSION['message'];
-    $icon    = $_SESSION['icon']; ?>
+<?php if (isset($_SESSION['welcome_user'])): ?>
     <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 5000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
-            }
-        });
-        Toast.fire({
-            icon: "<?php echo $icon; ?>",
-            title: "<?php echo $message; ?>"
+        document.addEventListener('DOMContentLoaded', function () {
+            AlertUtils.welcome('<?= addslashes($_SESSION['welcome_user']); ?>');
         });
     </script>
 <?php
-    unset($_SESSION['message']);
-    unset($_SESSION['icon']);
-} ?>
+    unset($_SESSION['welcome_user']);
+endif;
+
+if (isset($_SESSION['message'], $_SESSION['icon'])):
+    $message = addslashes($_SESSION['message']);
+    $icon    = $_SESSION['icon'];
+?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            ToastUtils['<?= $icon; ?>']('<?= $message; ?>');
+        });
+    </script>
+<?php
+    unset($_SESSION['message'], $_SESSION['icon']);
+endif; ?>

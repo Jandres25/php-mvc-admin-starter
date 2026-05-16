@@ -63,8 +63,7 @@ class AuthController extends Controller
             Auth::issueRememberCookie((int) $user['id']);
         }
 
-        $_SESSION['message'] = 'Welcome, ' . $_SESSION['user_name'];
-        $_SESSION['icon']    = 'success';
+        $_SESSION['welcome_user'] = $_SESSION['user_name'];
         $this->redirect(URL);
     }
 

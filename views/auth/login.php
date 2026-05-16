@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?= URL ?>css/modules/login/login.css">
     <link rel="stylesheet" href="<?= URL ?>css/plugins/sweetalert2/sweetalert2.min.css">
     <script src="<?= URL ?>js/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="<?= URL ?>js/core/sweetalert-utils.js"></script>
 </head>
 
 <body class="hold-transition login-page">
