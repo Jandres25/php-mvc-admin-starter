@@ -5,6 +5,7 @@ namespace App\Controllers\Permissions;
 use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\User;
+use App\Services\DashboardCache;
 
 class PermissionController extends Controller
 {
@@ -170,6 +171,8 @@ class PermissionController extends Controller
         $ok = $this->permissionModel->assign($userId, $permissionId);
         if ($ok) {
             (new User())->updatePermissionsTimestamp($userId);
+            DashboardCache::forget('perm_stats');
+            DashboardCache::forget('top_permissions');
             regenerateCSRFToken();
             $_SESSION['message'] = 'User assigned successfully.';
             $_SESSION['icon']    = 'success';
@@ -192,6 +195,8 @@ class PermissionController extends Controller
         $ok = $this->permissionModel->revoke($userId, $permissionId);
         if ($ok) {
             (new User())->updatePermissionsTimestamp($userId);
+            DashboardCache::forget('perm_stats');
+            DashboardCache::forget('top_permissions');
             regenerateCSRFToken();
             $_SESSION['message'] = 'Permission revoked successfully.';
             $_SESSION['icon']    = 'success';

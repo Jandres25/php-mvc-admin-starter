@@ -14,6 +14,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Services\DashboardCache;
 use PDO;
 use PDOException;
 
@@ -125,7 +126,14 @@ class User extends Model
             $stmt->bindParam(':password', $passwordHash,   PDO::PARAM_STR);
             $stmt->bindParam(':status',   $data['status'], PDO::PARAM_INT);
 
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                DashboardCache::forget('user_stats');
+                DashboardCache::forget('users_by_status');
+                DashboardCache::forget('recent_users');
+                DashboardCache::forget('users_by_month');
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return false;
@@ -202,7 +210,14 @@ class User extends Model
             $stmt->bindParam(':status', $data['status'], PDO::PARAM_INT);
             $stmt->bindParam(':id',     $id,             PDO::PARAM_INT);
 
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                DashboardCache::forget('user_stats');
+                DashboardCache::forget('users_by_status');
+                DashboardCache::forget('recent_users');
+                DashboardCache::forget('users_by_month');
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return false;
@@ -286,7 +301,15 @@ class User extends Model
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
             $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
-            return $stmt->execute();
+
+            if ($stmt->execute()) {
+                DashboardCache::forget('user_stats');
+                DashboardCache::forget('users_by_status');
+                DashboardCache::forget('recent_users');
+                DashboardCache::forget('users_by_month');
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return false;
