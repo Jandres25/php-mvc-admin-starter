@@ -333,6 +333,40 @@ class Permission extends Model
     }
 
     /**
+     * Returns the top N active permissions by number of assigned users for the bar chart.
+     *
+     * @param int $limit
+     * @return array  Each element: ['id' => int, 'name' => string, 'total_users' => int]
+     */
+    public function getTopAssigned(int $limit = 5): array
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT p.id, p.name, COUNT(up.user_id) AS total_users
+                FROM {$this->tabla} p
+                LEFT JOIN user_permissions up ON p.id = up.permission_id
+                WHERE p.status = 1
+                GROUP BY p.id, p.name
+                ORDER BY total_users DESC, p.name ASC
+                LIMIT :limit
+            ");
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return array_map(static function (array $row): array {
+                return [
+                    'id'          => (int) $row['id'],
+                    'name'        => $row['name'],
+                    'total_users' => (int) $row['total_users'],
+                ];
+            }, $stmt->fetchAll(PDO::FETCH_ASSOC));
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
      * Returns the ID of the last inserted row.
      *
      * @return int
