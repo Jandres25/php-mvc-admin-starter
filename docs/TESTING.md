@@ -49,23 +49,27 @@ automatically on the first run of the Integration suite. No manual schema import
 
 No DB, no HTTP context. Each test class maps to a production class:
 
-| Test class                                 | Production class                |
-| ------------------------------------------ | ------------------------------- |
-| `tests/Unit/Core/HelpersTest.php`          | `app/Core/helpers.php`          |
-| `tests/Unit/Core/AuthTest.php`             | `app/Core/Auth.php`             |
-| `tests/Unit/Core/RouterTest.php`           | `app/Core/Router.php`           |
-| `tests/Unit/Services/ImageServiceTest.php` | `app/Services/ImageService.php` |
+| Test class                                   | Production class                  |
+| -------------------------------------------- | --------------------------------- |
+| `tests/Unit/Core/HelpersTest.php`            | `app/Core/helpers.php`            |
+| `tests/Unit/Core/AuthTest.php`               | `app/Core/Auth.php`               |
+| `tests/Unit/Core/RouterTest.php`             | `app/Core/Router.php`             |
+| `tests/Unit/Services/ImageServiceTest.php`   | `app/Services/ImageService.php`   |
+| `tests/Unit/Services/DashboardCacheTest.php` | `app/Services/DashboardCache.php` |
 
 ### Integration (`tests/Integration/`)
 
 Requires a live MySQL connection. Each test runs inside a transaction that is rolled back on
 teardown, so the DB is always clean.
 
-| Test class                                       | What it covers                                        |
-| ------------------------------------------------ | ----------------------------------------------------- |
-| `tests/Integration/Models/UserTest.php`          | `User` CRUD, remember-me token, permissions timestamp |
-| `tests/Integration/Models/PermissionTest.php`    | `Permission` read, assign, revoke, sync               |
-| `tests/Integration/Core/AuthIntegrationTest.php` | `refreshPermissionsIfStale`, `attemptRememberLogin`   |
+| Test class                                                      | What it covers                                        |
+| --------------------------------------------------------------- | ----------------------------------------------------- |
+| `tests/Integration/Models/UserTest.php`                         | `User` CRUD, remember-me token, permissions timestamp |
+| `tests/Integration/Models/PermissionTest.php`                   | `Permission` read, assign, revoke, sync               |
+| `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale`, `attemptRememberLogin`   |
+| `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                 |
+| `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                      |
+| `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission mutations    |
 
 ---
 

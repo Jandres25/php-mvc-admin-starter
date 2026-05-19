@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.0] - 2026-05-19
+
+### Added
+
+- **Dashboard metrics** — three Chart.js visualizations on the dashboard:
+  - Donut chart: active vs inactive users
+  - Bar chart: top 5 permissions by assigned users
+  - Line chart: user registrations over the last 6 months
+- **`App\Services\DashboardCache`** — session-based cache for dashboard metrics with configurable TTL (`DASHBOARD_CACHE_TTL` in `.env`, default 300 s) and event-driven invalidation. API: `get`, `put`, `remember`, `forget`, `flush`.
+- **`User::getUsersByStatus()`** — returns active/inactive counts for the donut chart.
+- **`User::getUsersByMonth(int $months)`** — returns registration counts per month, zero-filled for empty months.
+- **`Permission::getTopAssigned(int $limit)`** — returns top N active permissions by assigned user count.
+- **`DASHBOARD_CACHE_TTL`** environment variable in `.env.example`.
+- **11 unit tests** for `DashboardCache` (`tests/Unit/Services/DashboardCacheTest.php`).
+- **13 integration tests** for the new model methods (`UserDashboardTest`, `PermissionDashboardTest`).
+- **8 integration tests** for cache invalidation (`DashboardCacheInvalidationTest`) — verifies that model mutations clear the correct cache keys.
+
+### Changed
+
+- **`DashboardController::index()`** — all data fetched via `DashboardCache::remember()`; passes `usersByStatus`, `topPerms`, and `usersByMonth` to the view; loads `chart` plugin and `dashboard/index-dashboard` module script.
+- **`User::create()`, `update()`, `updateStatus()`** — call `DashboardCache::forget()` on the user-related keys after a successful write.
+- **`Permission::create()`, `update()`, `updateStatus()`** — call `DashboardCache::forget()` on the permission-related keys after a successful write.
+- **`PermissionController::assignUser()`, `revokeUser()`** — call `DashboardCache::forget()` on `perm_stats` and `top_permissions` after a successful operation.
+- **`views/dashboard/index.php`** — added three chart cards; data passed to JS via `data-*` attributes on canvas elements (no `<script>` blocks in views).
+- **`docs/TESTING.md`** — updated unit and integration suite tables with the 3 new test classes.
+- **`docs/AJAX_AND_MODULES.md`** — added "Passing PHP data to JS (non-AJAX)" section documenting the `data-*` attribute pattern.
+- **`CLAUDE.md`**, **`PROMPTS.md`** — added `DashboardCache` section, updated module list and version references.
+- **`README.md`**, **`CONTRIBUTING.md`** — updated features, config example, and architecture references to include `DashboardCache`.
+
+---
+
 ## [3.7.0] - 2026-05-16
 
 ### Added
@@ -535,6 +566,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.8.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.7.0...3.8.0
 [3.7.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.6.0...3.7.0
 [3.6.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.5.0...3.6.0
 [3.5.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.4.0...3.5.0

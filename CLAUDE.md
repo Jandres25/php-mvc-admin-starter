@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.7.0`
+**Current release tag:** `3.8.0`
 
 ## No Build Process
 
@@ -108,7 +108,7 @@ app/
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models
-└── Services/     # App\Services (ImageService, MailService)
+└── Services/     # App\Services (ImageService, MailService, DashboardCache)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
 views/            # PHP templates; layouts/header.php pulls in all CSS/JS
@@ -157,6 +157,16 @@ Controller methods that handle AJAX calls return JSON via `$this->jsonResponse($
 When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` before calling `jsonResponse()` — `messages.php` will call `ToastUtils[icon](message)` on the reloaded page. For the welcome popup on first login, set `$_SESSION['welcome_user']` instead; `messages.php` calls `AlertUtils.welcome()` for it.
 
 Additional reference: `docs/ACCESS_CONTROL.md` and `docs/AJAX_AND_MODULES.md`.
+
+### Dashboard Cache — `App\Services\DashboardCache`
+
+Session-based cache for dashboard metrics with event-driven invalidation. Uses `$_SESSION['dashboard_cache']` as store; TTL is configured via `DASHBOARD_CACHE_TTL` in `.env` (default 300 s).
+
+Key methods: `DashboardCache::get(string $key)`, `DashboardCache::put(string $key, array $data)`, `DashboardCache::remember(string $key, callable $loader)`, `DashboardCache::forget(string $key)`, `DashboardCache::flush()`.
+
+**Invalidation contract:** any model method that mutates user or permission data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
+
+**Passing data to JS:** views pass chart datasets as `data-*` attributes on canvas elements (e.g. `data-chart="<?= htmlspecialchars(json_encode(...)) ?>"`). Module JS reads `element.dataset.*` — no `<script>` blocks inside views.
 
 ### Frontend Modules
 

@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.7.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.8.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
@@ -18,6 +18,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout, persistent remember-me cookie
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Permission control** — Granular per-user permissions, adaptive navigation menu
+- **Metrics dashboard** — Chart.js charts (donut, bar, line) with session-based cache and event-driven invalidation
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard
@@ -71,7 +72,10 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.5.0
+APP_VERSION=3.8.0
+
+# Dashboard cache TTL in seconds (0 to disable)
+DASHBOARD_CACHE_TTL=300
 
 # Session & Remember Me
 SESSION_LIFETIME=1800
@@ -123,7 +127,7 @@ app/
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models
-└── Services/     # App\Services (ImageService, MailService)
+└── Services/     # App\Services (ImageService, MailService, DashboardCache)
 routes/           # web.php — all route definitions
 views/            # PHP templates; layouts/header.php and footer.php wrap content
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)

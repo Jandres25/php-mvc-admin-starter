@@ -162,6 +162,30 @@ ToastUtils.loadingWithMinTime(
 );
 ```
 
+## Passing PHP data to JS (non-AJAX)
+
+When a page needs PHP data in JS without a fetch/AJAX call, embed it as `data-*` attributes on the relevant HTML element. **Never use inline `<script>` blocks inside views.**
+
+```php
+<!-- view: pass a JSON array via data attribute -->
+<canvas id="myChart"
+    data-chart="<?= htmlspecialchars(json_encode($dataset, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
+</canvas>
+
+<!-- For scalar values, a plain data attribute is enough -->
+<div id="myWidget" data-user-id="<?= (int) $userId ?>"></div>
+```
+
+```js
+// module JS reads it — no HTML generated here
+const dataset = JSON.parse(
+  document.getElementById("myChart").dataset.chart || "[]",
+);
+const userId = parseInt(document.getElementById("myWidget").dataset.userId, 10);
+```
+
+This pattern is used in `public/js/modules/dashboard/index-dashboard.js`.
+
 ## Select2 and validation conventions
 
 - `ComponentUtils.initAll()` auto-initializes `.select2` and tooltips.
