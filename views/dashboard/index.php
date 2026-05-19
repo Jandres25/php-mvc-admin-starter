@@ -79,6 +79,68 @@
         </div>
         <!-- /.row stats -->
 
+        <!-- Charts -->
+        <div class="row">
+            <!-- Donut: active vs inactive users -->
+            <div class="col-xl-4 col-lg-6">
+                <div class="card card-outline card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-circle-notch mr-1"></i> Users by Status</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height:260px; position:relative;">
+                            <canvas id="chartUserStatus"
+                                data-active="<?= (int) $chartData['usersByStatus']['active'] ?>"
+                                data-inactive="<?= (int) $chartData['usersByStatus']['inactive'] ?>">
+                            </canvas>
+                            <p id="chartUserStatusFallback" class="text-muted text-center pt-5" style="display:none;">
+                                No data to display.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar: top 5 permissions by assigned users -->
+            <div class="col-xl-4 col-lg-6">
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-key mr-1"></i> Top Permissions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height:260px; position:relative;">
+                            <canvas id="chartTopPermissions"
+                                data-chart="<?= htmlspecialchars(json_encode($chartData['topPerms'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
+                            </canvas>
+                            <p id="chartTopPermissionsFallback" class="text-muted text-center pt-5" style="display:none;">
+                                No permissions assigned yet.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line: user registrations per month -->
+            <div class="col-xl-4 col-lg-12">
+                <div class="card card-outline card-success">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Registrations (6 months)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height:260px; position:relative;">
+                            <canvas id="chartUsersByMonth"
+                                data-chart="<?= htmlspecialchars(json_encode($chartData['usersByMonth'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
+                            </canvas>
+                            <p id="chartUsersByMonthFallback" class="text-muted text-center pt-5" style="display:none;">
+                                No registrations in the last 6 months.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.row charts -->
+
         <!-- Recent Users -->
         <div class="row">
             <div class="col-12">
