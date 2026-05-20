@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PHP MVC admin starter with authentication, user management, and permission-based access control. Uses AdminLTE 3 UI, PDO/MySQL, and Composer with native PSR-4 autoloading.
+PHP MVC admin starter with authentication, user management, role management, and permission-based access control. Uses AdminLTE 3 UI, PDO/MySQL, and Composer with native PSR-4 autoloading.
 
 > **Note for AI Agents:** See `docs/AI_SETUP.md` for details on how this project orchestrates AI skills and MCP servers. Custom skills for interacting with this repository should be placed in `.claude/skills/`.
 
@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.8.0`
+**Current release tag:** `3.9.0`
 
 ## No Build Process
 
@@ -58,7 +58,7 @@ vendor/bin/phpunit --testsuite=Integration  # integration tests (requires DB)
 
 **Unit suite** (`tests/Unit/`) — covers `Auth`, `Router`, `helpers`, `ImageService`. No DB, no session start needed. Runs in < 2 s.
 
-**Integration suite** (`tests/Integration/`) — covers `User` model, `Permission` model, and `Auth` cross-model flows (`refreshPermissionsIfStale`, `attemptRememberLogin`). Requires a separate test DB.
+**Integration suite** (`tests/Integration/`) — covers `User` model, `Permission` model, `Role` model, and `Auth` cross-model flows (`refreshPermissionsIfStale`, `attemptRememberLogin`). Requires a separate test DB.
 
 **Test DB setup (one time):**
 
@@ -104,7 +104,7 @@ Clean URL examples:
 ```
 app/
 ├── Config/       # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
-├── Controllers/  # Feature controllers (Auth/, Users/, Permissions/, Dashboard/)
+├── Controllers/  # Feature controllers (Auth/, Users/, Permissions/, Roles/, Dashboard/)
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models

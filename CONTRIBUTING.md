@@ -232,7 +232,7 @@ When adding new features, follow the existing project structure:
 │       └── modules/      # Feature-specific CSS
 ├── app/
 │   ├── Core/             # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
-│   ├── Controllers/      # Feature controllers (Auth/, Users/, Permissions/, Dashboard/)
+│   ├── Controllers/      # Feature controllers (Auth/, Users/, Permissions/, Dashboard/, Roles/)
 │   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 │   ├── Models/           # App\Models
 │   ├── Services/         # App\Services (ImageService, MailService, DashboardCache)
@@ -243,6 +243,7 @@ When adding new features, follow the existing project structure:
 │   ├── users/            # User views
 │   ├── permissions/      # Permission views
 │   ├── auth/             # Login, forgot password, reset password
+│   ├── roles/            # Role views
 │   └── errors/           # 403, 404 error pages
 ├── database/             # schema.sql and seeder.sql
 ├── vendor/               # Composer dependencies (not committed — run composer install)

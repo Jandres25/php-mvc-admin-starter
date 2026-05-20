@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.0] - 2026-05-20
+
+### Added
+
+- **`roles` table** — `id`, `name` (varchar 60, unique), `description` (varchar 255 nullable), `status` (tinyint default 1), timestamps. Created before `users` in `schema.sql` to satisfy the FK constraint.
+- **`role_id` FK on `users`** — `INT DEFAULT NULL` column + `CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)` in `schema.sql`.
+- **`roles.manage` permission** — inserted in `database/seeder.sql` and granted to admin in the permission matrix.
+- **`App\Models\Role`** — `getAllWithUserCount()`, `getById()`, `getAllActive()`, `getStatistics()`, `nameExists()`, `create()`, `update()`, `updateStatus()`, `countUsers()`, `getLastInsertId()`. All mutation methods call `DashboardCache::forget('user_stats')` and `DashboardCache::forget('users_by_status')`.
+- **`App\Controllers\Roles\RoleController`** — `pageIndex()`, `create()`, `update()`, `toggleStatus()`, `checkName()`. CRUD via AJAX + shared modal, logical delete only (no physical DELETE).
+- **5 routes** in `routes/web.php`: `GET /roles`, `POST /roles/create`, `POST /roles/update`, `POST /roles/toggle-status`, `POST /roles/check-name`. All gated by `auth + perm:roles.manage` (check-name uses `auth` only, matching the `check-email` pattern).
+- **`views/roles/index.php`** — info-boxes (Total/Active/Inactive), DataTables list with ID, Name, Description, Users, Status, Actions columns; Edit and Toggle-status buttons per row.
+- **`views/roles/_modal_role.php`** — shared create/edit modal. Status field intentionally omitted — status is managed exclusively via the toggle button in the table.
+- **`public/js/modules/roles/index-roles.js`** — DataTables init, open-modal-in-create-mode handler, toggle-status handler with client-side guard (blocks deactivation when users are assigned).
+- **`public/js/modules/roles/modal-role.js`** — jQuery Validate (name required + maxlength 60 + remote uniqueness check, description maxlength 255), `isSubmitting` guard, open-in-edit-mode handler, AJAX submit, reset on modal close.
+- **Sidebar entry** for Roles in `views/layouts/header.php`, gated by `Auth::hasPermission('roles.manage')`. Administration block guard updated to show when `roles.manage` is present.
+- **`tests/Integration/Models/RoleTest.php`** — 19 integration tests covering all `Role` model methods. Status assertions use `(int)` cast to handle native PHP types from PDO with `ATTR_EMULATE_PREPARES => false`.
+- **`tests/fixtures/sql/minimal_seed.sql`** — added `TRUNCATE TABLE roles`, `ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INT DEFAULT NULL`, and two seed roles (Editor active, Auditor inactive).
+
+### Changed
+
+- **`docs/SEEDING.md`** — added `roles.manage` column to the permission matrix (admin ✅, others ❌).
+- **`CLAUDE.md`**, **`README.md`** — version bumped to 3.9.0; Controllers/ architecture updated to include `Roles/`; Features list and integration suite description updated.
+
+---
+
 ## [3.8.0] - 2026-05-19
 
 ### Added
@@ -566,6 +591,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.9.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.8.0...3.9.0
 [3.8.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.7.0...3.8.0
 [3.7.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.6.0...3.7.0
 [3.6.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.5.0...3.6.0

@@ -70,6 +70,7 @@ teardown, so the DB is always clean.
 | `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                 |
 | `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                      |
 | `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission mutations    |
+| `tests/Integration/Models/RoleTest.php`                         | `Role` CRUD, status toggle, user count, statistics    |
 
 ---
 
@@ -97,7 +98,9 @@ teardown, so the DB is always clean.
 - **`tests/fixtures/images/`** — `sample.jpg` (50×50 JPEG), `sample.png` (80×40 PNG with alpha),
   `corrupt.txt` (non-image file). Used by `ImageServiceTest`.
 - **`tests/fixtures/sql/minimal_seed.sql`** — 1 admin user, 1 editor user, 2 permissions, 1
-  assignment. Loaded once per Integration suite run.
+  assignment, 2 seed roles (Editor active, Auditor inactive). Loaded once per Integration suite run.
+  Also includes `ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INT DEFAULT NULL` so the test DB
+  stays compatible when the `users` table was created before the `role_id` column was added.
 
 ---
 
