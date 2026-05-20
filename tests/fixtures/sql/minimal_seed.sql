@@ -6,7 +6,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE user_permissions;
 TRUNCATE TABLE users;
 TRUNCATE TABLE permissions;
+TRUNCATE TABLE roles;
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Ensure role_id column exists (test DB may have been created before this column was added)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INT DEFAULT NULL;
 
 -- Permissions
 INSERT INTO permissions (id, name, description, status) VALUES
@@ -29,3 +33,8 @@ VALUES
 
 -- Assign 'users' permission to normal user
 INSERT INTO user_permissions (user_id, permission_id) VALUES (2, 1);
+
+-- Roles
+INSERT INTO roles (id, name, description, status) VALUES
+  (1, 'Editor',  'Content editor role', 1),
+  (2, 'Auditor', 'Read-only audit role', 0);
