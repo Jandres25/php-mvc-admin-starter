@@ -9,9 +9,6 @@ TRUNCATE TABLE permissions;
 TRUNCATE TABLE roles;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Ensure role_id column exists (test DB may have been created before this column was added)
-ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INT DEFAULT NULL;
-
 -- Permissions
 INSERT INTO permissions (id, name, description, status) VALUES
   (1, 'users',       'User management',       1),
