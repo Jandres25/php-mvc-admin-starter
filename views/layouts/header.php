@@ -121,7 +121,7 @@
                         </li>
 
                         <!-- Administration -->
-                        <?php if (\App\Core\Auth::hasPermission('users') || \App\Core\Auth::hasPermission('permissions')) : ?>
+                        <?php if (\App\Core\Auth::hasPermission('users') || \App\Core\Auth::hasPermission('permissions') || \App\Core\Auth::hasPermission('roles.manage')) : ?>
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon fas fa-user-shield"></i>
@@ -144,6 +144,14 @@
                                             <a href="<?= URL; ?>permissions" class="nav-link">
                                                 <i class="fas fa-key nav-icon"></i>
                                                 <p>Permissions</p>
+                                            </a>
+                                        </li>
+                                    <?php endif; ?>
+                                    <?php if (\App\Core\Auth::hasPermission('roles.manage')) : ?>
+                                        <li class="nav-item">
+                                            <a href="<?= URL; ?>roles" class="nav-link">
+                                                <i class="fas fa-user-tag nav-icon"></i>
+                                                <p>Roles</p>
                                             </a>
                                         </li>
                                     <?php endif; ?>

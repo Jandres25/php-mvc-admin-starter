@@ -37,7 +37,7 @@ class RoleController extends Controller
         $this->render(
             'roles/index',
             compact('roles', 'statistics'),
-            ['datatables', 'datatables-export'],
+            ['datatables', 'datatables-export', 'validate'],
             ['roles/modal-role', 'roles/index-roles']
         );
     }
