@@ -49,4 +49,13 @@ return [
     ['method' => 'POST', 'path' => '/permissions/revoke-user',      'controller' => 'Permissions\Permission@revokeUser',      'middleware' => ['auth', 'perm:permissions']],
     ['method' => 'GET',  'path' => '/permissions/get-users-without','controller' => 'Permissions\Permission@getUsersWithout', 'middleware' => ['auth', 'perm:permissions']],
 
+    // Roles
+    ['method' => 'GET',  'path' => '/roles',               'controller' => 'Roles\Role@pageIndex',   'middleware' => ['auth', 'perm:roles.manage']],
+
+    // Roles AJAX
+    ['method' => 'POST', 'path' => '/roles/create',        'controller' => 'Roles\Role@create',      'middleware' => ['auth', 'perm:roles.manage']],
+    ['method' => 'POST', 'path' => '/roles/update',        'controller' => 'Roles\Role@update',      'middleware' => ['auth', 'perm:roles.manage']],
+    ['method' => 'POST', 'path' => '/roles/toggle-status', 'controller' => 'Roles\Role@toggleStatus','middleware' => ['auth', 'perm:roles.manage']],
+    ['method' => 'POST', 'path' => '/roles/check-name',    'controller' => 'Roles\Role@checkName',   'middleware' => ['auth']],
+
 ];

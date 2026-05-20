@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * Role Controller
+ *
+ * Handles all HTTP actions for the Roles module (index, CRUD AJAX, check-name).
+ *
+ * @package ProyectoBase
+ * @subpackage App\Controllers\Roles
+ * @author Jandres25
+ * @version 1.0
+ */
+
+namespace App\Controllers\Roles;
+
+use App\Core\Controller;
+use App\Models\Role;
+
+class RoleController extends Controller
+{
+    /** @var Role */
+    private $roleModel;
+
+    public function __construct()
+    {
+        $this->roleModel = new Role();
+    }
+
+    /**
+     * Renders the roles index page with stats and full list.
+     */
+    public function pageIndex()
+    {
+        $roles      = $this->roleModel->getAllWithUserCount();
+        $statistics = $this->roleModel->getStatistics();
+
+        $this->render(
+            'roles/index',
+            compact('roles', 'statistics'),
+            ['datatables', 'datatables-export'],
+            ['roles/modal-role', 'roles/index-roles']
+        );
+    }
+
+    /**
+     * AJAX — creates a new role.
+     */
+    public function create()
+    {
+        $this->csrfCheck();
+
+        $data = $this->roleModel->trimInput([
+            'name'        => $_POST['name']        ?? '',
+            'description' => $_POST['description'] ?? '',
+        ]);
+
+        if (empty($data['name'])) {
+            $this->jsonResponse(['success' => false, 'message' => 'Role name is required.']);
+        }
+
+        if ($this->roleModel->create($data)) {
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Role created successfully.';
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse([
+                'success' => true,
+                'message' => 'Role created successfully.',
+                'role'    => [
+                    'id'          => $this->roleModel->getLastInsertId(),
+                    'name'        => $data['name'],
+                    'status'      => 1,
+                    'total_users' => 0,
+                ],
+            ]);
+        }
+
+        $this->jsonResponse(['success' => false, 'message' => $this->roleModel->getLastError()]);
+    }
+
+    /**
+     * AJAX — updates an existing role.
+     */
+    public function update()
+    {
+        $this->csrfCheck();
+
+        $id = (int) ($_POST['id'] ?? 0);
+
+        if (!$id) {
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid role ID.']);
+        }
+
+        $current = $this->roleModel->getById($id);
+        if (!$current) {
+            $this->jsonResponse(['success' => false, 'message' => 'Role not found.']);
+        }
+
+        $data = $this->roleModel->trimInput([
+            'name'        => $_POST['name']        ?? '',
+            'description' => $_POST['description'] ?? '',
+        ]);
+
+        if (empty($data['name'])) {
+            $data['name'] = $current['name'];
+        }
+
+        if ($this->roleModel->update($id, $data)) {
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Role updated successfully.';
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse([
+                'success' => true,
+                'message' => 'Role updated successfully.',
+                'role'    => [
+                    'id'          => $id,
+                    'name'        => $data['name'],
+                    'status'      => (int) $current['status'],
+                    'total_users' => $this->roleModel->countUsers($id),
+                ],
+            ]);
+        }
+
+        $this->jsonResponse(['success' => false, 'message' => $this->roleModel->getLastError()]);
+    }
+
+    /**
+     * AJAX — toggles the active/inactive status of a role.
+     * Rejects deactivation when the role has assigned users.
+     */
+    public function toggleStatus()
+    {
+        $this->csrfCheck();
+
+        $id            = filter_var($_POST['id']             ?? null, FILTER_VALIDATE_INT);
+        $currentStatus = filter_var($_POST['current_status'] ?? null, FILTER_VALIDATE_INT);
+
+        if (!$id || $currentStatus === false) {
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid data.']);
+        }
+
+        if ($currentStatus == 1 && $this->roleModel->countUsers($id) > 0) {
+            $this->jsonResponse(['success' => false, 'message' => 'Cannot deactivate this role because it has assigned users.']);
+        }
+
+        $newStatus = $currentStatus == 1 ? 0 : 1;
+
+        if ($this->roleModel->updateStatus($id, $newStatus)) {
+            regenerateCSRFToken();
+            $label               = $newStatus == 1 ? 'activated' : 'deactivated';
+            $_SESSION['message'] = "Role {$label} successfully.";
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse([
+                'success'    => true,
+                'message'    => "Role {$label} successfully.",
+                'new_status' => $newStatus,
+            ]);
+        }
+
+        $this->jsonResponse(['success' => false, 'message' => 'Error changing role status: ' . $this->roleModel->getLastError()]);
+    }
+
+    /**
+     * AJAX (remote validation) — checks whether a role name is already taken.
+     * Returns true (JSON) if available, or an error string if taken.
+     */
+    public function checkName()
+    {
+        $name   = trim($_POST['name']    ?? '');
+        $roleId = filter_var($_POST['role_id'] ?? '', FILTER_VALIDATE_INT) ?: null;
+
+        if (!$name) {
+            echo 'true';
+            exit;
+        }
+
+        $exists = $this->roleModel->nameExists($name, $roleId);
+        header('Content-Type: application/json');
+        echo $exists ? json_encode('This role name already exists.') : 'true';
+        exit;
+    }
+}
