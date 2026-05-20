@@ -28,13 +28,13 @@ All users below are seeded with password: `admin123`
 
 ## Permission matrix
 
-| User                     | profile | users | permissions | admin |
-| ------------------------ | ------- | ----- | ----------- | ----- |
-| admin@sistema.com        | ✅      | ✅    | ✅          | ✅    |
-| ana.paredes@sistema.com  | ✅      | ✅    | ❌          | ❌    |
-| carlos.rojas@sistema.com | ✅      | ❌    | ❌          | ❌    |
-| lucia.quispe@sistema.com | ✅      | ❌    | ✅          | ❌    |
-| diego.torres@sistema.com | ✅      | ❌    | ❌          | ❌    |
+| User                     | profile | users | permissions | admin | roles.manage |
+| ------------------------ | ------- | ----- | ----------- | ----- | ------------ |
+| admin@sistema.com        | ✅      | ✅    | ✅          | ✅    | ✅           |
+| ana.paredes@sistema.com  | ✅      | ✅    | ❌          | ❌    | ❌           |
+| carlos.rojas@sistema.com | ✅      | ❌    | ❌          | ❌    | ❌           |
+| lucia.quispe@sistema.com | ✅      | ❌    | ✅          | ❌    | ❌           |
+| diego.torres@sistema.com | ✅      | ❌    | ❌          | ❌    | ❌           |
 
 ## Notes
 

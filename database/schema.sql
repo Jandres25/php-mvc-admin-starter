@@ -13,6 +13,17 @@ CREATE TABLE permissions (
   UNIQUE KEY (name)
 );
 
+-- Roles table (must be created before users due to FK)
+CREATE TABLE roles (
+  id int PRIMARY KEY AUTO_INCREMENT,
+  name varchar(60) NOT NULL,
+  description varchar(255) DEFAULT NULL,
+  status tinyint(1) DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_roles_name (name)
+);
+
 -- Users table
 CREATE TABLE users (
   id int PRIMARY KEY AUTO_INCREMENT,
@@ -35,8 +46,10 @@ CREATE TABLE users (
   reset_token_expiry DATETIME DEFAULT NULL,
   remember_token CHAR(64) NULL DEFAULT NULL,
   remember_token_expires DATETIME NULL DEFAULT NULL,
+  role_id int DEFAULT NULL,
   UNIQUE KEY (email),
-  UNIQUE KEY (document_type, document_number)
+  UNIQUE KEY (document_type, document_number),
+  CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
 -- User permissions pivot table
