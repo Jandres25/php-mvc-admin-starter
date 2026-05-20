@@ -21,7 +21,6 @@ $(document).ready(function () {
         $('#formRole')[0].reset();
         $('#roleAction').val('create');
         $('#roleId').val('');
-        $('#roleStatusGroup').hide();
 
         $('#modalRoleHeader').removeClass('bg-warning').addClass('bg-primary');
         $('#modalRoleLabel').text('Create New Role');

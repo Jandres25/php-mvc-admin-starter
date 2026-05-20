@@ -58,14 +58,11 @@ $(document).ready(function () {
         const id          = $(this).data('id');
         const name        = $(this).data('name');
         const description = $(this).data('description') || '';
-        const status      = $(this).data('status');
 
         $('#roleAction').val('edit');
         $('#roleId').val(id);
         $('#roleName').val(name);
         $('#roleDescription').val(description);
-        $('#roleStatus').val(status);
-        $('#roleStatusGroup').show();
 
         $('#modalRoleHeader').removeClass('bg-primary').addClass('bg-warning');
         $('#modalRoleLabel').text('Edit Role');
@@ -130,7 +127,6 @@ $(document).ready(function () {
         $('#formRole')[0].reset();
         $('#formRole').validate().resetForm();
         $('#formRole').find('.is-invalid').removeClass('is-invalid');
-        $('#roleStatusGroup').hide();
         $('#btnSaveRole').prop('disabled', false);
     });
 });

@@ -65,62 +65,59 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" style="display: block;">
-                        <div class="table-responsive">
-                            <table id="tableRoles" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
-                                <thead>
+                    <div class="card-body">
+                        <table id="tableRoles" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 8%">ID</th>
+                                    <th class="text-center" style="width: 20%">Name</th>
+                                    <th class="text-center" style="width: 40%">Description</th>
+                                    <th class="text-center" style="width: 12%">Users</th>
+                                    <th class="text-center" style="width: 10%">Status</th>
+                                    <th class="text-center" style="width: 10%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($roles as $role):
+                                    $isActive   = ((int) $role['status']) === 1;
+                                    $totalUsers = (int) ($role['total_users'] ?? 0);
+                                ?>
                                     <tr>
-                                        <th class="text-center" style="width: 8%">ID</th>
-                                        <th class="text-center" style="width: 20%">Name</th>
-                                        <th class="text-center" style="width: 40%">Description</th>
-                                        <th class="text-center" style="width: 12%">Users</th>
-                                        <th class="text-center" style="width: 10%">Status</th>
-                                        <th class="text-center" style="width: 10%">Actions</th>
+                                        <td class="text-center"><?= $role['id']; ?></td>
+                                        <td><?= htmlspecialchars($role['name']); ?></td>
+                                        <td><?= htmlspecialchars(!empty($role['description']) ? $role['description'] : 'N/A'); ?></td>
+                                        <td class="text-center">
+                                            <span class="badge <?= $totalUsers > 0 ? 'badge-primary' : 'badge-secondary'; ?> badge-pill p-2">
+                                                <?= $totalUsers; ?> <?= $totalUsers === 1 ? 'user' : 'users'; ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2">
+                                                <?= $isActive ? 'Active' : 'Inactive'; ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-warning btn-sm btn-edit"
+                                                    data-id="<?= $role['id']; ?>"
+                                                    data-name="<?= htmlspecialchars($role['name']); ?>"
+                                                    data-description="<?= htmlspecialchars($role['description'] ?? ''); ?>"
+                                                    data-toggle="tooltip" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
+                                                    data-id="<?= $role['id']; ?>"
+                                                    data-current-status="<?= $role['status']; ?>"
+                                                    data-users="<?= $totalUsers; ?>"
+                                                    data-toggle="tooltip" title="<?= $isActive ? 'Deactivate' : 'Activate'; ?>">
+                                                    <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($roles as $role):
-                                        $isActive   = ((int) $role['status']) === 1;
-                                        $totalUsers = (int) ($role['total_users'] ?? 0);
-                                    ?>
-                                        <tr>
-                                            <td class="text-center"><?= $role['id']; ?></td>
-                                            <td><?= htmlspecialchars($role['name']); ?></td>
-                                            <td><?= htmlspecialchars(!empty($role['description']) ? $role['description'] : 'N/A'); ?></td>
-                                            <td class="text-center">
-                                                <span class="badge <?= $totalUsers > 0 ? 'badge-primary' : 'badge-secondary'; ?> badge-pill p-2">
-                                                    <?= $totalUsers; ?> <?= $totalUsers === 1 ? 'user' : 'users'; ?>
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2">
-                                                    <?= $isActive ? 'Active' : 'Inactive'; ?>
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-warning btn-sm btn-edit"
-                                                        data-id="<?= $role['id']; ?>"
-                                                        data-name="<?= htmlspecialchars($role['name']); ?>"
-                                                        data-description="<?= htmlspecialchars($role['description'] ?? ''); ?>"
-                                                        data-status="<?= $role['status']; ?>"
-                                                        data-toggle="tooltip" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
-                                                        data-id="<?= $role['id']; ?>"
-                                                        data-current-status="<?= $role['status']; ?>"
-                                                        data-users="<?= $totalUsers; ?>"
-                                                        data-toggle="tooltip" title="<?= $isActive ? 'Deactivate' : 'Activate'; ?>">
-                                                        <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

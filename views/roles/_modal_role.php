@@ -23,13 +23,6 @@
                         <label for="roleDescription">Description</label>
                         <textarea class="form-control" id="roleDescription" name="description" rows="3" maxlength="255" placeholder="What is this role for?"></textarea>
                     </div>
-                    <div class="form-group" id="roleStatusGroup" style="display: none;">
-                        <label for="roleStatus">Status</label>
-                        <select class="form-control" id="roleStatus" name="status">
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">

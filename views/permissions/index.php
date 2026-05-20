@@ -65,62 +65,60 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" style="display: block;">
-                        <div class="table-responsive">
-                            <table id="tablePermissions" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
-                                <thead>
+                    <div class="card-body">
+                        <table id="tablePermissions" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 10%">ID</th>
+                                    <th class="text-center" style="width: 20%">Name</th>
+                                    <th class="text-center" style="width: 40%">Description</th>
+                                    <th class="text-center" style="width: 15%">Users</th>
+                                    <th class="text-center" style="width: 10%">Status</th>
+                                    <th class="text-center" style="width: 15%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($permissions as $permission):
+                                    $isActive   = ((int) $permission['status']) === 1;
+                                    $totalUsers = (int) ($permission['total_users'] ?? 0);
+                                ?>
                                     <tr>
-                                        <th class="text-center" style="width: 10%">ID</th>
-                                        <th class="text-center" style="width: 20%">Name</th>
-                                        <th class="text-center" style="width: 40%">Description</th>
-                                        <th class="text-center" style="width: 15%">Users</th>
-                                        <th class="text-center" style="width: 10%">Status</th>
-                                        <th class="text-center" style="width: 15%">Actions</th>
+                                        <td class="text-center"><?= $permission['id']; ?></td>
+                                        <td><?= htmlspecialchars($permission['name']); ?></td>
+                                        <td><?= htmlspecialchars(!empty($permission['description']) ? $permission['description'] : 'N/A'); ?></td>
+                                        <td class="text-center">
+                                            <span class="badge <?= $totalUsers > 0 ? 'badge-primary' : 'badge-secondary'; ?> badge-pill p-2">
+                                                <?= $totalUsers; ?> <?= $totalUsers === 1 ? 'user' : 'users'; ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2"><?= $isActive ? 'Active' : 'Inactive'; ?></span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a href="<?= URL ?>permissions/<?= $permission['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-warning btn-sm btn-edit"
+                                                    data-id="<?= $permission['id']; ?>"
+                                                    data-name="<?= htmlspecialchars($permission['name']); ?>"
+                                                    data-description="<?= htmlspecialchars($permission['description'] ?? ''); ?>"
+                                                    data-toggle="tooltip" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
+                                                    data-id="<?= $permission['id']; ?>"
+                                                    data-current-status="<?= $permission['status']; ?>"
+                                                    data-users="<?= $totalUsers; ?>"
+                                                    data-toggle="tooltip" title="<?= $isActive ? 'Deactivate' : 'Activate'; ?>">
+                                                    <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($permissions as $permission):
-                                        $isActive   = ((int) $permission['status']) === 1;
-                                        $totalUsers = (int) ($permission['total_users'] ?? 0);
-                                    ?>
-                                        <tr>
-                                            <td class="text-center"><?= $permission['id']; ?></td>
-                                            <td><?= htmlspecialchars($permission['name']); ?></td>
-                                            <td><?= htmlspecialchars(!empty($permission['description']) ? $permission['description'] : 'N/A'); ?></td>
-                                            <td class="text-center">
-                                                <span class="badge <?= $totalUsers > 0 ? 'badge-primary' : 'badge-secondary'; ?> badge-pill p-2">
-                                                    <?= $totalUsers; ?> <?= $totalUsers === 1 ? 'user' : 'users'; ?>
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2"><?= $isActive ? 'Active' : 'Inactive'; ?></span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group">
-                                                    <a href="<?= URL ?>permissions/<?= $permission['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View details">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-warning btn-sm btn-edit"
-                                                        data-id="<?= $permission['id']; ?>"
-                                                        data-name="<?= htmlspecialchars($permission['name']); ?>"
-                                                        data-description="<?= htmlspecialchars($permission['description'] ?? ''); ?>"
-                                                        data-toggle="tooltip" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
-                                                        data-id="<?= $permission['id']; ?>"
-                                                        data-current-status="<?= $permission['status']; ?>"
-                                                        data-users="<?= $totalUsers; ?>"
-                                                        data-toggle="tooltip" title="<?= $isActive ? 'Deactivate' : 'Activate'; ?>">
-                                                        <i class="fas <?= $isActive ? 'fa-times' : 'fa-check'; ?>"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
