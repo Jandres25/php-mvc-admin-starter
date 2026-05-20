@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`docs/SEEDING.md`** — added `roles.manage` column to the permission matrix (admin ✅, others ❌).
 - **`CLAUDE.md`**, **`README.md`** — version bumped to 3.9.0; Controllers/ architecture updated to include `Roles/`; Features list and integration suite description updated.
 
+### Fixed
+
+- **`tests/fixtures/sql/minimal_seed.sql`** — removed `ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id` (MariaDB-only syntax, incompatible with MySQL 8.0 used in CI). The column is already present in `schema.sql`, making the `ALTER` redundant.
+
 ---
 
 ## [3.8.0] - 2026-05-19
