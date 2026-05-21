@@ -62,15 +62,16 @@ No DB, no HTTP context. Each test class maps to a production class:
 Requires a live MySQL connection. Each test runs inside a transaction that is rolled back on
 teardown, so the DB is always clean.
 
-| Test class                                                      | What it covers                                        |
-| --------------------------------------------------------------- | ----------------------------------------------------- |
-| `tests/Integration/Models/UserTest.php`                         | `User` CRUD, remember-me token, permissions timestamp |
-| `tests/Integration/Models/PermissionTest.php`                   | `Permission` read, assign, revoke, sync               |
-| `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale`, `attemptRememberLogin`   |
-| `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                 |
-| `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                      |
-| `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission mutations    |
-| `tests/Integration/Models/RoleTest.php`                         | `Role` CRUD, status toggle, user count, statistics    |
+| Test class                                                      | What it covers                                                          |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `tests/Integration/Models/UserTest.php`                         | `User` CRUD (including `role_id`), remember-me token, permissions timestamp, `getAll` JOIN |
+| `tests/Integration/Models/PermissionTest.php`                   | `Permission` read, assign, revoke, sync                                 |
+| `tests/Integration/Models/RoleTest.php`                         | `Role` CRUD, status toggle, user count, statistics                      |
+| `tests/Integration/Models/RolePermissionTest.php`               | `syncPermissions`, `getAssignedPermissionIds`, `getPermissionNames`, `getUserIdsByRole` |
+| `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale` (including UNION merge and dedup), `attemptRememberLogin` |
+| `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                                   |
+| `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                                        |
+| `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission/Role mutations                 |
 
 ---
 
@@ -91,16 +92,18 @@ teardown, so the DB is always clean.
 - Loads schema + seed once per suite run (`setUpBeforeClass`).
 - Wraps each test in `beginTransaction` / `rollBack` by default.
 - Set `protected bool $useTransactions = false` in a subclass when the SUT manages its own
-  transaction (e.g. `Permission::syncForUser`); call `self::reloadSeed()` in `setUp/tearDown` instead.
+  transaction (e.g. `Role::syncPermissions`, `Permission::syncForUser`); call `self::reloadSeed()` in `setUp/tearDown` instead.
 
 ### Fixtures
 
 - **`tests/fixtures/images/`** — `sample.jpg` (50×50 JPEG), `sample.png` (80×40 PNG with alpha),
   `corrupt.txt` (non-image file). Used by `ImageServiceTest`.
-- **`tests/fixtures/sql/minimal_seed.sql`** — 1 admin user, 1 editor user, 2 permissions, 1
-  assignment, 2 seed roles (Editor active, Auditor inactive). Loaded once per Integration suite run.
-  Also includes `ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INT DEFAULT NULL` so the test DB
-  stays compatible when the `users` table was created before the `role_id` column was added.
+- **`tests/fixtures/sql/minimal_seed.sql`** — inserts in dependency order (roles → permissions → users → assignments):
+  - 3 roles: `Administrator` (is_system=1, active), `Editor` (active), `Auditor` (inactive)
+  - 2 permissions: `users`, `permissions`
+  - 1 admin user (role = Administrator), 1 normal user (role = Editor)
+  - 1 direct permission assignment (user 2 → `users`)
+  - 1 role permission assignment (Editor → `users`)
 
 ---
 

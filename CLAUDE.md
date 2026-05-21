@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.9.0`
+**Current release tag:** `3.10.0`
 
 ## No Build Process
 
@@ -136,9 +136,9 @@ See `docs/ACCESS_CONTROL.md` for the full method reference and flows.
 
 `Auth::hasPermission(string $name)` is the standard check for menu/page/action gating. It reads from `$_SESSION['user_permissions']` — no DB query per call.
 
-Administrators always get `['*']` in their session cache. Non-admins get an array of permission name strings loaded from `user_permissions` at login.
+Administrators (users whose role has `is_system = 1`) always get `['*']` in their session cache. Non-admins get an array of permission name strings that is the **union** of their direct `user_permissions` assignments and the permissions inherited from their role via `role_permissions` — duplicates are removed with `array_unique`.
 
-The permission cache is refreshed automatically by `Auth::refreshPermissionsIfStale()` — called by `AuthMiddleware` on every authenticated request — comparing `$_SESSION['permissions_ts']` against `users.permissions_updated_at`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load.
+The permission cache is refreshed automatically by `Auth::refreshPermissionsIfStale()` — called by `AuthMiddleware` on every authenticated request — comparing `$_SESSION['permissions_ts']` against `users.permissions_updated_at`. Call `$userModel->updatePermissionsTimestamp($userId)` after any permission change so the affected user's cache is regenerated on their next page load. When role permissions change, call `updatePermissionsTimestamp()` for **every user of that role** so all their caches are invalidated.
 
 **Middleware:** Route-level protection is declared in `routes/web.php` via the `middleware` key:
 
@@ -164,7 +164,7 @@ Session-based cache for dashboard metrics with event-driven invalidation. Uses `
 
 Key methods: `DashboardCache::get(string $key)`, `DashboardCache::put(string $key, array $data)`, `DashboardCache::remember(string $key, callable $loader)`, `DashboardCache::forget(string $key)`, `DashboardCache::flush()`.
 
-**Invalidation contract:** any model method that mutates user or permission data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
+**Invalidation contract:** any model method that mutates user, permission, or role data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Role mutations (`create`, `update`, `updateStatus`, `syncPermissions`) clear `role_stats`. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
 
 **Passing data to JS:** views pass chart datasets as `data-*` attributes on canvas elements (e.g. `data-chart="<?= htmlspecialchars(json_encode(...)) ?>"`). Module JS reads `element.dataset.*` — no `<script>` blocks inside views.
 

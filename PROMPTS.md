@@ -248,9 +248,11 @@ Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/My
 Módulo nuevo: [nombre]
 
 BD existente relevante:
-- users (user_id, name, last_name, email, password, document, role, is_active, ...)
-- permissions (permission_id, name, description, is_active)
-- user_permissions (user_id, permission_id)
+- users (id, name, first_surname, second_surname, email, password, document_type, document_number, role_id FK, status, ...)
+- roles (id, name, description, status, is_system) — is_system=1 protege el rol de borrado/desactivación
+- permissions (id, name, description, status)
+- user_permissions (user_id, permission_id) — permisos directos por usuario
+- role_permissions (id, role_id, permission_id) — permisos heredados por rol
 
 Módulo de referencia para patrones: users.
 
@@ -335,5 +337,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.9.0_
+_Última actualización: v3.10.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

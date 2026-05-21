@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.9.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.10.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
@@ -17,9 +17,9 @@ A PHP starter template with authentication, user management, and role-based perm
 
 - **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout, persistent remember-me cookie
 - **User management** — Full CRUD, profile images, account activation/deactivation
-- **Role management** — Role catalog with logical delete, CRUD via shared modal + AJAX
-- **Permission control** — Granular per-user permissions, adaptive navigation menu
-- **Metrics dashboard** — Chart.js charts (donut, bar, line) with session-based cache and event-driven invalidation
+- **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`), logical delete only
+- **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
+- **Metrics dashboard** — Chart.js charts (donut, bar, line) + stat cards for users, permissions, and roles; session-based cache with event-driven invalidation
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard

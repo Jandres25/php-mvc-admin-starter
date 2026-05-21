@@ -169,7 +169,7 @@ When adding a new feature or fixing a bug:
 4. **Code Review**: Request review from maintainers
 5. **Address Feedback**: Make necessary changes based on review comments
 
-When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `AI_SETUP.md`) in the same PR.
+When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, role/permission model, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
 
 ### Pull Request Template
 

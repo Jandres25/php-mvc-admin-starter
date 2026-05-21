@@ -24,26 +24,42 @@ All authentication, session, and remember-me concerns are centralised in the sta
 |---|---|
 | `Auth::check()` | Returns `true` if a valid authenticated session exists |
 | `Auth::id()` | Returns the current user's ID or `null` |
-| `Auth::user()` | Returns current user array (`id`, `name`, `email`, `position`, `image`) or `null` |
-| `Auth::isAdmin()` | Returns `true` if the current user's position is Administrator |
+| `Auth::user()` | Returns current user array (`id`, `name`, `email`, `role`, `image`) or `null` |
+| `Auth::isAdmin()` | Returns `true` if `$_SESSION['user_is_admin']` is `true` (set from `roles.is_system`) |
 | `Auth::hasPermission(string $name)` | Checks session cache; `'*'` grants all (admins) |
 | `Auth::permissions()` | Returns the full permission name array from session |
 | `Auth::login(array $user, array $permNames)` | Regenerates session ID, writes all session keys, caches permissions |
-| `Auth::logout(int $userId)` | Clears remember-me cookie, destroys the session |
-| `Auth::checkTimeout()` | Destroys session and returns `false` if idle > `SESSION_LIFETIME` |
-| `Auth::checkSecurity()` | Destroys session and returns `false` if IP or User-Agent changed |
+| `Auth::logout()` | Reads user ID from session, clears remember-me cookie, destroys the session |
+| `Auth::checkTimeout()` | Destroys session and returns `false` if idle > `SESSION_LIFETIME`; fail-closed if `last_access` key missing |
+| `Auth::checkSecurity()` | Destroys session and returns `false` if IP or User-Agent changed; fail-closed if keys missing |
 | `Auth::refreshPermissionsIfStale()` | Reloads permission cache from DB if `permissions_updated_at` is newer than session timestamp |
 | `Auth::issueRememberCookie(int $userId)` | Generates token, stores SHA-256 hash in DB, sets cookie |
 | `Auth::attemptRememberLogin()` | Validates cookie token, auto-logs in, rotates token |
 | `Auth::clearRememberCookie(int $userId)` | NULLs DB token, expires cookie |
+
+## Session keys written at login
+
+| Key | Value |
+|---|---|
+| `user_id` | `int` — primary key |
+| `user_name` | `string` — first name |
+| `user_email` | `string` |
+| `user_role` | `string` — role display name (from `roles.name`) |
+| `user_is_admin` | `bool` — derived from `roles.is_system` |
+| `user_image` | `string` — avatar path |
+| `user_permissions` | `string[]` — union of direct + role permissions; `['*']` for admins |
+| `permissions_ts` | `string` — `Y-m-d H:i:s` timestamp used for stale-check |
+| `last_access` | `int` — Unix timestamp for inactivity timeout |
+| `ip` | `string` — client IP for anti-hijacking |
+| `user_agent` | `string` — User-Agent for anti-hijacking |
 
 ## Session security controls
 
 Implemented in `App\Core\Auth` (called by `AuthMiddleware`):
 
 - Session cookie hardening (`httponly`, `SameSite=Lax`, `use_strict_mode`) — set in `public/index.php` before `session_start()`
-- Inactivity timeout via `Auth::checkTimeout()` — reads `SESSION_LIFETIME` from `.env` (default: 1800 s)
-- Anti-hijacking validation via `Auth::checkSecurity()` (IP + User-Agent)
+- Inactivity timeout via `Auth::checkTimeout()` — reads `SESSION_LIFETIME` from `.env` (default: 1800 s). Fail-closed: a session without `last_access` is destroyed immediately.
+- Anti-hijacking validation via `Auth::checkSecurity()` (IP + User-Agent). Fail-closed: a session without `ip` or `user_agent` is destroyed immediately.
 
 If validation fails and no valid remember-me cookie exists, the user is redirected to login and receives a session message.
 
@@ -63,9 +79,9 @@ Implemented in `App\Core\Auth`. Controlled by three `.env` variables:
 2. A 64-char hex token is generated with `random_bytes(32)`; its SHA-256 hash is stored in `users.remember_token` with an expiry in `users.remember_token_expires`. The plain token goes into the cookie.
 3. On every request without an active session, `AuthMiddleware` calls `Auth::attemptRememberLogin()`:
    - Reads the cookie, hashes it, looks up `users` where `remember_token = hash AND expires > NOW() AND status = 1`.
-   - On match: calls `Auth::login()` to rebuild the session, then **rotates** the token (new random token replaces both the DB row and the cookie) to mitigate cookie theft.
+   - On match: calls `Auth::login()` to rebuild the session (including the permission UNION), then **rotates** the token to mitigate cookie theft. Also calls `Auth::refreshPermissionsIfStale()` before returning.
    - On no match: clears the stale cookie and returns `false`.
-4. On logout: `Auth::logout($userId)` NULLs the DB columns, expires the cookie, then destroys the session.
+4. On logout: `Auth::logout()` reads the user ID from session internally, NULLs the DB columns, expires the cookie, then destroys the session.
 
 **Security properties:**
 - Token never stored in plain text in DB — only SHA-256 hash.
@@ -85,9 +101,26 @@ remember_token_expires DATETIME  NULL DEFAULT NULL
 
 Permissions are cached in session at login and checked via `Auth::hasPermission(string $name)`.
 
-- Administrators always get `['*']` in their session cache — `hasPermission()` returns `true` for any name.
-- Non-admins get an array of permission name strings loaded from `user_permissions` at login.
-- `Auth::hasPermission()` reads only from session — no DB query per call.
+### Two levels of assignment
+
+```
+roles ──┐
+        ├── role_permissions ──► permissions   ← "this ROLE can do X"
+        │
+users ──┼── user_permissions ──► permissions   ← "this USER specifically can do X"
+        │
+        └── role_id ──► roles                  ← "this user belongs to role Y"
+```
+
+- `user_permissions` — direct per-user permission overrides.
+- `role_permissions` — permissions inherited by all users of a role.
+- At login and on cache refresh, `Auth` computes `array_unique(merge(direct, from_role))` and stores the result in `$_SESSION['user_permissions']`.
+- Admins (role with `is_system = 1`) always get `['*']` — `hasPermission()` returns `true` for any name without iterating the array.
+
+### System roles (`is_system = 1`)
+
+- `Auth::isAdmin()` reads `$_SESSION['user_is_admin']`, which is set from `roles.is_system` at login — not from the role name. The role can be freely renamed.
+- Roles with `is_system = 1` cannot be deactivated or deleted via the UI (`RoleController` enforces this server-side).
 
 ## Permission cache refresh contract
 
@@ -95,9 +128,11 @@ Permission changes are cached in session and refreshed when stale.
 
 - Session value: `$_SESSION['permissions_ts']`
 - DB value: `users.permissions_updated_at`
-- Refresh trigger: `Auth::refreshPermissionsIfStale()` — called by `AuthMiddleware` on every authenticated request — compares both values and reloads from DB via `Permission::getByUserId()` if the DB timestamp is newer.
+- Refresh trigger: `Auth::refreshPermissionsIfStale()` — called by `AuthMiddleware` on every authenticated request — compares both values and reloads the UNION from DB if the DB timestamp is newer.
 
-After changing any user permission assignments, call `$userModel->updatePermissionsTimestamp($userId)` so the affected user's cache is regenerated on their next page load.
+**After changing direct user permissions:** call `$userModel->updatePermissionsTimestamp($userId)`.
+
+**After changing role permissions:** call `$userModel->updatePermissionsTimestamp($uid)` for **every user** of that role — `Role::getUserIdsByRole($roleId)` returns the list. `RoleController::syncPermissions()` already does this automatically.
 
 ## Practical pattern
 

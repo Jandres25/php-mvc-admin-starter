@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.10.0] - 2026-05-21
+
+### Added
+
+- **`role_permissions` pivot table** — `(id, role_id FK, permission_id FK, UNIQUE(role_id, permission_id))` in `schema.sql`; `ON DELETE CASCADE` on both FK. Enables role-level permission inheritance without replacing per-user assignments.
+- **`roles.is_system` column** — `tinyint(1) NOT NULL DEFAULT 0`. Roles with `is_system = 1` (Administrator) cannot be deactivated or deleted via the UI; `Auth::isAdmin()` now derives from this flag instead of the role name.
+- **Role↔permission assignment UI** — `GET /roles/{id}` detail page (`views/roles/detail.php`) with a checkbox list of all active permissions; `POST /roles/sync-permissions` AJAX endpoint (`RoleController::syncPermissions`) with CSRF, server-side validation, and cache invalidation for all users of that role.
+- **`Role` model methods** — `getAssignedPermissionIds(int $roleId)`, `getPermissionNames(int $roleId)` (active only), `syncPermissions(int $roleId, array $permissionIds)` (DELETE+INSERT transaction), `getUserIdsByRole(int $roleId)`.
+- **Permission UNION in `Auth`** — `Auth::resolvePermNames()` private helper merges direct `user_permissions` + role `role_permissions` via `array_unique(array_merge(...))`. Used in `Auth::login()`, `Auth::attemptRememberLogin()`, and `Auth::refreshPermissionsIfStale()`. Returns `[]` (no DB query) when `role_id` is `null`.
+- **`role_id` in user forms** — `UserController::create()` and `edit()` inject `$activeRoles`; `prepareUserData()` maps `role_id` with `PDO::PARAM_NULL` when empty. `views/users/create.php` and `views/users/update.php` include a Select2 role selector.
+- **Role column in user list** — `User::getAll()` includes `LEFT JOIN roles r ON u.role_id = r.id` and exposes `r.name AS role_name`; `views/users/index.php` shows the Role column (N/A for users without a role).
+- **Dashboard "Total Roles" card** — `DashboardController` loads `role_stats` via `DashboardCache::remember('role_stats', ...)` and passes `canManageRoles`; the fourth stat card (bg-info) shows total roles with a "Manage" link for users with `roles.manage`.
+- **`public/js/modules/roles/detail-role.js`** — checkbox sync handler with `ToastUtils.loadingWithMinTime` and CSRF rotation.
+- **Integration tests** — `RolePermissionTest` (11 cases: sync, idempotency, inactive-permission filtering, getUserIdsByRole); `AuthIntegrationTest` extended with 3 UNION cases (merge, dedup, empty); `UserTest` extended with 4 cases (create/update with role_id, NULL role_id, getAll JOIN).
+
+### Changed
+
+- **`Auth::isAdmin()`** — now reads `$_SESSION['user_is_admin']` (bool, set from `roles.is_system` at login) instead of comparing `$_SESSION['user_position']` to `'administrator'`. The role name can be changed freely without breaking admin detection.
+- **`Auth::login()`** — sets `$_SESSION['user_is_admin']` and `$_SESSION['user_role']` (role display name) from the JOIN result; removes `$_SESSION['user_position']`.
+- **`Auth::logout()`** — removed the `int $userId` parameter; reads `$_SESSION['user_id']` internally to avoid a zero-ID query when the session is empty.
+- **`Auth::checkTimeout()`** — fail-closed: a session without `last_access` is destroyed and returns `false` immediately.
+- **`Auth::checkSecurity()`** — fail-closed: a session without `ip` or `user_agent` is destroyed and returns `false` immediately.
+- **`AuthMiddleware`** — calls `Auth::refreshPermissionsIfStale()` after a successful `attemptRememberLogin()` before returning.
+- **`AuthController`** login query includes `LEFT JOIN roles r ON u.role_id = r.id` to supply `role_name` and `role_is_system`.
+- **`Role` mutations** (`create`, `update`, `updateStatus`, `syncPermissions`) all call `DashboardCache::forget('role_stats')`.
+- **`tests/fixtures/sql/minimal_seed.sql`** — roles inserted before users to satisfy the FK constraint (required for MySQL 8.0 in CI); added `role_permissions` seed row (Editor → `users`).
+- **`docs/ACCESS_CONTROL.md`**, **`docs/SEEDING.md`**, **`docs/TESTING.md`**, **`CLAUDE.md`**, **`README.md`**, **`PROMPTS.md`**, **`CONTRIBUTING.md`** — updated to reflect the two-level permission model, new session keys, system roles, and the extended test suite.
+
+### Removed
+
+- **`users.position` column** — the "position" field mixed display cargo with the admin flag. Both concerns are now covered by `roles.name` (display) and `roles.is_system` (admin detection). `$_SESSION['user_position']` removed from all session writes and reads.
+
+---
+
 ## [3.9.0] - 2026-05-20
 
 ### Added
@@ -595,6 +629,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.10.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.9.0...3.10.0
 [3.9.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.8.0...3.9.0
 [3.8.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.7.0...3.8.0
 [3.7.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.6.0...3.7.0
