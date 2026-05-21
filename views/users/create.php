@@ -185,6 +185,21 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <!-- Role -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="role_id">Role</label>
+                                        <select class="form-control select2" id="role_id" name="role_id">
+                                            <option value="">No role assigned</option>
+                                            <?php foreach ($activeRoles as $role): ?>
+                                                <option value="<?= $role['id'] ?>">
+                                                    <?= htmlspecialchars($role['name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <!-- Status -->
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -408,7 +423,7 @@
                                             <ul class="mb-0">
                                                 <li>The <strong>password</strong> must have at least 6 characters</li>
                                                 <li>It is recommended to use letters, numbers and symbols for stronger security</li>
-                                                <li>The <strong>position</strong> will determine the default access level</li>
+                                                <li>The <strong>role</strong> defines the set of inherited permissions</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -428,7 +443,7 @@
                                         <div class="callout callout-info">
                                             <ul class="mb-0">
                                                 <li>Assign <strong>permissions</strong> according to the user's functions</li>
-                                                <li>Users with position <strong>Administrator</strong> can have all permissions</li>
+                                                <li>Users with the <strong>Administrator</strong> role have full access automatically</li>
                                                 <li>Use the quick selection buttons to speed up assignment</li>
                                             </ul>
                                         </div>

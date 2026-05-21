@@ -188,6 +188,23 @@
                             </div>
                         </div>
                         <div class="card-body">
+                            <div class="row">
+                                <!-- Role -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="role_id">Role</label>
+                                        <select class="form-control select2" id="role_id" name="role_id">
+                                            <option value="">No role assigned</option>
+                                            <?php foreach ($activeRoles as $role): ?>
+                                                <option value="<?= $role['id'] ?>"
+                                                    <?= $currentRoleId === (int) $role['id'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($role['name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- /Account Information Card -->

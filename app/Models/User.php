@@ -85,10 +85,10 @@ class User extends Model
 
             $query = "INSERT INTO {$this->tabla}
                         (name, first_surname, second_surname, document_type, document_number,
-                         address, phone, email, password, image, status)
+                         address, phone, email, password, image, status, role_id)
                       VALUES
                         (:name, :first_surname, :second_surname, :document_type, :document_number,
-                         :address, :phone, :email, :password, :image, :status)";
+                         :address, :phone, :email, :password, :image, :status, :role_id)";
 
             $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':name',            $data['name'],            PDO::PARAM_STR);
@@ -130,6 +130,12 @@ class User extends Model
             $stmt->bindParam(':password', $passwordHash,   PDO::PARAM_STR);
             $stmt->bindParam(':status',   $data['status'], PDO::PARAM_INT);
 
+            if (empty($data['role_id'])) {
+                $stmt->bindValue(':role_id', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindValue(':role_id', (int) $data['role_id'], PDO::PARAM_INT);
+            }
+
             if ($stmt->execute()) {
                 DashboardCache::forget('user_stats');
                 DashboardCache::forget('users_by_status');
@@ -164,7 +170,8 @@ class User extends Model
                         phone           = :phone,
                         email           = :email,
                         image           = :image,
-                        status          = :status
+                        status          = :status,
+                        role_id         = :role_id
                       WHERE id = :id";
 
             $stmt = $this->connection->prepare($query);
@@ -205,7 +212,14 @@ class User extends Model
             }
 
             $stmt->bindParam(':status', $data['status'], PDO::PARAM_INT);
-            $stmt->bindParam(':id',     $id,             PDO::PARAM_INT);
+
+            if (empty($data['role_id'])) {
+                $stmt->bindValue(':role_id', null, PDO::PARAM_NULL);
+            } else {
+                $stmt->bindValue(':role_id', (int) $data['role_id'], PDO::PARAM_INT);
+            }
+
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
                 DashboardCache::forget('user_stats');

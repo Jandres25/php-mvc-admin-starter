@@ -3,6 +3,7 @@
 namespace App\Controllers\Users;
 
 use App\Core\Controller;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Permission;
 use App\Services\ImageService;
@@ -11,12 +12,14 @@ class UserController extends Controller
 {
     private $userModel;
     private $permissionModel;
+    private $roleModel;
     private $imageService;
 
     public function __construct()
     {
         $this->userModel       = new User();
         $this->permissionModel = new Permission();
+        $this->roleModel       = new Role();
         $this->imageService    = new ImageService(__DIR__ . '/../../../public/uploads/users/');
     }
 
@@ -36,10 +39,11 @@ class UserController extends Controller
     public function create()
     {
         $allPermissions = $this->permissionModel->getAllActive();
+        $activeRoles    = $this->roleModel->getAllActive();
 
         $this->render(
             'users/create',
-            compact('allPermissions'),
+            compact('allPermissions', 'activeRoles'),
             ['select2', 'validate'],
             ['users/create-user']
         );
@@ -65,10 +69,12 @@ class UserController extends Controller
         $user                = $this->getUserOrRedirect((int) $id);
         $allPermissions      = $this->permissionModel->getAllActive();
         $assignedPermissions = $this->permissionModel->getAssignedIds((int) $user['id']);
+        $activeRoles         = $this->roleModel->getAllActive();
+        $currentRoleId       = (int) ($user['role_id'] ?? 0);
 
         $this->render(
             'users/update',
-            compact('user', 'allPermissions', 'assignedPermissions'),
+            compact('user', 'allPermissions', 'assignedPermissions', 'activeRoles', 'currentRoleId'),
             ['select2', 'validate'],
             ['users/update-user']
         );
@@ -384,6 +390,7 @@ class UserController extends Controller
             'email'           => trim($postData['email']    ?? ''),
             'password'        => trim($postData['password'] ?? ''),
             'status'          => isset($postData['status']) ? (int) $postData['status'] : 1,
+            'role_id'         => !empty($postData['role_id']) ? (int) $postData['role_id'] : null,
             'image'           => null,
         ];
     }
