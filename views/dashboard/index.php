@@ -69,11 +69,17 @@
             <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3><?= $permStats['active'] ?></h3>
-                        <p>Active Permissions</p>
+                        <h3><?= $roleStats['total'] ?></h3>
+                        <p>Total Roles</p>
                     </div>
-                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
-                    <span class="small-box-footer"><?= $permStats['inactive'] ?> inactive</span>
+                    <div class="icon"><i class="fas fa-user-tag"></i></div>
+                    <?php if ($canManageRoles): ?>
+                        <a href="<?= URL ?>roles" class="small-box-footer">
+                            Manage <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    <?php else: ?>
+                        <span class="small-box-footer"><?= $roleStats['active'] ?> active</span>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
