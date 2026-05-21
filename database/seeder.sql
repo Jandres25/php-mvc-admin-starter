@@ -1,5 +1,11 @@
 USE auth_base;
 
+-- Base roles
+INSERT INTO roles (name, description, status, is_system) VALUES
+('Administrator', 'Full system access',              1, 1),
+('Editor',        'Manage users',                    1, 0),
+('Viewer',        'Read-only access to own profile', 1, 0);
+
 -- Insert base permissions used by the application
 INSERT INTO permissions (name, description, status) VALUES
 ('profile', 'Access to own profile and password changes', 1),
@@ -89,6 +95,11 @@ INSERT INTO users (
   1
 );
 
+-- Assign roles to seeded users
+UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'Administrator') WHERE email = 'admin@sistema.com';
+UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'Editor')        WHERE email = 'ana.paredes@sistema.com';
+UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'Viewer')        WHERE email IN ('carlos.rojas@sistema.com', 'diego.torres@sistema.com');
+
 -- Get user IDs for permission assignment
 SET @admin_id = (SELECT id FROM users WHERE email = 'admin@sistema.com' LIMIT 1);
 SET @manager_id = (SELECT id FROM users WHERE email = 'ana.paredes@sistema.com' LIMIT 1);
@@ -119,3 +130,12 @@ INSERT INTO user_permissions (permission_id, user_id)
 SELECT p.id, @analyst_id
 FROM permissions p
 WHERE p.name IN ('profile');
+
+-- Role permissions (Administrator uses is_system=1 so no rows needed)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p
+  ON r.name = 'Editor' AND p.name IN ('profile', 'users');
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r JOIN permissions p
+  ON r.name = 'Viewer' AND p.name IN ('profile');

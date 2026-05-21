@@ -3,6 +3,7 @@
 -- Keep small: 1 admin, 1 normal user, 2 permissions, 1 assignment.
 
 SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE role_permissions;
 TRUNCATE TABLE user_permissions;
 TRUNCATE TABLE users;
 TRUNCATE TABLE permissions;
@@ -32,6 +33,10 @@ VALUES
 INSERT INTO user_permissions (user_id, permission_id) VALUES (2, 1);
 
 -- Roles
-INSERT INTO roles (id, name, description, status) VALUES
-  (1, 'Editor',  'Content editor role', 1),
-  (2, 'Auditor', 'Read-only audit role', 0);
+INSERT INTO roles (id, name, description, status, is_system) VALUES
+  (1, 'Administrator', 'Full system access',    1, 1),
+  (2, 'Editor',        'Content editor role',   1, 0),
+  (3, 'Auditor',       'Read-only audit role',  0, 0);
+
+-- Role permissions (Editor → users permission)
+INSERT INTO role_permissions (role_id, permission_id) VALUES (2, 1);

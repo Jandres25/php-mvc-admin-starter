@@ -19,6 +19,7 @@ CREATE TABLE roles (
   name varchar(60) NOT NULL,
   description varchar(255) DEFAULT NULL,
   status tinyint(1) DEFAULT 1,
+  is_system tinyint(1) NOT NULL DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_roles_name (name)
@@ -50,6 +51,17 @@ CREATE TABLE users (
   UNIQUE KEY (email),
   UNIQUE KEY (document_type, document_number),
   CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
+-- Role permissions pivot table
+CREATE TABLE role_permissions (
+  id int PRIMARY KEY AUTO_INCREMENT,
+  role_id int NOT NULL,
+  permission_id int NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_role_perm (role_id, permission_id),
+  CONSTRAINT fk_rp_role       FOREIGN KEY (role_id)       REFERENCES roles(id) ON DELETE CASCADE,
+  CONSTRAINT fk_rp_permission FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
 );
 
 -- User permissions pivot table
