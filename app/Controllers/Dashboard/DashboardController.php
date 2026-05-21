@@ -34,7 +34,7 @@ class DashboardController extends Controller
                 'roleStats'            => $roleStats,
                 'canManageUsers'       => Auth::hasPermission('users'),
                 'canManagePermissions' => Auth::hasPermission('permissions'),
-                'canManageRoles'       => Auth::hasPermission('roles.manage'),
+                'canManageRoles'       => Auth::hasPermission('roles'),
                 'chartData'            => [
                     'usersByStatus' => $usersByStatus,
                     'topPerms'      => $topPerms,

@@ -50,14 +50,14 @@ return [
     ['method' => 'GET',  'path' => '/permissions/get-users-without','controller' => 'Permissions\Permission@getUsersWithout', 'middleware' => ['auth', 'perm:permissions']],
 
     // Roles
-    ['method' => 'GET',  'path' => '/roles',               'controller' => 'Roles\Role@pageIndex',      'middleware' => ['auth', 'perm:roles.manage']],
-    ['method' => 'GET',  'path' => '/roles/(\d+)',         'controller' => 'Roles\Role@detail',         'middleware' => ['auth', 'perm:roles.manage']],
+    ['method' => 'GET',  'path' => '/roles',               'controller' => 'Roles\Role@pageIndex',      'middleware' => ['auth', 'perm:roles']],
+    ['method' => 'GET',  'path' => '/roles/(\d+)',         'controller' => 'Roles\Role@detail',         'middleware' => ['auth', 'perm:roles']],
 
     // Roles AJAX
-    ['method' => 'POST', 'path' => '/roles/create',            'controller' => 'Roles\Role@create',         'middleware' => ['auth', 'perm:roles.manage']],
-    ['method' => 'POST', 'path' => '/roles/update',            'controller' => 'Roles\Role@update',         'middleware' => ['auth', 'perm:roles.manage']],
-    ['method' => 'POST', 'path' => '/roles/toggle-status',     'controller' => 'Roles\Role@toggleStatus',   'middleware' => ['auth', 'perm:roles.manage']],
-    ['method' => 'POST', 'path' => '/roles/sync-permissions',  'controller' => 'Roles\Role@syncPermissions','middleware' => ['auth', 'perm:roles.manage']],
+    ['method' => 'POST', 'path' => '/roles/create',            'controller' => 'Roles\Role@create',         'middleware' => ['auth', 'perm:roles']],
+    ['method' => 'POST', 'path' => '/roles/update',            'controller' => 'Roles\Role@update',         'middleware' => ['auth', 'perm:roles']],
+    ['method' => 'POST', 'path' => '/roles/toggle-status',     'controller' => 'Roles\Role@toggleStatus',   'middleware' => ['auth', 'perm:roles']],
+    ['method' => 'POST', 'path' => '/roles/sync-permissions',  'controller' => 'Roles\Role@syncPermissions','middleware' => ['auth', 'perm:roles']],
     ['method' => 'POST', 'path' => '/roles/check-name',        'controller' => 'Roles\Role@checkName',      'middleware' => ['auth']],
 
 ];

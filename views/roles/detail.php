@@ -50,12 +50,12 @@
                                 </span>
                             </li>
                             <?php if (!empty($role['is_system'])): ?>
-                            <li class="list-group-item">
-                                <b><i class="fas fa-shield-alt mr-1"></i> System role</b>
-                                <span class="float-right">
-                                    <span class="badge badge-warning badge-pill p-2">Protected</span>
-                                </span>
-                            </li>
+                                <li class="list-group-item">
+                                    <b><i class="fas fa-shield-alt mr-1"></i> System role</b>
+                                    <span class="float-right">
+                                        <span class="badge badge-warning badge-pill p-2">Protected</span>
+                                    </span>
+                                </li>
                             <?php endif; ?>
                             <li class="list-group-item">
                                 <b><i class="fas fa-key mr-1"></i> Permissions</b>
@@ -82,63 +82,66 @@
                     </div>
 
                     <?php if (!empty($role['is_system'])): ?>
-                    <div class="card-body">
-                        <div class="alert alert-warning mb-0">
-                            <i class="fas fa-shield-alt mr-1"></i>
-                            This is a <strong>system role</strong>. It has full access by default and does not require individual permission assignment.
+                        <div class="card-body">
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-shield-alt mr-1"></i>
+                                This is a <strong>system role</strong>. It has full access by default and does not require individual permission assignment.
+                            </div>
                         </div>
-                    </div>
                     <?php else: ?>
 
-                    <form id="formSyncPermissions">
-                        <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
-                        <input type="hidden" name="role_id" value="<?= $role['id'] ?>">
+                        <form id="formSyncPermissions">
+                            <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
+                            <input type="hidden" name="role_id" value="<?= $role['id'] ?>">
 
-                        <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="select-all">
-                                            <i class="fas fa-check-square mr-1"></i> Select all
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="deselect-all">
-                                            <i class="fas fa-square mr-1"></i> Deselect all
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" id="select-all">
+                                                <i class="fas fa-check-square mr-1"></i> Select all
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" id="deselect-all">
+                                                <i class="fas fa-square mr-1"></i> Deselect all
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <?php foreach ($allPermissions as $perm): ?>
+                                        <div class="col-md-4">
+                                            <div class="custom-control custom-checkbox mb-2">
+                                                <input type="checkbox" class="custom-control-input perm-checkbox"
+                                                    id="perm_<?= $perm['id'] ?>"
+                                                    name="permissions[]"
+                                                    value="<?= $perm['id'] ?>"
+                                                    <?= in_array((int) $perm['id'], $assignedIds) ? 'checked' : '' ?>>
+                                                <label class="custom-control-label" for="perm_<?= $perm['id'] ?>">
+                                                    <?= htmlspecialchars($perm['name']) ?>
+                                                    <?php if (!empty($perm['description'])): ?>
+                                                        <small class="text-muted d-block"><?= htmlspecialchars($perm['description']) ?></small>
+                                                    <?php endif; ?>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+
+                            <div class="card-footer">
+                                <div class="row">
+                                    <div class="col-12 col-sm-auto">
+                                        <button type="submit" class="btn btn-primary w-100" id="btnSavePermissions">
+                                            <i class="fas fa-save mr-1"></i> Save Permissions
                                         </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row">
-                                <?php foreach ($allPermissions as $perm): ?>
-                                    <div class="col-md-4">
-                                        <div class="custom-control custom-checkbox mb-2">
-                                            <input type="checkbox" class="custom-control-input perm-checkbox"
-                                                id="perm_<?= $perm['id'] ?>"
-                                                name="permissions[]"
-                                                value="<?= $perm['id'] ?>"
-                                                <?= in_array((int) $perm['id'], $assignedIds) ? 'checked' : '' ?>>
-                                            <label class="custom-control-label" for="perm_<?= $perm['id'] ?>">
-                                                <?= htmlspecialchars($perm['name']) ?>
-                                                <?php if (!empty($perm['description'])): ?>
-                                                    <small class="text-muted d-block"><?= htmlspecialchars($perm['description']) ?></small>
-                                                <?php endif; ?>
-                                            </label>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary" id="btnSavePermissions">
-                                <i class="fas fa-save mr-1"></i> Save Permissions
-                            </button>
-                        </div>
-                    </form>
+                        </form>
                     <?php endif; ?>
                 </div>
             </div>
-
         </div>
     </div>
 </section>

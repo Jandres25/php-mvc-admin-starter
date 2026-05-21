@@ -12,7 +12,7 @@ INSERT INTO permissions (name, description, status) VALUES
 ('admin', 'General administration (superuser)', 1),
 ('users', 'User management', 1),
 ('permissions', 'Permission management', 1),
-('roles.manage', 'Role management', 1);
+('roles', 'Role management', 1);
 
 -- Seed users for manual testing
 -- Password for all users below: admin123

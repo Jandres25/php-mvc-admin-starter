@@ -98,75 +98,7 @@
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-light-primary elevation-2">
-            <!-- Brand Logo -->
-            <a href="<?= URL; ?>" class="brand-link">
-                <img src="<?= URL; ?>/img/e-commerce_logo.png" loading="eager" alt="Logo" class="brand-image img-circle elevation-0" style="opacity: .8">
-                <span class="brand-text font-weight-light">Base System</span>
-            </a>
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-4">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-                        <!-- Dashboard -->
-                        <li class="nav-item">
-                            <a href="<?= URL; ?>" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>Dashboard</p>
-                            </a>
-                        </li>
-
-                        <!-- Administration -->
-                        <?php if (\App\Core\Auth::hasPermission('users') || \App\Core\Auth::hasPermission('permissions') || \App\Core\Auth::hasPermission('roles.manage')) : ?>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon fas fa-user-shield"></i>
-                                    <p>
-                                        Administration
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <?php if (\App\Core\Auth::hasPermission('users')) : ?>
-                                        <li class="nav-item">
-                                            <a href="<?= URL; ?>users" class="nav-link">
-                                                <i class="fas fa-user-alt nav-icon"></i>
-                                                <p>Users</p>
-                                            </a>
-                                        </li>
-                                    <?php endif; ?>
-                                    <?php if (\App\Core\Auth::hasPermission('permissions')) : ?>
-                                        <li class="nav-item">
-                                            <a href="<?= URL; ?>permissions" class="nav-link">
-                                                <i class="fas fa-key nav-icon"></i>
-                                                <p>Permissions</p>
-                                            </a>
-                                        </li>
-                                    <?php endif; ?>
-                                    <?php if (\App\Core\Auth::hasPermission('roles.manage')) : ?>
-                                        <li class="nav-item">
-                                            <a href="<?= URL; ?>roles" class="nav-link">
-                                                <i class="fas fa-user-tag nav-icon"></i>
-                                                <p>Roles</p>
-                                            </a>
-                                        </li>
-                                    <?php endif; ?>
-                                </ul>
-                            </li>
-                        <?php endif; ?>
-
-                        <!-- Space to add new modules -->
-
-                    </ul>
-                </nav>
-                <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
-        </aside>
+        <?php require __DIR__ . '/sidebar.php'; ?>
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
