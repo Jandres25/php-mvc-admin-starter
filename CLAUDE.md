@@ -111,7 +111,7 @@ app/
 └── Services/     # App\Services (ImageService, MailService, DashboardCache)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
-views/            # PHP templates; layouts/header.php pulls in all CSS/JS
+views/            # PHP templates; layouts/header.php pulls in all CSS/JS; sidebar.php handles navigation
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php
 vendor/           # Composer dependencies (not committed — run composer install)
 ```

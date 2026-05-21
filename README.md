@@ -107,7 +107,7 @@ This project is designed to be extended. To add a module (e.g. `Products`):
    ```
 5. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
 6. **Permission** — Insert the permission into the `permissions` table in the database
-7. **Menu** — Add the link in `views/layouts/header.php` with a permission check:
+7. **Menu** — Add the link in `views/layouts/sidebar.php` with a permission check:
 
 ```php
 <?php if (\App\Core\Auth::hasPermission('products')): ?>
@@ -130,7 +130,7 @@ app/
 ├── Models/       # App\Models
 └── Services/     # App\Services (ImageService, MailService, DashboardCache)
 routes/           # web.php — all route definitions
-views/            # PHP templates; layouts/header.php and footer.php wrap content
+views/            # PHP templates; layouts/header.php, sidebar.php and footer.php wrap content
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)
 vendor/           # Composer dependencies (not committed — run composer install)
 ```

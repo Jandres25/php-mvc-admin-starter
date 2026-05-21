@@ -239,7 +239,7 @@ When adding new features, follow the existing project structure:
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates
-│   ├── layouts/          # Layout components (header, footer, messages)
+│   ├── layouts/          # Layout components (header, sidebar, footer, messages)
 │   ├── users/            # User views
 │   ├── permissions/      # Permission views
 │   ├── auth/             # Login, forgot password, reset password
