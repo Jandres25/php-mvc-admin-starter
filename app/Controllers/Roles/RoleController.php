@@ -14,7 +14,10 @@
 namespace App\Controllers\Roles;
 
 use App\Core\Controller;
+use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
+use App\Services\DashboardCache;
 
 class RoleController extends Controller
 {
@@ -157,6 +160,60 @@ class RoleController extends Controller
         }
 
         $this->jsonResponse(['success' => false, 'message' => 'Error changing role status: ' . $this->roleModel->getLastError()]);
+    }
+
+    /**
+     * Renders the role detail page with permission assignment.
+     */
+    public function detail($id = null)
+    {
+        $id   = (int) $id;
+        $role = $this->roleModel->getById($id);
+
+        if (!$role) {
+            $_SESSION['message'] = 'Role not found.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'roles');
+        }
+
+        $allPermissions = (new Permission())->getAllActive();
+        $assignedIds    = array_map('intval', $this->roleModel->getAssignedPermissionIds($id));
+
+        $this->render(
+            'roles/detail',
+            compact('role', 'allPermissions', 'assignedIds'),
+            ['validate'],
+            ['roles/detail-role']
+        );
+    }
+
+    /**
+     * AJAX — replaces all permissions for a role and invalidates affected user caches.
+     */
+    public function syncPermissions()
+    {
+        $this->csrfCheck();
+
+        $roleId      = (int) ($_POST['role_id'] ?? 0);
+        $permissions = array_map('intval', (array) ($_POST['permissions'] ?? []));
+
+        if (!$roleId) {
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid role ID.']);
+        }
+
+        if ($this->roleModel->syncPermissions($roleId, $permissions)) {
+            $userModel = new User();
+            foreach ($this->roleModel->getUserIdsByRole($roleId) as $uid) {
+                $userModel->updatePermissionsTimestamp((int) $uid);
+            }
+            DashboardCache::forget('role_stats');
+            regenerateCSRFToken();
+            $_SESSION['message'] = 'Permissions updated successfully.';
+            $_SESSION['icon']    = 'success';
+            $this->jsonResponse(['success' => true, 'message' => 'Permissions updated successfully.']);
+        }
+
+        $this->jsonResponse(['success' => false, 'message' => $this->roleModel->getLastError()]);
     }
 
     /**

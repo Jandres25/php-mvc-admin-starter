@@ -98,6 +98,10 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
+                                                <a href="<?= URL ?>roles/<?= $role['id']; ?>" class="btn btn-info btn-sm"
+                                                    data-toggle="tooltip" title="View permissions">
+                                                    <i class="fas fa-key"></i>
+                                                </a>
                                                 <button type="button" class="btn btn-warning btn-sm btn-edit"
                                                     data-id="<?= $role['id']; ?>"
                                                     data-name="<?= htmlspecialchars($role['name']); ?>"

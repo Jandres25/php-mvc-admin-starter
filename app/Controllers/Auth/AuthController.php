@@ -4,7 +4,6 @@ namespace App\Controllers\Auth;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Models\Permission;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -51,12 +50,7 @@ class AuthController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $permModel = new Permission();
-        $permNames = !empty($user['role_is_system'])
-            ? ['*']
-            : array_column($permModel->getByUserId((int) $user['id']), 'name');
-
-        Auth::login($user, $permNames);
+        Auth::login($user, Auth::buildPermNames($user));
         regenerateCSRFToken();
 
         if (!empty($_POST['remember']) && $_POST['remember'] === '1') {

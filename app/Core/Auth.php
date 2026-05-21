@@ -2,8 +2,9 @@
 
 namespace App\Core;
 
-use App\Models\User;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 
 /**
  * Central authentication hub.
@@ -191,12 +192,9 @@ final class Auth
         $sessionTs   = $_SESSION['permissions_ts'] ?? null;
 
         if ($dbTimestamp && (!$sessionTs || $dbTimestamp > $sessionTs)) {
-            $permModel = new Permission();
-            if (self::isAdmin()) {
-                $_SESSION['user_permissions'] = ['*'];
-            } else {
-                $perms = $permModel->getByUserId($userId);
-                $_SESSION['user_permissions'] = array_column($perms, 'name');
+            $user = $userModel->getById($userId);
+            if ($user) {
+                $_SESSION['user_permissions'] = self::buildPermNames($user);
             }
             $_SESSION['permissions_ts'] = $dbTimestamp;
         }
@@ -249,14 +247,7 @@ final class Auth
             return false;
         }
 
-        $permModel = new Permission();
-        if (!empty($user['role_is_system'])) {
-            $permNames = ['*'];
-        } else {
-            $permNames = array_column($permModel->getByUserId((int) $user['id']), 'name');
-        }
-
-        self::login($user, $permNames);
+        self::login($user, self::buildPermNames($user));
 
         // Rotate token to mitigate cookie theft
         $newToken     = bin2hex(random_bytes(32));
@@ -281,6 +272,29 @@ final class Auth
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Builds the permission name array for a user row.
+     * Returns ['*'] for system roles; merges direct + role permissions for others.
+     * Returns [] without querying DB when role_id is null (safe for unit tests).
+     */
+    public static function buildPermNames(array $user): array
+    {
+        if (!empty($user['role_is_system'])) {
+            return ['*'];
+        }
+
+        $direct = array_column(
+            (new Permission())->getByUserId((int) $user['id']),
+            'name'
+        );
+
+        $fromRole = !empty($user['role_id'])
+            ? (new Role())->getPermissionNames((int) $user['role_id'])
+            : [];
+
+        return array_values(array_unique(array_merge($direct, $fromRole)));
+    }
 
     private static function cookieLifetime(): int
     {
