@@ -52,7 +52,7 @@ class AuthIntegrationTest extends IntegrationTestCase
     {
         $_SESSION['user_id']          = 2;
         $_SESSION['user_permissions'] = ['users'];
-        $_SESSION['user_position']    = 'editor';
+        $_SESSION['user_is_admin']    = false;
         // Set session timestamp to now — DB has no permissions_updated_at, so no reload
         $_SESSION['permissions_ts'] = date('Y-m-d H:i:s');
 
@@ -72,7 +72,7 @@ class AuthIntegrationTest extends IntegrationTestCase
 
         $_SESSION['user_id']          = 2;
         $_SESSION['user_permissions'] = ['stale_data'];
-        $_SESSION['user_position']    = 'editor';
+        $_SESSION['user_is_admin']    = false;
         $_SESSION['permissions_ts']   = $stale;
 
         Auth::refreshPermissionsIfStale();
@@ -90,7 +90,7 @@ class AuthIntegrationTest extends IntegrationTestCase
 
         $_SESSION['user_id']          = 1;
         $_SESSION['user_permissions'] = ['stale'];
-        $_SESSION['user_position']    = 'administrator';
+        $_SESSION['user_is_admin']    = true;
         $_SESSION['permissions_ts']   = $stale;
 
         Auth::refreshPermissionsIfStale();

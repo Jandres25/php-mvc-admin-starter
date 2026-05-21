@@ -45,7 +45,7 @@
                                     <th>Document Number</th>
                                     <th>Email</th>
                                     <th>Image</th>
-                                    <th>Position</th>
+                                    <th>Role</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -65,7 +65,7 @@
                                         <td class="text-center">
                                             <img src="<?= URL ?>uploads/users/<?= htmlspecialchars(!empty($user['image']) ? $user['image'] : 'user_default.jpg'); ?>" loading="lazy" alt="Profile picture of <?= htmlspecialchars($user['name']); ?>" class="img-thumbnail" width="30">
                                         </td>
-                                        <td><?= htmlspecialchars(!empty($user['position']) ? $user['position'] : 'N/A'); ?></td>
+                                        <td><?= htmlspecialchars($user['role_name'] ?? 'N/A'); ?></td>
                                         <td class="text-center">
                                             <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2"><?= $isActive ? 'Active' : 'Inactive'; ?></span>
                                         </td>

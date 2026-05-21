@@ -34,7 +34,7 @@
                         <h3 class="profile-username text-center mt-2">
                             <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname']); ?>
                         </h3>
-                        <p class="text-muted text-center"><?= htmlspecialchars($user['position'] ?? 'No position'); ?></p>
+                        <p class="text-muted text-center"><?= htmlspecialchars($user['role_name'] ?? 'No role assigned'); ?></p>
 
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">

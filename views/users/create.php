@@ -185,19 +185,6 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <!-- Position -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="position">Position <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="position" name="position" required>
-                                            <option value="">Select a position</option>
-                                            <option value="Administrator">Administrator</option>
-                                            <option value="Manager">Manager</option>
-                                            <option value="Salesperson">Salesperson</option>
-                                        </select>
-                                    </div>
-                                </div>
-
                                 <!-- Status -->
                                 <div class="col-md-6">
                                     <div class="form-group">

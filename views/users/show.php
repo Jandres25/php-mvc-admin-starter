@@ -41,7 +41,7 @@
                             <?= htmlspecialchars($user['name'] . ' ' . $user['first_surname'] . ' ' . $user['second_surname']); ?>
                         </h3>
 
-                        <p class="text-muted text-center"><?= htmlspecialchars($user['position'] ?? 'No position assigned'); ?></p>
+                        <p class="text-muted text-center"><?= htmlspecialchars($user['role_name'] ?? 'No role assigned'); ?></p>
 
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
@@ -148,12 +148,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Position:</label>
+                                            <label>Role:</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                                    <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
                                                 </div>
-                                                <p class="form-control"><?= !empty($user['position']) ? htmlspecialchars($user['position']) : 'Not assigned'; ?></p>
+                                                <p class="form-control"><?= !empty($user['role_name']) ? htmlspecialchars($user['role_name']) : 'Not assigned'; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -243,7 +243,7 @@
                                 <?php if ($isAdminUser): ?>
                                     <div class="alert alert-success">
                                         <h5><i class="icon fas fa-check"></i> Administrator User</h5>
-                                        <p>This user has the Administrator position and therefore has access to all system permissions.</p>
+                                        <p>This user has an Administrator role and therefore has access to all system permissions.</p>
                                     </div>
                                 <?php endif; ?>
 

@@ -10,6 +10,7 @@ class AuthMiddleware implements MiddlewareInterface
     {
         if (!Auth::check()) {
             if (Auth::attemptRememberLogin()) {
+                Auth::refreshPermissionsIfStale();
                 return;
             }
 

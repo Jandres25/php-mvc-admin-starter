@@ -52,7 +52,7 @@ class AuthController extends Controller
         }
 
         $permModel = new Permission();
-        $permNames = strtolower($user['position'] ?? '') === 'administrator'
+        $permNames = !empty($user['role_is_system'])
             ? ['*']
             : array_column($permModel->getByUserId((int) $user['id']), 'name');
 
@@ -69,7 +69,7 @@ class AuthController extends Controller
 
     public function logout(): void
     {
-        Auth::logout((int) ($_SESSION['user_id'] ?? 0));
+        Auth::logout();
         $this->redirect(URL . 'login');
     }
 

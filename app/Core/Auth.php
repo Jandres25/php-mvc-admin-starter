@@ -38,17 +38,17 @@ final class Auth
             return null;
         }
         return [
-            'id'       => $_SESSION['user_id']      ?? null,
-            'name'     => $_SESSION['user_name']     ?? null,
-            'email'    => $_SESSION['user_email']    ?? null,
-            'position' => $_SESSION['user_position'] ?? null,
-            'image'    => $_SESSION['user_image']    ?? 'user_default.jpg',
+            'id'    => $_SESSION['user_id']    ?? null,
+            'name'  => $_SESSION['user_name']  ?? null,
+            'email' => $_SESSION['user_email'] ?? null,
+            'role'  => $_SESSION['user_role']  ?? null,
+            'image' => $_SESSION['user_image'] ?? 'user_default.jpg',
         ];
     }
 
     public static function isAdmin(): bool
     {
-        return strtolower($_SESSION['user_position'] ?? '') === 'administrator';
+        return (bool) ($_SESSION['user_is_admin'] ?? false);
     }
 
     /**
@@ -83,7 +83,8 @@ final class Auth
         $_SESSION['user_id']          = $user['id'];
         $_SESSION['user_name']        = $user['name'] . ' ' . $user['first_surname'];
         $_SESSION['user_email']       = $user['email'];
-        $_SESSION['user_position']    = $user['position'];
+        $_SESSION['user_is_admin']    = (bool) ($user['role_is_system'] ?? false);
+        $_SESSION['user_role']        = $user['role_name'] ?? '';
         $_SESSION['user_image']       = $user['image'] ?? 'user_default.jpg';
         $_SESSION['authenticated']    = true;
         $_SESSION['last_access']      = time();
@@ -96,9 +97,12 @@ final class Auth
     /**
      * Clears the remember-me cookie, then destroys the session.
      */
-    public static function logout(int $userId): void
+    public static function logout(): void
     {
-        self::clearRememberCookie($userId);
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId > 0) {
+            self::clearRememberCookie($userId);
+        }
 
         $_SESSION = [];
 
@@ -128,12 +132,16 @@ final class Auth
             $timeout = 1800;
         }
 
-        if (isset($_SESSION['last_access'])) {
-            if (time() - $_SESSION['last_access'] >= $timeout) {
-                session_unset();
-                session_destroy();
-                return false;
-            }
+        if (!isset($_SESSION['last_access'])) {
+            session_unset();
+            session_destroy();
+            return false;
+        }
+
+        if (time() - $_SESSION['last_access'] >= $timeout) {
+            session_unset();
+            session_destroy();
+            return false;
         }
 
         $_SESSION['last_access'] = time();
@@ -145,16 +153,21 @@ final class Auth
      */
     public static function checkSecurity(): bool
     {
-        if (isset($_SESSION['ip'], $_SESSION['user_agent'])) {
-            if (
-                $_SESSION['ip']         !== ($_SERVER['REMOTE_ADDR']     ?? '') ||
-                $_SESSION['user_agent'] !== ($_SERVER['HTTP_USER_AGENT'] ?? '')
-            ) {
-                session_unset();
-                session_destroy();
-                return false;
-            }
+        if (!isset($_SESSION['ip'], $_SESSION['user_agent'])) {
+            session_unset();
+            session_destroy();
+            return false;
         }
+
+        if (
+            $_SESSION['ip']         !== ($_SERVER['REMOTE_ADDR']     ?? '') ||
+            $_SESSION['user_agent'] !== ($_SERVER['HTTP_USER_AGENT'] ?? '')
+        ) {
+            session_unset();
+            session_destroy();
+            return false;
+        }
+
         return true;
     }
 
@@ -237,7 +250,7 @@ final class Auth
         }
 
         $permModel = new Permission();
-        if (strtolower((string) ($user['position'] ?? '')) === 'administrator') {
+        if (!empty($user['role_is_system'])) {
             $permNames = ['*'];
         } else {
             $permNames = array_column($permModel->getByUserId((int) $user['id']), 'name');

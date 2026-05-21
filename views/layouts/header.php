@@ -80,7 +80,7 @@
                             <img src="<?= URL; ?>/uploads/users/<?= $currentUser['image']; ?>" loading="eager" class="img-circle elevation-2" alt="User Image">
                             <p>
                                 <?= $currentUser['name']; ?>
-                                <small><?= $currentUser['position']; ?></small>
+                                <small><?= htmlspecialchars($currentUser['role'] ?? ''); ?></small>
                             </p>
                         </li>
                         <!-- Menu Footer-->

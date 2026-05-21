@@ -188,20 +188,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <!-- Position -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="position">Position <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" id="position" name="position" required>
-                                            <option value="">Select a position</option>
-                                            <option value="Administrator" <?= $user['position'] == 'Administrator' ? 'selected' : ''; ?>>Administrator</option>
-                                            <option value="Manager" <?= $user['position'] == 'Manager' ? 'selected' : ''; ?>>Manager</option>
-                                            <option value="Salesperson" <?= $user['position'] == 'Salesperson' ? 'selected' : ''; ?>>Salesperson</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <!-- /Account Information Card -->

@@ -90,12 +90,13 @@ class AuthTest extends TestCase
 
     public function test_user_returns_array_with_expected_keys(): void
     {
-        $_SESSION['user_id']          = 1;
-        $_SESSION['authenticated']    = true;
-        $_SESSION['user_name']        = 'John Doe';
-        $_SESSION['user_email']       = 'john@example.com';
-        $_SESSION['user_position']    = 'administrator';
-        $_SESSION['user_image']       = 'john.jpg';
+        $_SESSION['user_id']       = 1;
+        $_SESSION['authenticated'] = true;
+        $_SESSION['user_name']     = 'John Doe';
+        $_SESSION['user_email']    = 'john@example.com';
+        $_SESSION['user_is_admin'] = true;
+        $_SESSION['user_role']     = 'Administrator';
+        $_SESSION['user_image']    = 'john.jpg';
 
         $user = Auth::user();
 
@@ -103,10 +104,11 @@ class AuthTest extends TestCase
         $this->assertArrayHasKey('id', $user);
         $this->assertArrayHasKey('name', $user);
         $this->assertArrayHasKey('email', $user);
-        $this->assertArrayHasKey('position', $user);
+        $this->assertArrayHasKey('role', $user);
         $this->assertArrayHasKey('image', $user);
         $this->assertSame(1, $user['id']);
         $this->assertSame('John Doe', $user['name']);
+        $this->assertSame('Administrator', $user['role']);
     }
 
     public function test_user_defaults_image_to_user_default(): void
@@ -122,25 +124,19 @@ class AuthTest extends TestCase
     // isAdmin()
     // -------------------------------------------------------------------------
 
-    public function test_is_admin_returns_true_for_administrator_position(): void
+    public function test_is_admin_returns_true_when_flag_is_true(): void
     {
-        $_SESSION['user_position'] = 'administrator';
+        $_SESSION['user_is_admin'] = true;
         $this->assertTrue(Auth::isAdmin());
     }
 
-    public function test_is_admin_is_case_insensitive(): void
+    public function test_is_admin_returns_false_when_flag_is_false(): void
     {
-        $_SESSION['user_position'] = 'Administrator';
-        $this->assertTrue(Auth::isAdmin());
-    }
-
-    public function test_is_admin_returns_false_for_other_positions(): void
-    {
-        $_SESSION['user_position'] = 'editor';
+        $_SESSION['user_is_admin'] = false;
         $this->assertFalse(Auth::isAdmin());
     }
 
-    public function test_is_admin_returns_false_when_position_missing(): void
+    public function test_is_admin_returns_false_when_flag_missing(): void
     {
         $this->assertFalse(Auth::isAdmin());
     }
@@ -206,13 +202,13 @@ class AuthTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function test_check_timeout_returns_true_when_last_access_not_set(): void
+    public function test_check_timeout_returns_false_when_last_access_not_set(): void
     {
         $_ENV['SESSION_LIFETIME'] = '1800';
 
         $result = Auth::checkTimeout();
 
-        $this->assertTrue($result);
+        $this->assertFalse($result);
     }
 
     // -------------------------------------------------------------------------
@@ -252,9 +248,9 @@ class AuthTest extends TestCase
         $this->assertFalse(Auth::checkSecurity());
     }
 
-    public function test_check_security_returns_true_when_session_keys_absent(): void
+    public function test_check_security_returns_false_when_session_keys_absent(): void
     {
-        // No ip/user_agent stored yet — first request after login
-        $this->assertTrue(Auth::checkSecurity());
+        // Fail-closed: session without ip/user_agent is treated as invalid
+        $this->assertFalse(Auth::checkSecurity());
     }
 }

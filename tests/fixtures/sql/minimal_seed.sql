@@ -15,18 +15,18 @@ INSERT INTO permissions (id, name, description, status) VALUES
   (1, 'users',       'User management',       1),
   (2, 'permissions', 'Permission management', 1);
 
--- Admin (position = 'administrator', password = 'admin123')
+-- Admin (role = Administrator / is_system=1, password = 'admin123')
 INSERT INTO users
-  (id, name, first_surname, document_type, document_number, email, position, password, status)
+  (id, name, first_surname, document_type, document_number, email, role_id, password, status)
 VALUES
-  (1, 'Admin', 'Test', 'DNI', '00000001', 'admin@test.com', 'administrator',
+  (1, 'Admin', 'Test', 'DNI', '00000001', 'admin@test.com', 1,
    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1);
 
--- Normal user (password = 'password')
+-- Normal user (role = Editor, password = 'password')
 INSERT INTO users
-  (id, name, first_surname, document_type, document_number, email, position, password, status)
+  (id, name, first_surname, document_type, document_number, email, role_id, password, status)
 VALUES
-  (2, 'Normal', 'User', 'DNI', '00000002', 'user@test.com', 'editor',
+  (2, 'Normal', 'User', 'DNI', '00000002', 'user@test.com', 2,
    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1);
 
 -- Assign 'users' permission to normal user

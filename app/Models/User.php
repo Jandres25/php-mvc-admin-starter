@@ -34,7 +34,12 @@ class User extends Model
     public function getAll()
     {
         try {
-            $stmt = $this->connection->prepare("SELECT * FROM {$this->tabla} ORDER BY id DESC");
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name
+                FROM {$this->tabla} u
+                LEFT JOIN roles r ON u.role_id = r.id
+                ORDER BY u.id DESC
+            ");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -52,7 +57,12 @@ class User extends Model
     public function getById($id)
     {
         try {
-            $stmt = $this->connection->prepare("SELECT * FROM {$this->tabla} WHERE id = :id");
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
+                FROM {$this->tabla} u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.id = :id
+            ");
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -75,10 +85,10 @@ class User extends Model
 
             $query = "INSERT INTO {$this->tabla}
                         (name, first_surname, second_surname, document_type, document_number,
-                         address, phone, email, position, password, image, status)
+                         address, phone, email, password, image, status)
                       VALUES
                         (:name, :first_surname, :second_surname, :document_type, :document_number,
-                         :address, :phone, :email, :position, :password, :image, :status)";
+                         :address, :phone, :email, :password, :image, :status)";
 
             $stmt = $this->connection->prepare($query);
             $stmt->bindParam(':name',            $data['name'],            PDO::PARAM_STR);
@@ -109,12 +119,6 @@ class User extends Model
                 $stmt->bindValue(':email', null, PDO::PARAM_NULL);
             } else {
                 $stmt->bindParam(':email', $data['email'], PDO::PARAM_STR);
-            }
-
-            if (empty($data['position'])) {
-                $stmt->bindValue(':position', null, PDO::PARAM_NULL);
-            } else {
-                $stmt->bindParam(':position', $data['position'], PDO::PARAM_STR);
             }
 
             if (empty($data['image'])) {
@@ -159,7 +163,6 @@ class User extends Model
                         address         = :address,
                         phone           = :phone,
                         email           = :email,
-                        position        = :position,
                         image           = :image,
                         status          = :status
                       WHERE id = :id";
@@ -193,12 +196,6 @@ class User extends Model
                 $stmt->bindValue(':email', null, PDO::PARAM_NULL);
             } else {
                 $stmt->bindParam(':email', $data['email'], PDO::PARAM_STR);
-            }
-
-            if (empty($data['position'])) {
-                $stmt->bindValue(':position', null, PDO::PARAM_NULL);
-            } else {
-                $stmt->bindParam(':position', $data['position'], PDO::PARAM_STR);
             }
 
             if (empty($data['image'])) {
@@ -481,9 +478,12 @@ class User extends Model
     public function loginByEmail($email, $password)
     {
         try {
-            $stmt = $this->connection->prepare(
-                "SELECT * FROM {$this->tabla} WHERE email = :email"
-            );
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
+                FROM {$this->tabla} u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.email = :email
+            ");
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -508,9 +508,12 @@ class User extends Model
     public function loginByDocumentNumber($documentNumber, $password)
     {
         try {
-            $stmt = $this->connection->prepare(
-                "SELECT * FROM {$this->tabla} WHERE document_number = :document_number"
-            );
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
+                FROM {$this->tabla} u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.document_number = :document_number
+            ");
             $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -579,13 +582,12 @@ class User extends Model
                 empty($data['document_type']) ||
                 empty($data['document_number']) ||
                 empty($data['email']) ||
-                empty($data['position']) ||
                 empty($data['password'])
             ) {
                 $errors[] = 'All required fields must be filled in.';
             }
         } else {
-            $required = ['name', 'first_surname', 'document_type', 'document_number', 'email', 'position'];
+            $required = ['name', 'first_surname', 'document_type', 'document_number', 'email'];
             $missing  = [];
             foreach ($required as $field) {
                 if (isset($data[$field]) && empty($data[$field])) {
@@ -850,13 +852,15 @@ class User extends Model
     public function findByRememberToken(string $tokenHash): array|false
     {
         try {
-            $stmt = $this->connection->prepare(
-                "SELECT * FROM users
-                 WHERE remember_token = :token
-                   AND remember_token_expires > NOW()
-                   AND status = 1
-                 LIMIT 1"
-            );
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
+                FROM users u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.remember_token = :token
+                  AND u.remember_token_expires > NOW()
+                  AND u.status = 1
+                LIMIT 1
+            ");
             $stmt->bindParam(':token', $tokenHash, PDO::PARAM_STR);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);

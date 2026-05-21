@@ -100,7 +100,7 @@
                                     <th>ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Position</th>
+                                    <th>Role</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -110,7 +110,7 @@
                                         <td><?= $user['id']; ?></td>
                                         <td><?= htmlspecialchars($user['name'] . ' ' . $user['first_surname'] . ' ' . $user['second_surname']); ?></td>
                                         <td><?= htmlspecialchars($user['email']); ?></td>
-                                        <td><?= htmlspecialchars($user['position']); ?></td>
+                                        <td><?= htmlspecialchars($user['role_name'] ?? ''); ?></td>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="<?= URL ?>users/<?= $user['id']; ?>" class="btn btn-info btn-sm" data-toggle="tooltip" title="View user">

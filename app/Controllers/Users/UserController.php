@@ -49,7 +49,7 @@ class UserController extends Controller
     {
         $user            = $this->getUserOrRedirect((int) $id);
         $userPermissions = $this->permissionModel->getByUserId((int) $user['id']);
-        $isAdminUser     = strtolower($user['position'] ?? '') === 'administrator';
+        $isAdminUser     = (bool) ($user['role_is_system'] ?? false);
 
         $this->render(
             'users/show',
@@ -245,7 +245,7 @@ class UserController extends Controller
         $data        = $this->prepareUserData($_POST);
         $data['status'] = (int) $currentUser['status'];
 
-        foreach (['name', 'first_surname', 'document_type', 'document_number', 'email', 'position'] as $field) {
+        foreach (['name', 'first_surname', 'document_type', 'document_number', 'email'] as $field) {
             if (empty($data[$field]) && isset($currentUser[$field])) {
                 $data[$field] = $currentUser[$field];
             }
@@ -381,9 +381,8 @@ class UserController extends Controller
             'document_number' => trim($postData['document_number'] ?? ''),
             'address'         => !empty($postData['address'])  ? trim($postData['address'])  : null,
             'phone'           => !empty($postData['phone'])    ? trim($postData['phone'])    : null,
-            'email'           => trim($postData['email']       ?? ''),
-            'position'        => trim($postData['position']    ?? ''),
-            'password'        => trim($postData['password']    ?? ''),
+            'email'           => trim($postData['email']    ?? ''),
+            'password'        => trim($postData['password'] ?? ''),
             'status'          => isset($postData['status']) ? (int) $postData['status'] : 1,
             'image'           => null,
         ];

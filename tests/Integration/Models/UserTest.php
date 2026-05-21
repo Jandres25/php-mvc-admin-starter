@@ -72,7 +72,6 @@ class UserTest extends IntegrationTestCase
             'address'         => null,
             'phone'           => null,
             'email'           => 'jane@test.com',
-            'position'        => 'editor',
             'password'        => 'plainpassword',
             'image'           => null,
             'status'          => 1,

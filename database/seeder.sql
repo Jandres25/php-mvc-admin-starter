@@ -25,7 +25,6 @@ INSERT INTO users (
   address,
   phone,
   email,
-  position,
   password,
   status
 ) VALUES
@@ -38,7 +37,6 @@ INSERT INTO users (
   'Main office',
   '900111111',
   'admin@sistema.com',
-  'Administrator',
   '$2y$10$qot77JOYGGz5WTgp8TEor.jH3hwSOJ0fhu027oy5XbeM9P3RRnmni',
   1
 ),
@@ -51,7 +49,6 @@ INSERT INTO users (
   'Av. Primavera 123',
   '900222222',
   'ana.paredes@sistema.com',
-  'Operations Manager',
   '$2y$10$qot77JOYGGz5WTgp8TEor.jH3hwSOJ0fhu027oy5XbeM9P3RRnmni',
   1
 ),
@@ -64,7 +61,6 @@ INSERT INTO users (
   'Jr. Lima 456',
   '900333333',
   'carlos.rojas@sistema.com',
-  'Support Analyst',
   '$2y$10$qot77JOYGGz5WTgp8TEor.jH3hwSOJ0fhu027oy5XbeM9P3RRnmni',
   1
 ),
@@ -77,7 +73,6 @@ INSERT INTO users (
   'Calle Norte 789',
   '900444444',
   'lucia.quispe@sistema.com',
-  'HR Specialist',
   '$2y$10$qot77JOYGGz5WTgp8TEor.jH3hwSOJ0fhu027oy5XbeM9P3RRnmni',
   0
 ),
@@ -90,7 +85,6 @@ INSERT INTO users (
   'Av. Central 1001',
   '900555555',
   'diego.torres@sistema.com',
-  'Data Analyst',
   '$2y$10$qot77JOYGGz5WTgp8TEor.jH3hwSOJ0fhu027oy5XbeM9P3RRnmni',
   1
 );

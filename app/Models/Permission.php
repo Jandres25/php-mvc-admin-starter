@@ -267,8 +267,10 @@ class Permission extends Model
     public function getUsersByPermission($permissionId)
     {
         try {
-            $query = "SELECT u.id, u.name, u.first_surname, u.second_surname, u.email, u.position, u.status
+            $query = "SELECT u.id, u.name, u.first_surname, u.second_surname, u.email, u.status,
+                             r.name AS role_name
                       FROM users u
+                      LEFT JOIN roles r ON u.role_id = r.id
                       INNER JOIN user_permissions up ON u.id = up.user_id
                       WHERE up.permission_id = :permission_id
                       ORDER BY u.name, u.first_surname";
@@ -292,7 +294,7 @@ class Permission extends Model
     public function getUsersWithoutPermission($permissionId)
     {
         try {
-            $query = "SELECT u.id, u.name, u.first_surname, u.second_surname, u.position
+            $query = "SELECT u.id, u.name, u.first_surname, u.second_surname
                       FROM users u
                       WHERE u.status = 1
                         AND u.id NOT IN (

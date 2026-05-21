@@ -36,7 +36,6 @@ CREATE TABLE users (
   address varchar(255) DEFAULT NULL,
   phone varchar(15) DEFAULT NULL,
   email varchar(255) DEFAULT NULL CHECK (email IS NULL OR email LIKE '%@%.%'),
-  position varchar(255) DEFAULT NULL,
   password varchar(255) NOT NULL,
   image varchar(255),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
