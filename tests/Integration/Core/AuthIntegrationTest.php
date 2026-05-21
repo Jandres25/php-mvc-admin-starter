@@ -99,6 +99,74 @@ class AuthIntegrationTest extends IntegrationTestCase
     }
 
     // -------------------------------------------------------------------------
+    // refreshPermissionsIfStale() — UNION direct + role permissions
+    // -------------------------------------------------------------------------
+
+    public function test_refresh_merges_direct_and_role_permissions(): void
+    {
+        // Seed: user 2 has 'users' directly AND role Editor (id=2) also has 'users' via role_permissions.
+        // Add 'permissions' only to role so it comes exclusively from the role.
+        self::$pdo->exec("INSERT IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 2)");
+
+        $this->userModel->updatePermissionsTimestamp(2);
+        $dbTs  = $this->userModel->getPermissionsTimestamp(2);
+        $stale = date('Y-m-d H:i:s', strtotime($dbTs) - 1);
+
+        $_SESSION['user_id']          = 2;
+        $_SESSION['user_permissions'] = ['stale'];
+        $_SESSION['user_is_admin']    = false;
+        $_SESSION['permissions_ts']   = $stale;
+
+        Auth::refreshPermissionsIfStale();
+
+        $perms = $_SESSION['user_permissions'];
+        $this->assertContains('users',       $perms, 'direct permission must be present');
+        $this->assertContains('permissions', $perms, 'role permission must be present');
+    }
+
+    public function test_refresh_deduplicates_overlapping_permissions(): void
+    {
+        // user 2 has 'users' directly; Editor role also has 'users' — must appear only once.
+        $this->userModel->updatePermissionsTimestamp(2);
+        $dbTs  = $this->userModel->getPermissionsTimestamp(2);
+        $stale = date('Y-m-d H:i:s', strtotime($dbTs) - 1);
+
+        $_SESSION['user_id']          = 2;
+        $_SESSION['user_permissions'] = ['stale'];
+        $_SESSION['user_is_admin']    = false;
+        $_SESSION['permissions_ts']   = $stale;
+
+        Auth::refreshPermissionsIfStale();
+
+        $perms = $_SESSION['user_permissions'];
+        $this->assertSame(
+            count($perms),
+            count(array_unique($perms)),
+            'permissions must not contain duplicates'
+        );
+    }
+
+    public function test_refresh_returns_empty_when_user_has_no_role_and_no_direct_permissions(): void
+    {
+        // Remove direct permission and set role_id to NULL for user 2
+        self::$pdo->exec("DELETE FROM user_permissions WHERE user_id = 2");
+        self::$pdo->exec("UPDATE users SET role_id = NULL WHERE id = 2");
+
+        $this->userModel->updatePermissionsTimestamp(2);
+        $dbTs  = $this->userModel->getPermissionsTimestamp(2);
+        $stale = date('Y-m-d H:i:s', strtotime($dbTs) - 1);
+
+        $_SESSION['user_id']          = 2;
+        $_SESSION['user_permissions'] = ['stale'];
+        $_SESSION['user_is_admin']    = false;
+        $_SESSION['permissions_ts']   = $stale;
+
+        Auth::refreshPermissionsIfStale();
+
+        $this->assertSame([], $_SESSION['user_permissions']);
+    }
+
+    // -------------------------------------------------------------------------
     // attemptRememberLogin()
     // -------------------------------------------------------------------------
 

@@ -10,6 +10,12 @@ TRUNCATE TABLE permissions;
 TRUNCATE TABLE roles;
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Roles (must be inserted before users due to FK constraint)
+INSERT INTO roles (id, name, description, status, is_system) VALUES
+  (1, 'Administrator', 'Full system access',    1, 1),
+  (2, 'Editor',        'Content editor role',   1, 0),
+  (3, 'Auditor',       'Read-only audit role',  0, 0);
+
 -- Permissions
 INSERT INTO permissions (id, name, description, status) VALUES
   (1, 'users',       'User management',       1),
@@ -31,12 +37,6 @@ VALUES
 
 -- Assign 'users' permission to normal user
 INSERT INTO user_permissions (user_id, permission_id) VALUES (2, 1);
-
--- Roles
-INSERT INTO roles (id, name, description, status, is_system) VALUES
-  (1, 'Administrator', 'Full system access',    1, 1),
-  (2, 'Editor',        'Content editor role',   1, 0),
-  (3, 'Auditor',       'Read-only audit role',  0, 0);
 
 -- Role permissions (Editor → users permission)
 INSERT INTO role_permissions (role_id, permission_id) VALUES (2, 1);

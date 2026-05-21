@@ -85,6 +85,55 @@ class UserTest extends IntegrationTestCase
         $this->assertSame('jane@test.com', $user['email']);
     }
 
+    public function test_create_with_role_id_persists_and_join_returns_role_name(): void
+    {
+        $result = $this->model->create([
+            'name'            => 'Roled',
+            'first_surname'   => 'User',
+            'second_surname'  => null,
+            'document_type'   => 'DNI',
+            'document_number' => '77777777',
+            'address'         => null,
+            'phone'           => null,
+            'email'           => 'roled@test.com',
+            'password'        => 'pass',
+            'image'           => null,
+            'role_id'         => 2,
+            'status'          => 1,
+        ]);
+        $this->assertTrue($result);
+
+        $id   = $this->model->getLastInsertId();
+        $user = $this->model->getById((int) $id);
+        $this->assertSame(2, (int) $user['role_id']);
+
+        // getAll() must expose role_name via LEFT JOIN
+        $all       = $this->model->getAll();
+        $roleNames = array_column($all, 'role_name');
+        $this->assertContains('Editor', $roleNames);
+    }
+
+    public function test_create_with_null_role_id_saves_null(): void
+    {
+        $this->model->create([
+            'name'            => 'Norole',
+            'first_surname'   => 'User',
+            'second_surname'  => null,
+            'document_type'   => 'DNI',
+            'document_number' => '66666666',
+            'address'         => null,
+            'phone'           => null,
+            'email'           => 'norole@test.com',
+            'password'        => 'pass',
+            'image'           => null,
+            'role_id'         => null,
+            'status'          => 1,
+        ]);
+
+        $user = $this->model->getById((int) $this->model->getLastInsertId());
+        $this->assertNull($user['role_id']);
+    }
+
     public function test_create_hashes_password(): void
     {
         $this->model->create([
@@ -96,7 +145,6 @@ class UserTest extends IntegrationTestCase
             'address'         => null,
             'phone'           => null,
             'email'           => 'hash@test.com',
-            'position'        => 'editor',
             'password'        => 'mypassword',
             'image'           => null,
             'status'          => 1,
@@ -122,7 +170,6 @@ class UserTest extends IntegrationTestCase
             'address'         => '123 Street',
             'phone'           => '5551234',
             'email'           => 'user@test.com',
-            'position'        => 'editor',
             'image'           => null,
             'status'          => 1,
         ]);
@@ -131,6 +178,46 @@ class UserTest extends IntegrationTestCase
         $user = $this->model->getById(2);
         $this->assertSame('Updated', $user['name']);
         $this->assertSame('123 Street', $user['address']);
+    }
+
+    public function test_update_changes_role_id(): void
+    {
+        $result = $this->model->update(2, [
+            'name'            => 'Normal',
+            'first_surname'   => 'User',
+            'second_surname'  => null,
+            'document_type'   => 'DNI',
+            'document_number' => '00000002',
+            'address'         => null,
+            'phone'           => null,
+            'email'           => 'user@test.com',
+            'image'           => null,
+            'role_id'         => 1,
+            'status'          => 1,
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertSame(1, (int) $this->model->getById(2)['role_id']);
+    }
+
+    public function test_update_sets_role_id_to_null(): void
+    {
+        $result = $this->model->update(2, [
+            'name'            => 'Normal',
+            'first_surname'   => 'User',
+            'second_surname'  => null,
+            'document_type'   => 'DNI',
+            'document_number' => '00000002',
+            'address'         => null,
+            'phone'           => null,
+            'email'           => 'user@test.com',
+            'image'           => null,
+            'role_id'         => null,
+            'status'          => 1,
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertNull($this->model->getById(2)['role_id']);
     }
 
     public function test_update_status_changes_active_flag(): void
