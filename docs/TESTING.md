@@ -62,16 +62,16 @@ No DB, no HTTP context. Each test class maps to a production class:
 Requires a live MySQL connection. Each test runs inside a transaction that is rolled back on
 teardown, so the DB is always clean.
 
-| Test class                                                      | What it covers                                                          |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Test class                                                      | What it covers                                                                             |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `tests/Integration/Models/UserTest.php`                         | `User` CRUD (including `role_id`), remember-me token, permissions timestamp, `getAll` JOIN |
-| `tests/Integration/Models/PermissionTest.php`                   | `Permission` read, assign, revoke, sync                                 |
-| `tests/Integration/Models/RoleTest.php`                         | `Role` CRUD, status toggle, user count, statistics                      |
-| `tests/Integration/Models/RolePermissionTest.php`               | `syncPermissions`, `getAssignedPermissionIds`, `getPermissionNames`, `getUserIdsByRole` |
-| `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale` (including UNION merge and dedup), `attemptRememberLogin` |
-| `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                                   |
-| `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                                        |
-| `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission/Role mutations                 |
+| `tests/Integration/Models/PermissionTest.php`                   | `Permission` read, assign, revoke, sync                                                    |
+| `tests/Integration/Models/RoleTest.php`                         | `Role` CRUD, status toggle, user count, statistics                                         |
+| `tests/Integration/Models/RolePermissionTest.php`               | `syncPermissions`, `getAssignedPermissionIds`, `getPermissionNames`, `getUserIdsByRole`    |
+| `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale` (including UNION merge and dedup), `attemptRememberLogin`      |
+| `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                                                      |
+| `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                                                           |
+| `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission/Role mutations                                    |
 
 ---
 

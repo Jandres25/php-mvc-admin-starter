@@ -20,38 +20,38 @@ Middleware is declared per route in `routes/web.php`:
 
 All authentication, session, and remember-me concerns are centralised in the static class `App\Core\Auth`. No instantiation needed.
 
-| Method | Description |
-|---|---|
-| `Auth::check()` | Returns `true` if a valid authenticated session exists |
-| `Auth::id()` | Returns the current user's ID or `null` |
-| `Auth::user()` | Returns current user array (`id`, `name`, `email`, `role`, `image`) or `null` |
-| `Auth::isAdmin()` | Returns `true` if `$_SESSION['user_is_admin']` is `true` (set from `roles.is_system`) |
-| `Auth::hasPermission(string $name)` | Checks session cache; `'*'` grants all (admins) |
-| `Auth::permissions()` | Returns the full permission name array from session |
-| `Auth::login(array $user, array $permNames)` | Regenerates session ID, writes all session keys, caches permissions |
-| `Auth::logout()` | Reads user ID from session, clears remember-me cookie, destroys the session |
-| `Auth::checkTimeout()` | Destroys session and returns `false` if idle > `SESSION_LIFETIME`; fail-closed if `last_access` key missing |
-| `Auth::checkSecurity()` | Destroys session and returns `false` if IP or User-Agent changed; fail-closed if keys missing |
-| `Auth::refreshPermissionsIfStale()` | Reloads permission cache from DB if `permissions_updated_at` is newer than session timestamp |
-| `Auth::issueRememberCookie(int $userId)` | Generates token, stores SHA-256 hash in DB, sets cookie |
-| `Auth::attemptRememberLogin()` | Validates cookie token, auto-logs in, rotates token |
-| `Auth::clearRememberCookie(int $userId)` | NULLs DB token, expires cookie |
+| Method                                       | Description                                                                                                 |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Auth::check()`                              | Returns `true` if a valid authenticated session exists                                                      |
+| `Auth::id()`                                 | Returns the current user's ID or `null`                                                                     |
+| `Auth::user()`                               | Returns current user array (`id`, `name`, `email`, `role`, `image`) or `null`                               |
+| `Auth::isAdmin()`                            | Returns `true` if `$_SESSION['user_is_admin']` is `true` (set from `roles.is_system`)                       |
+| `Auth::hasPermission(string $name)`          | Checks session cache; `'*'` grants all (admins)                                                             |
+| `Auth::permissions()`                        | Returns the full permission name array from session                                                         |
+| `Auth::login(array $user, array $permNames)` | Regenerates session ID, writes all session keys, caches permissions                                         |
+| `Auth::logout()`                             | Reads user ID from session, clears remember-me cookie, destroys the session                                 |
+| `Auth::checkTimeout()`                       | Destroys session and returns `false` if idle > `SESSION_LIFETIME`; fail-closed if `last_access` key missing |
+| `Auth::checkSecurity()`                      | Destroys session and returns `false` if IP or User-Agent changed; fail-closed if keys missing               |
+| `Auth::refreshPermissionsIfStale()`          | Reloads permission cache from DB if `permissions_updated_at` is newer than session timestamp                |
+| `Auth::issueRememberCookie(int $userId)`     | Generates token, stores SHA-256 hash in DB, sets cookie                                                     |
+| `Auth::attemptRememberLogin()`               | Validates cookie token, auto-logs in, rotates token                                                         |
+| `Auth::clearRememberCookie(int $userId)`     | NULLs DB token, expires cookie                                                                              |
 
 ## Session keys written at login
 
-| Key | Value |
-|---|---|
-| `user_id` | `int` — primary key |
-| `user_name` | `string` — first name |
-| `user_email` | `string` |
-| `user_role` | `string` — role display name (from `roles.name`) |
-| `user_is_admin` | `bool` — derived from `roles.is_system` |
-| `user_image` | `string` — avatar path |
+| Key                | Value                                                               |
+| ------------------ | ------------------------------------------------------------------- |
+| `user_id`          | `int` — primary key                                                 |
+| `user_name`        | `string` — first name                                               |
+| `user_email`       | `string`                                                            |
+| `user_role`        | `string` — role display name (from `roles.name`)                    |
+| `user_is_admin`    | `bool` — derived from `roles.is_system`                             |
+| `user_image`       | `string` — avatar path                                              |
 | `user_permissions` | `string[]` — union of direct + role permissions; `['*']` for admins |
-| `permissions_ts` | `string` — `Y-m-d H:i:s` timestamp used for stale-check |
-| `last_access` | `int` — Unix timestamp for inactivity timeout |
-| `ip` | `string` — client IP for anti-hijacking |
-| `user_agent` | `string` — User-Agent for anti-hijacking |
+| `permissions_ts`   | `string` — `Y-m-d H:i:s` timestamp used for stale-check             |
+| `last_access`      | `int` — Unix timestamp for inactivity timeout                       |
+| `ip`               | `string` — client IP for anti-hijacking                             |
+| `user_agent`       | `string` — User-Agent for anti-hijacking                            |
 
 ## Session security controls
 
@@ -67,11 +67,11 @@ If validation fails and no valid remember-me cookie exists, the user is redirect
 
 Implemented in `App\Core\Auth`. Controlled by three `.env` variables:
 
-| Variable | Default | Description |
-|---|---|---|
-| `SESSION_LIFETIME` | `1800` | Seconds of inactivity before session expires |
-| `REMEMBER_ME_LIFETIME` | `2592000` | Seconds the persistent cookie lives (30 days) |
-| `REMEMBER_ME_COOKIE_NAME` | `remember_me` | Cookie name |
+| Variable                  | Default       | Description                                   |
+| ------------------------- | ------------- | --------------------------------------------- |
+| `SESSION_LIFETIME`        | `1800`        | Seconds of inactivity before session expires  |
+| `REMEMBER_ME_LIFETIME`    | `2592000`     | Seconds the persistent cookie lives (30 days) |
+| `REMEMBER_ME_COOKIE_NAME` | `remember_me` | Cookie name                                   |
 
 **How it works:**
 
@@ -84,6 +84,7 @@ Implemented in `App\Core\Auth`. Controlled by three `.env` variables:
 4. On logout: `Auth::logout()` reads the user ID from session internally, NULLs the DB columns, expires the cookie, then destroys the session.
 
 **Security properties:**
+
 - Token never stored in plain text in DB — only SHA-256 hash.
 - Token rotated on every successful auto-login.
 - Cookie: `HttpOnly` (no XSS), `SameSite=Lax` (mitigates CSRF), `Secure` flag set when HTTPS is detected.

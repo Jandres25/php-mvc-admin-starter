@@ -16,11 +16,11 @@ This keeps seed imports deterministic and avoids duplicate records in local envi
 
 ## Seeded roles
 
-| Role          | `is_system` | Description                      |
-| ------------- | ----------- | -------------------------------- |
+| Role          | `is_system` | Description                                           |
+| ------------- | ----------- | ----------------------------------------------------- |
 | Administrator | 1           | Full system access (cannot be deleted or deactivated) |
-| Editor        | 0           | Manage users                     |
-| Viewer        | 0           | Read-only access to own profile  |
+| Editor        | 0           | Manage users                                          |
+| Viewer        | 0           | Read-only access to own profile                       |
 
 ## Seeded test users
 
