@@ -93,8 +93,7 @@ class Role extends Model
             }
 
             if ($stmt->execute()) {
-                DashboardCache::forget('user_stats');
-                DashboardCache::forget('users_by_status');
+                DashboardCache::forget('role_stats');
                 return true;
             }
             return false;
@@ -134,8 +133,7 @@ class Role extends Model
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
-                DashboardCache::forget('user_stats');
-                DashboardCache::forget('users_by_status');
+                DashboardCache::forget('role_stats');
                 return true;
             }
             return false;
@@ -164,8 +162,7 @@ class Role extends Model
             $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
 
             if ($stmt->execute()) {
-                DashboardCache::forget('user_stats');
-                DashboardCache::forget('users_by_status');
+                DashboardCache::forget('role_stats');
                 return true;
             }
             return false;
@@ -266,6 +263,116 @@ class Role extends Model
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return 0;
+        }
+    }
+
+    /**
+     * Returns the permission IDs currently assigned to a role.
+     *
+     * @param int $roleId
+     * @return array  Flat array of permission_id integers
+     */
+    public function getAssignedPermissionIds(int $roleId): array
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT permission_id FROM role_permissions WHERE role_id = :role_id"
+            );
+            $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+            $stmt->execute();
+            return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'permission_id');
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Returns the names of active permissions assigned to a role.
+     * Used by Auth::resolvePermNames() to build the UNION cache.
+     *
+     * @param int $roleId
+     * @return array  Flat array of permission name strings
+     */
+    public function getPermissionNames(int $roleId): array
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT p.name
+                FROM role_permissions rp
+                JOIN permissions p ON rp.permission_id = p.id
+                WHERE rp.role_id = :role_id AND p.status = 1
+            ");
+            $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+            $stmt->execute();
+            return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'name');
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Replaces all permissions for a role in a single transaction (DELETE + INSERT).
+     * Invalidates the permission cache for every user of the role.
+     *
+     * @param int   $roleId
+     * @param array $permissionIds
+     * @return bool
+     */
+    public function syncPermissions(int $roleId, array $permissionIds): bool
+    {
+        try {
+            $this->connection->beginTransaction();
+
+            $stmt = $this->connection->prepare(
+                "DELETE FROM role_permissions WHERE role_id = :role_id"
+            );
+            $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            foreach ($permissionIds as $permId) {
+                $permId = (int) $permId;
+                if ($permId <= 0) {
+                    continue;
+                }
+                $stmt = $this->connection->prepare(
+                    "INSERT INTO role_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)"
+                );
+                $stmt->bindParam(':role_id',       $roleId, PDO::PARAM_INT);
+                $stmt->bindParam(':permission_id', $permId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $this->connection->commit();
+            DashboardCache::forget('role_stats');
+            return true;
+        } catch (PDOException $e) {
+            $this->connection->rollBack();
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Returns the IDs of all users assigned to a role.
+     * Used to bulk-invalidate permission caches after syncPermissions().
+     *
+     * @param int $roleId
+     * @return array  Flat array of user_id integers
+     */
+    public function getUserIdsByRole(int $roleId): array
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT id FROM users WHERE role_id = :role_id"
+            );
+            $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
+            $stmt->execute();
+            return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'id');
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
         }
     }
 
