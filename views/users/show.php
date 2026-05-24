@@ -43,6 +43,14 @@
 
                         <p class="text-muted text-center"><?= htmlspecialchars($user['role_name'] ?? 'No role assigned'); ?></p>
 
+                        <?php
+                        $isLoginLocked = !empty($user['locked_until'])
+                            && strtotime($user['locked_until']) > time();
+                        $lockedUntilFmt = $isLoginLocked
+                            ? date('H:i', strtotime($user['locked_until']))
+                            : '';
+                        ?>
+
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
                                 <b><i class="fas fa-id-card mr-1"></i> <?= htmlspecialchars($user['document_type']); ?></b>
@@ -68,12 +76,31 @@
                                     <?php endif; ?>
                                 </span>
                             </li>
+                            <?php if ($isLoginLocked): ?>
+                                <li class="list-group-item">
+                                    <b><i class="fas fa-lock mr-1"></i> Login</b>
+                                    <span class="float-right">
+                                        <span class="badge badge-warning badge-pill p-2" title="Locked until <?= htmlspecialchars($lockedUntilFmt) ?>">
+                                            <i class="fas fa-lock mr-1"></i> Locked until <?= htmlspecialchars($lockedUntilFmt) ?>
+                                        </span>
+                                    </span>
+                                </li>
+                            <?php endif; ?>
                         </ul>
 
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between flex-wrap gap-2">
                             <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning mb-3">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
+                            <?php if ($isLoginLocked): ?>
+                                <button type="button" id="btn-unlock-login"
+                                    class="btn btn-danger mb-3"
+                                    data-user-id="<?= (int) $user['id'] ?>"
+                                    data-url="<?= URL ?>users/<?= (int) $user['id'] ?>/unlock-login"
+                                    data-csrf="<?= generateCSRFToken() ?>">
+                                    <i class="fas fa-lock-open mr-1"></i> Unlock Login
+                                </button>
+                            <?php endif; ?>
                             <a href="<?= URL ?>users" class="btn btn-default mb-3">
                                 <i class="fas fa-arrow-left"></i> Back
                             </a>
@@ -280,4 +307,3 @@
         </div>
     </div>
 </section>
-

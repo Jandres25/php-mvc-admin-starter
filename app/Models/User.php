@@ -1056,7 +1056,7 @@ class User extends Model
                     login_attempts  = login_attempts + 1,
                     last_attempt_at = NOW(),
                     locked_until    = IF(
-                        login_attempts + 1 >= :max,
+                        login_attempts >= :max,
                         DATE_ADD(NOW(), INTERVAL :minutes MINUTE),
                         locked_until
                     )

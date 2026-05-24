@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Permission;
 use App\Services\ImageService;
+use App\Services\LoginThrottleService;
 
 class UserController extends Controller
 {
@@ -14,6 +15,7 @@ class UserController extends Controller
     private $permissionModel;
     private $roleModel;
     private $imageService;
+    private LoginThrottleService $throttle;
 
     public function __construct()
     {
@@ -21,6 +23,7 @@ class UserController extends Controller
         $this->permissionModel = new Permission();
         $this->roleModel       = new Role();
         $this->imageService    = new ImageService(__DIR__ . '/../../../public/uploads/users/');
+        $this->throttle        = new LoginThrottleService($this->userModel);
     }
 
     public function index()
@@ -195,6 +198,28 @@ class UserController extends Controller
     {
         $this->csrfCheck();
         $this->jsonResponse($this->updateProfilePasswordAjax());
+    }
+
+    public function unlockLoginAjax($id = null)
+    {
+        $this->csrfCheck();
+
+        $userId = (int) $id;
+
+        if ($userId <= 0) {
+            regenerateCSRFToken();
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid user ID.', 'icon' => 'error']);
+        }
+
+        if ($this->throttle->unlock($userId)) {
+            $_SESSION['message'] = 'Login unlocked successfully.';
+            $_SESSION['icon']    = 'success';
+            regenerateCSRFToken();
+            $this->jsonResponse(['success' => true, 'message' => 'Login unlocked successfully.', 'icon' => 'success']);
+        }
+
+        regenerateCSRFToken();
+        $this->jsonResponse(['success' => false, 'message' => 'Error unlocking the user.', 'icon' => 'error']);
     }
 
     // -------------------------------------------------------------------------
