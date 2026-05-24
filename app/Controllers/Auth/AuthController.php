@@ -5,14 +5,17 @@ namespace App\Controllers\Auth;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\User;
+use App\Services\LoginThrottleService;
 
 class AuthController extends Controller
 {
-    private User $userModel;
+    private User                 $userModel;
+    private LoginThrottleService $throttle;
 
     public function __construct()
     {
         $this->userModel = new User();
+        $this->throttle  = new LoginThrottleService($this->userModel);
     }
 
     public function showLoginForm(): void
@@ -33,25 +36,46 @@ class AuthController extends Controller
             $this->redirect(URL . 'login');
         }
 
+        // 1. Resolve user row without verifying password yet
         $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
         $user    = $isEmail
-            ? $this->userModel->loginByEmail($identifier, $password)
-            : $this->userModel->loginByDocumentNumber($identifier, $password);
+            ? $this->userModel->findByEmail($identifier)
+            : $this->userModel->findByDocumentNumber($identifier);
 
-        if (!$user) {
+        // 2. Throttle check — only when the user exists
+        if ($user) {
+            $lock = $this->throttle->isLocked($user);
+            if ($lock['locked']) {
+                $_SESSION['message'] = $lock['message'];
+                $_SESSION['icon']    = 'error';
+                $this->redirect(URL . 'login');
+            }
+        }
+
+        // 3. Verify password
+        $validCredentials = $user && password_verify($password, $user['password']);
+
+        if (!$validCredentials) {
+            // Register failure only when the user exists (avoid phantom rows)
+            if ($user) {
+                $this->throttle->registerFailure($user);
+            }
             $_SESSION['message'] = 'Incorrect credentials.';
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'login');
         }
 
+        // 4. Account status check
         if ((int) $user['status'] === 0) {
             $_SESSION['message'] = 'Your account is deactivated. Please contact an administrator.';
             $_SESSION['icon']    = 'warning';
             $this->redirect(URL . 'login');
         }
 
+        // 5. Successful login
         Auth::login($user, Auth::buildPermNames($user));
         regenerateCSRFToken();
+        $this->throttle->clearOnSuccess($user);
 
         if (!empty($_POST['remember']) && $_POST['remember'] === '1') {
             Auth::issueRememberCookie((int) $user['id']);

@@ -979,6 +979,61 @@ class User extends Model
     }
 
     // -------------------------------------------------------------------------
+    // Lookup methods (resolve user without password verification)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns a user row by email without verifying the password.
+     * Used by the login flow to resolve the user before throttle checks.
+     *
+     * @param  string $email
+     * @return array|false
+     */
+    public function findByEmail(string $email): array|false
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
+                FROM {$this->tabla} u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.email = :email
+                LIMIT 1
+            ");
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Returns a user row by document number without verifying the password.
+     *
+     * @param  string $documentNumber
+     * @return array|false
+     */
+    public function findByDocumentNumber(string $documentNumber): array|false
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT u.*, r.name AS role_name, r.is_system AS role_is_system
+                FROM {$this->tabla} u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.document_number = :document_number
+                LIMIT 1
+            ");
+            $stmt->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Login throttle methods
     // -------------------------------------------------------------------------
 
