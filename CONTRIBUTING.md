@@ -235,7 +235,7 @@ When adding new features, follow the existing project structure:
 │   ├── Controllers/      # Feature controllers (Auth/, Users/, Permissions/, Dashboard/, Roles/)
 │   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 │   ├── Models/           # App\Models
-│   ├── Services/         # App\Services (ImageService, MailService, DashboardCache)
+│   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService)
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates

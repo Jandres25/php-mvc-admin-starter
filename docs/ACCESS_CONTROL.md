@@ -98,6 +98,46 @@ remember_token         CHAR(64)  NULL DEFAULT NULL
 remember_token_expires DATETIME  NULL DEFAULT NULL
 ```
 
+## Login throttling (brute-force protection)
+
+Implemented in `App\Services\LoginThrottleService` + `App\Models\User`. Controlled by two `.env` variables:
+
+| Variable               | Default | Description                                    |
+| ---------------------- | ------- | ---------------------------------------------- |
+| `LOGIN_MAX_ATTEMPTS`   | `5`     | Consecutive failures before lockout            |
+| `LOGIN_LOCKOUT_MINUTES`| `15`    | Minutes the account stays locked               |
+
+**How it works:**
+
+1. `AuthController::login()` resolves the user row via `User::findByEmail()` or `User::findByDocumentNumber()` **before** calling `password_verify`.
+2. If the user exists, `LoginThrottleService::isLocked()` evaluates `locked_until` vs `NOW()` (lazy — no write). If locked, the request is rejected with a human-readable message and `password_verify` is never called.
+3. On a credential failure (wrong password), `LoginThrottleService::registerFailure()` calls `User::recordFailure()` — a single UPDATE that increments `login_attempts` and sets `locked_until` when the threshold is reached. Non-existent emails do not generate any DB write.
+4. On a successful login, `LoginThrottleService::clearOnSuccess()` resets all three throttle columns to their defaults.
+5. **Lazy unlock** — `locked_until` is evaluated on the next attempt. No cron job required. Once `locked_until ≤ NOW()`, `getLockStatus()` returns `locked=false`.
+
+**Admin manual unlock:**
+
+- `POST /users/{id}/unlock-login` (middleware: `auth + perm:users`) → `UserController::unlockLoginAjax()`.
+- `views/users/show.php` conditionally shows a "Locked until HH:MM" badge and an "Unlock Login" button when `locked_until > NOW()`.
+- JS handler in `show-user.js` uses `AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`.
+
+**DB columns in `users`:**
+
+```sql
+login_attempts  INT      NOT NULL DEFAULT 0
+locked_until    DATETIME NULL     DEFAULT NULL
+last_attempt_at DATETIME NULL     DEFAULT NULL
+```
+
+**Security properties:**
+
+- Locked accounts never reach `password_verify` — no timing information leaks.
+- Non-existent emails are silently ignored — user existence is not revealed.
+- IP-based blocking intentionally omitted: internal admin system where false positives (shared NAT) outweigh the benefit.
+- Lockout by account is a known DoS vector; mitigated by admin manual unlock and configurable lockout duration.
+
+---
+
 ## Permission model
 
 Permissions are cached in session at login and checked via `Auth::hasPermission(string $name)`.

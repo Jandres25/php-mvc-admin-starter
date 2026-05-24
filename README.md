@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.10.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.11.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
@@ -15,7 +15,7 @@ A PHP starter template with authentication, user management, and role-based perm
 
 ## Features
 
-- **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout, persistent remember-me cookie
+- **Secure authentication** — Login by email or document number, CSRF protection, anti-session hijacking, inactivity logout, persistent remember-me cookie, brute-force lockout
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`), logical delete only
 - **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
@@ -73,7 +73,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.8.0
+APP_VERSION=3.11.0
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -82,6 +82,10 @@ DASHBOARD_CACHE_TTL=300
 SESSION_LIFETIME=1800
 REMEMBER_ME_LIFETIME=2592000
 REMEMBER_ME_COOKIE_NAME=remember_me
+
+# Login throttling
+LOGIN_MAX_ATTEMPTS=5
+LOGIN_LOCKOUT_MINUTES=15
 
 # SMTP Configuration (Optional)
 MAIL_HOST=smtp.gmail.com
@@ -128,7 +132,7 @@ app/
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models
-└── Services/     # App\Services (ImageService, MailService, DashboardCache)
+└── Services/     # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService)
 routes/           # web.php — all route definitions
 views/            # PHP templates; layouts/header.php, sidebar.php and footer.php wrap content
 public/           # Static assets (lib/, core/, plugins/, modules/) + index.php (Front Controller)
@@ -184,6 +188,7 @@ Tests run automatically on every push and PR via GitHub Actions (see `.github/wo
 - Configurable session lifetime via `SESSION_LIFETIME` in `.env`
 - Permission cache in session — navigation checks require zero DB queries per page load
 - Users cannot deactivate or change the status of their own account
+- Brute-force protection — account lockout after N failed login attempts (`LOGIN_MAX_ATTEMPTS`); lazy unlock by time or manual admin unlock; locked accounts bypass `password_verify` to prevent timing leaks
 
 ## Developer Docs
 

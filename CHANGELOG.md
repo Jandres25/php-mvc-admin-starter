@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.11.0] - 2026-05-24
+
+### Added
+
+- **Brute-force login throttling** — lockout after N consecutive failed login attempts with automatic lazy unlock by time and manual admin unlock:
+  - 3 new columns on `users` table: `login_attempts INT NOT NULL DEFAULT 0`, `locked_until DATETIME NULL`, `last_attempt_at DATETIME NULL`.
+  - 2 new `.env` variables: `LOGIN_MAX_ATTEMPTS` (default 5) and `LOGIN_LOCKOUT_MINUTES` (default 15).
+  - **`User` model** — 4 new throttle methods: `recordFailure(int $userId)` (single UPDATE that increments counter and sets `locked_until` on threshold), `clearAttempts(int $userId)` (reset after successful login), `unlock(int $userId)` (admin manual unlock, returns bool), `getLockStatus(int $userId)` (lazy evaluation of `locked_until` vs `NOW()`, no write).
+  - **`User` model** — 2 new lookup methods: `findByEmail(string $email)` and `findByDocumentNumber(string $documentNumber)` — resolve the user row without verifying the password, enabling the throttle check before `password_verify`.
+  - **`App\Services\LoginThrottleService`** — orchestration layer: `isLocked(array $user)` (returns `locked`, `remaining_seconds`, `message`), `registerFailure`, `clearOnSuccess`, `unlock`, `formatRemaining(int $seconds)` (human-readable string, singular/plural).
+  - **`AuthController::login()`** refactored into 5 explicit steps: resolve user → throttle check → `password_verify` → status check → session init + clear attempts. Locked requests never reach `password_verify` (no timing leak). Email/document lookup failures are silent (do not reveal user existence).
+  - **Admin manual unlock** — `POST /users/{id}/unlock-login` route (middleware `auth + perm:users`), `UserController::unlockLoginAjax()` endpoint (CSRF + `jsonResponse`), locked badge in `views/users/show.php` (conditionally shown when `locked_until > NOW()`), and AJAX handler in `show-user.js` (`AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`).
+- **19 integration tests** in `tests/Integration/Auth/LoginThrottleTest.php` — covers `recordFailure` (counter, `last_attempt_at`, `locked_until` threshold), `getLockStatus` (active, expired, fresh), `clearAttempts`, `unlock`, `LoginThrottleService::isLocked` (locked/unlocked/expired), and `formatRemaining` (minutes+seconds, singular, zero).
+
+### Changed
+
+- **`AuthController`** — uses `LoginThrottleService` injected in constructor; login flow split into `findByEmail`/`findByDocumentNumber` (resolve) + `password_verify` (verify) instead of the previous single `loginByEmail`/`loginByDocumentNumber` call.
+- **`UserController`** — injects `LoginThrottleService` for the unlock endpoint.
+
+---
+
 ## [3.10.0] - 2026-05-21
 
 ### Added
@@ -629,6 +650,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.11.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.10.0...3.11.0
 [3.10.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.9.0...3.10.0
 [3.9.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.8.0...3.9.0
 [3.8.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.7.0...3.8.0

@@ -337,5 +337,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.10.0_
+_Última actualización: v3.11.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

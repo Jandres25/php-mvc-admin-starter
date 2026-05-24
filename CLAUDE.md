@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.10.0`
+**Current release tag:** `3.11.0`
 
 ## No Build Process
 
@@ -108,7 +108,7 @@ app/
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models
-└── Services/     # App\Services (ImageService, MailService, DashboardCache)
+└── Services/     # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
 views/            # PHP templates; layouts/header.php pulls in all CSS/JS; sidebar.php handles navigation
