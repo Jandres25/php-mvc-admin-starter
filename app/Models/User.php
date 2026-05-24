@@ -978,6 +978,134 @@ class User extends Model
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Login throttle methods
+    // -------------------------------------------------------------------------
+
+    /**
+     * Increments the failed login counter for a user and sets locked_until
+     * when the max-attempts threshold is reached. All changes land in one UPDATE.
+     *
+     * @param  int   $userId
+     * @return array Updated row with keys: login_attempts, locked_until, last_attempt_at
+     */
+    public function recordFailure(int $userId): array
+    {
+        try {
+            $maxAttempts    = (int) env('LOGIN_MAX_ATTEMPTS', 5);
+            $lockoutMinutes = (int) env('LOGIN_LOCKOUT_MINUTES', 15);
+
+            $stmt = $this->connection->prepare("
+                UPDATE {$this->tabla}
+                SET
+                    login_attempts  = login_attempts + 1,
+                    last_attempt_at = NOW(),
+                    locked_until    = IF(
+                        login_attempts + 1 >= :max,
+                        DATE_ADD(NOW(), INTERVAL :minutes MINUTE),
+                        locked_until
+                    )
+                WHERE id = :id
+            ");
+            $stmt->bindValue(':max',     $maxAttempts,    PDO::PARAM_INT);
+            $stmt->bindValue(':minutes', $lockoutMinutes, PDO::PARAM_INT);
+            $stmt->bindParam(':id',      $userId,         PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Return the fresh throttle state
+            $stmt2 = $this->connection->prepare("
+                SELECT login_attempts, locked_until, last_attempt_at
+                FROM {$this->tabla} WHERE id = :id
+            ");
+            $stmt2->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt2->execute();
+            return $stmt2->fetch(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return [];
+        }
+    }
+
+    /**
+     * Resets all throttle columns after a successful login.
+     *
+     * @param  int  $userId
+     * @return void
+     */
+    public function clearAttempts(int $userId): void
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                UPDATE {$this->tabla}
+                SET login_attempts = 0, locked_until = NULL, last_attempt_at = NULL
+                WHERE id = :id
+            ");
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+        }
+    }
+
+    /**
+     * Manually unlocks a user (admin action). Identical to clearAttempts
+     * but returns bool so the controller can confirm success.
+     *
+     * @param  int  $userId
+     * @return bool
+     */
+    public function unlock(int $userId): bool
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                UPDATE {$this->tabla}
+                SET login_attempts = 0, locked_until = NULL, last_attempt_at = NULL
+                WHERE id = :id
+            ");
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * Evaluates whether a user is currently locked out (lazy: checks locked_until vs NOW()).
+     * Does NOT write to the DB — the Service layer decides whether to reset.
+     *
+     * @param  int   $userId
+     * @return array{locked: bool, remaining_seconds: int}
+     */
+    public function getLockStatus(int $userId): array
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT
+                    locked_until,
+                    GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), locked_until)) AS remaining_seconds
+                FROM {$this->tabla}
+                WHERE id = :id
+            ");
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$row || $row['locked_until'] === null) {
+                return ['locked' => false, 'remaining_seconds' => 0];
+            }
+
+            $remaining = (int) $row['remaining_seconds'];
+            return [
+                'locked'            => $remaining > 0,
+                'remaining_seconds' => $remaining,
+            ];
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return ['locked' => false, 'remaining_seconds' => 0];
+        }
+    }
+
     /**
      * Returns user registration counts grouped by month for the line chart.
      * Always returns exactly $months entries (zero-filled for empty months).
