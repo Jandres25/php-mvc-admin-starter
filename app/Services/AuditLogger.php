@@ -55,7 +55,7 @@ class AuditLogger
             if ($actorLabel === null && $actorId !== null) {
                 $sessionUser = Auth::user();
                 if ($sessionUser) {
-                    $actorLabel = trim(($sessionUser['name'] ?? '') . ' (' . ($sessionUser['email'] ?? '') . ')');
+                    $actorLabel = trim($sessionUser['name'] ?? '');
                 }
             }
 

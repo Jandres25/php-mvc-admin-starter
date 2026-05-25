@@ -137,3 +137,91 @@ SELECT r.id, p.id FROM roles r JOIN permissions p
 -- Audit log permission (admin with is_system=1 already gets * — this row enables it for non-system roles)
 INSERT INTO permissions (name, description, status) VALUES
 ('audit_log.view', 'View the system audit/activity log', 1);
+
+-- -------------------------------------------------------------------------
+-- Audit log — seed entries that reflect the above setup actions
+-- All events are attributed to the Administrator (actor_id = @admin_id).
+-- Timestamps are staggered by 1 minute to produce a realistic timeline.
+-- -------------------------------------------------------------------------
+
+SET @t = '2025-01-01 08:00:00';
+
+-- Roles created
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'roles', 'create', 'Role created: Administrator', JSON_OBJECT('name','Administrator','is_system',1), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'roles', 'create', 'Role created: Editor', JSON_OBJECT('name','Editor','is_system',0), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'roles', 'create', 'Role created: Viewer', JSON_OBJECT('name','Viewer','is_system',0), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+-- Permissions created
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: profile',     JSON_OBJECT('name','profile'),     '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: admin',       JSON_OBJECT('name','admin'),       '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: users',       JSON_OBJECT('name','users'),       '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: permissions', JSON_OBJECT('name','permissions'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: roles',       JSON_OBJECT('name','roles'),       '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: audit_log.view', JSON_OBJECT('name','audit_log.view'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+-- Users created
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'users', 'create', 'User created: Administrator System',
+ JSON_OBJECT('email','admin@sistema.com','role','Administrator','status','active'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'users', 'create', 'User created: Ana Paredes',
+ JSON_OBJECT('email','ana.paredes@sistema.com','role','Editor','status','active'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'users', 'create', 'User created: Carlos Rojas',
+ JSON_OBJECT('email','carlos.rojas@sistema.com','role','Viewer','status','active'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'users', 'create', 'User created: Lucia Quispe',
+ JSON_OBJECT('email','lucia.quispe@sistema.com','role',NULL,'status','inactive'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'users', 'create', 'User created: Diego Torres',
+ JSON_OBJECT('email','diego.torres@sistema.com','role','Viewer','status','active'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+-- Role permissions synced
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'roles', 'sync_permissions', 'Permissions synced for role: Editor',
+ JSON_OBJECT('role','Editor','permissions','profile, users'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
+(@admin_id, 'Administrator', 'roles', 'sync_permissions', 'Permissions synced for role: Viewer',
+ JSON_OBJECT('role','Viewer','permissions','profile'), '127.0.0.1', @t);
+SET @t = ADDTIME(@t, '00:01:00');
+
+-- First login
+INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, user_agent, created_at) VALUES
+(@admin_id, 'Administrator', 'auth', 'login', 'Successful login: Administrator System',
+ JSON_OBJECT('email','admin@sistema.com'), '127.0.0.1', 'Seeder/1.0', @t);

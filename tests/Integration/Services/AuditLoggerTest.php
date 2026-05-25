@@ -86,8 +86,7 @@ class AuditLoggerTest extends IntegrationTestCase
 
         $rows = (new ActivityLog())->getAll();
         $this->assertSame('1', (string) $rows[0]['actor_id']);
-        $this->assertStringContainsString('Admin Test', $rows[0]['actor_label']);
-        $this->assertStringContainsString('admin@test.com', $rows[0]['actor_label']);
+        $this->assertSame('Admin Test', $rows[0]['actor_label']);
     }
 
     public function test_log_without_session_stores_null_actor_id(): void

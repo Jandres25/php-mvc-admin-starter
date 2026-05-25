@@ -54,6 +54,9 @@ return [
     ['method' => 'GET',  'path' => '/roles',               'controller' => 'Roles\Role@pageIndex',      'middleware' => ['auth', 'perm:roles']],
     ['method' => 'GET',  'path' => '/roles/(\d+)',         'controller' => 'Roles\Role@detail',         'middleware' => ['auth', 'perm:roles']],
 
+    // Audit Log (read-only)
+    ['method' => 'GET', 'path' => '/audit-log', 'controller' => 'AuditLog\AuditLog@index', 'middleware' => ['auth', 'perm:audit_log.view']],
+
     // Roles AJAX
     ['method' => 'POST', 'path' => '/roles/create',            'controller' => 'Roles\Role@create',         'middleware' => ['auth', 'perm:roles']],
     ['method' => 'POST', 'path' => '/roles/update',            'controller' => 'Roles\Role@update',         'middleware' => ['auth', 'perm:roles']],
