@@ -82,7 +82,7 @@ $adminMenuOpen = array_reduce($adminPerms, fn($carry, $p) => $carry || $isActive
                 <?php endif ?>
 
                 <!-- Audit Log -->
-                <?php if (Auth::hasPermission('audit_log.view')) : ?>
+                <?php if (Auth::hasPermission('audit_log')) : ?>
                     <li class="nav-item">
                         <a href="<?= URL ?>audit-log" class="nav-link <?= $isActive('audit-log') ?>">
                             <i class="nav-icon fas fa-history"></i>

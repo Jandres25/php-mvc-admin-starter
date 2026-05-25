@@ -17,9 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **View `views/audit-log/index.php`** — filter card (collapsed by default) + DataTables table with export buttons; date inputs with calendar icon trigger native picker on mobile.
   - **Partial `views/audit-log/_modal-detail.php`** — event detail modal with dynamic header subtitle (module badge + action code), meta grid, description callout, and human-readable key/value details table (no raw JSON).
   - **`public/js/modules/audit-log/index-audit.js`** — DataTables init, `humanizeKey()` / `renderDetailsTable()` helpers, responsive fix for DataTables child rows (mobile `TypeError` guard).
-  - **Route** `GET /audit-log` (middleware: `auth + perm:audit_log.view`).
-  - **Permission `audit_log.view`** — seeded in `database/seeder.sql`; granted to Administrator via `is_system = 1` (`*`).
-  - **Sidebar link** gated by `audit_log.view` under the Administration section.
+  - **Route** `GET /audit-log` (middleware: `auth + perm:audit_log`).
+  - **Permission `audit_log`** — seeded in `database/seeder.sql`; granted to Administrator via `is_system = 1` (`*`).
+  - **Sidebar link** gated by `audit_log` under the Administration section.
   - **Dashboard "Events Today" card** — `DashboardCache::remember('audit_today', ...)` in `DashboardController`; `small-box bg-secondary` visible only when `canViewAuditLog`.
   - **Seeder audit entries** — 17 `activity_logs` rows in `database/seeder.sql` reflecting the full setup timeline (roles, permissions, users, sync, first login).
   - **Instrumentation** — `AuditLogger::log()` called in `AuthController` (login/logout), `UserController` (create/update/delete/status/unlock), `PermissionController` (create/update/delete/assign/revoke), `RoleController` (create/update/delete/sync).
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **`DashboardController`** — imports `ActivityLog`, loads `audit_today` via `DashboardCache`, passes `auditToday` and `canViewAuditLog` to the view.
-- **`views/dashboard/index.php`** — new `small-box bg-secondary` card (Events Today) rendered after the Roles card, visible only when the user has `audit_log.view`.
+- **`views/dashboard/index.php`** — new `small-box bg-secondary` card (Events Today) rendered after the Roles card, visible only when the user has `audit_log`.
 
 ---
 
@@ -676,6 +676,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.12.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.11.0...3.12.0
 [3.11.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.10.0...3.11.0
 [3.10.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.9.0...3.10.0
 [3.9.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.8.0...3.9.0

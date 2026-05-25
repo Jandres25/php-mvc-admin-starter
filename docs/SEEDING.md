@@ -38,7 +38,7 @@ All users below are seeded with password: `admin123`
 
 Permissions are the **union** of direct assignments and role-inherited permissions.
 
-| User                     | profile | users | permissions | admin | roles | audit_log.view |
+| User                     | profile | users | permissions | admin | roles | audit_log |
 | ------------------------ | ------- | ----- | ----------- | ----- | ----- | -------------- |
 | admin@sistema.com        | ✅      | ✅    | ✅          | ✅    | ✅    | ✅ (via `*`)   |
 | ana.paredes@sistema.com  | ✅      | ✅    | ❌          | ❌    | ❌    | ❌             |
@@ -49,5 +49,5 @@ Permissions are the **union** of direct assignments and role-inherited permissio
 ## Notes
 
 - `admin@sistema.com` has `is_system = 1` on its role → `Auth::isAdmin()` returns `true` and the session cache is always `['*']`.
-- Permission names are intentionally aligned with the application checks (`profile`, `users`, `permissions`, `admin`, `roles`, `audit_log.view`).
+- Permission names are intentionally aligned with the application checks (`profile`, `users`, `permissions`, `admin`, `roles`, `audit_log`).
 - If you modify permissions or role assignments manually, remember that the user permission cache depends on `permissions_updated_at`. Run `UPDATE users SET permissions_updated_at = NOW() WHERE id = X` to force a refresh on next page load.

@@ -136,7 +136,7 @@ SELECT r.id, p.id FROM roles r JOIN permissions p
 
 -- Audit log permission (admin with is_system=1 already gets * — this row enables it for non-system roles)
 INSERT INTO permissions (name, description, status) VALUES
-('audit_log.view', 'View the system audit/activity log', 1);
+('audit_log', 'View the system audit/activity log', 1);
 
 -- -------------------------------------------------------------------------
 -- Audit log — seed entries that reflect the above setup actions
@@ -181,7 +181,7 @@ INSERT INTO activity_logs (actor_id, actor_label, module, action, description, d
 SET @t = ADDTIME(@t, '00:01:00');
 
 INSERT INTO activity_logs (actor_id, actor_label, module, action, description, details, ip_address, created_at) VALUES
-(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: audit_log.view', JSON_OBJECT('name','audit_log.view'), '127.0.0.1', @t);
+(@admin_id, 'Administrator', 'permissions', 'create', 'Permission created: audit_log', JSON_OBJECT('name','audit_log'), '127.0.0.1', @t);
 SET @t = ADDTIME(@t, '00:01:00');
 
 -- Users created
