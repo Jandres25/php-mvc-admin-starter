@@ -133,3 +133,7 @@ SELECT r.id, p.id FROM roles r JOIN permissions p
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r JOIN permissions p
   ON r.name = 'Viewer' AND p.name IN ('profile');
+
+-- Audit log permission (admin with is_system=1 already gets * — this row enables it for non-system roles)
+INSERT INTO permissions (name, description, status) VALUES
+('audit_log.view', 'View the system audit/activity log', 1);

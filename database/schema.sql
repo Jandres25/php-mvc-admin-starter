@@ -76,3 +76,21 @@ CREATE TABLE user_permissions (
   CONSTRAINT fk_up_permission FOREIGN KEY (permission_id) REFERENCES permissions(id),
   CONSTRAINT fk_up_user       FOREIGN KEY (user_id)       REFERENCES users(id)
 );
+
+-- Activity / audit log table (append-only)
+CREATE TABLE activity_logs (
+  id            bigint       PRIMARY KEY AUTO_INCREMENT,
+  actor_id      int          NULL DEFAULT NULL,
+  actor_label   varchar(255) NULL DEFAULT NULL,
+  module        varchar(50)  NOT NULL,
+  action        varchar(50)  NOT NULL,
+  description   varchar(255) NULL DEFAULT NULL,
+  details       JSON         NULL DEFAULT NULL,
+  ip_address    varchar(45)  NULL DEFAULT NULL,
+  user_agent    varchar(255) NULL DEFAULT NULL,
+  created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_al_module  (module),
+  KEY idx_al_actor   (actor_id),
+  KEY idx_al_created (created_at),
+  CONSTRAINT fk_al_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL
+);
