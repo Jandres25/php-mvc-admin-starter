@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\Permissions;
+namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\Permission;

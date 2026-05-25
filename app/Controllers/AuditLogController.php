@@ -7,12 +7,12 @@
  * No POST/AJAX endpoints — the log is append-only and cannot be edited from the UI.
  *
  * @package ProyectoBase
- * @subpackage App\Controllers\AuditLog
+ * @subpackage App\Controllers
  * @author Jandres25
  * @version 1.0
  */
 
-namespace App\Controllers\AuditLog;
+namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\ActivityLog;

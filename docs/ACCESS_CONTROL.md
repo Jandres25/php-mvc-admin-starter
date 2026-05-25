@@ -13,7 +13,7 @@ All requests pass through `public/index.php`, which boots the session and CSRF h
 Middleware is declared per route in `routes/web.php`:
 
 ```php
-['method' => 'GET', 'path' => '/users', 'controller' => 'Users\User@index', 'middleware' => ['auth', 'perm:users']],
+['method' => 'GET', 'path' => '/users', 'controller' => 'User@index', 'middleware' => ['auth', 'perm:users']],
 ```
 
 ## Auth hub — `App\Core\Auth`
@@ -184,7 +184,7 @@ Permission changes are cached in session and refreshed when stale.
 | `users`          | Users        | Full user management (CRUD, activation, unlock)                  |
 | `permissions`    | Permissions  | Create, edit, and assign/revoke permissions                      |
 | `roles`          | Roles        | Create, edit, and manage role↔permission assignments             |
-| `audit_log.view` | Audit Log    | Read-only access to the activity/audit log                       |
+| `audit_log` | Audit Log    | Read-only access to the activity/audit log                       |
 
 > Administrators (role with `is_system = 1`) receive `['*']` in session — `hasPermission()` returns `true` for **any** permission name without requiring explicit assignment.
 
@@ -194,10 +194,10 @@ For any new protected route, declare middleware in `routes/web.php`:
 
 ```php
 // Requires authentication only
-['method' => 'GET', 'path' => '/profile', 'controller' => 'Users\User@profile', 'middleware' => ['auth']],
+['method' => 'GET', 'path' => '/profile', 'controller' => 'User@profile', 'middleware' => ['auth']],
 
 // Requires authentication + named permission
-['method' => 'GET', 'path' => '/products', 'controller' => 'Products\Product@index', 'middleware' => ['auth', 'perm:products']],
+['method' => 'GET', 'path' => '/products', 'controller' => 'Product@index', 'middleware' => ['auth', 'perm:products']],
 ```
 
 Within the controller method, additional inline checks are available via the base `Controller` helpers:

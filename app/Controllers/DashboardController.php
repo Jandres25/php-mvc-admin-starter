@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\Dashboard;
+namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
@@ -39,7 +39,7 @@ class DashboardController extends Controller
                 'canManageUsers'       => Auth::hasPermission('users'),
                 'canManagePermissions' => Auth::hasPermission('permissions'),
                 'canManageRoles'       => Auth::hasPermission('roles'),
-                'canViewAuditLog'      => Auth::hasPermission('audit_log.view'),
+                'canViewAuditLog'      => Auth::hasPermission('audit_log'),
                 'chartData'            => [
                     'usersByStatus' => $usersByStatus,
                     'topPerms'      => $topPerms,

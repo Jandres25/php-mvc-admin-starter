@@ -19,7 +19,7 @@ A PHP starter template with authentication, user management, and role-based perm
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`), logical delete only
 - **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
-- **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; gated by `audit_log.view` permission
+- **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; gated by `audit_log` permission
 - **Metrics dashboard** — Chart.js charts (donut, bar, line) + stat cards for users, permissions, roles, and today's audit events; session-based cache with event-driven invalidation
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
@@ -101,14 +101,14 @@ MAIL_FROM_NAME="Admin Starter"
 
 This project is designed to be extended. To add a module (e.g. `Products`):
 
-1. **Controller** — Create `app/Controllers/Products/ProductController.php` with namespace `App\Controllers\Products`, extending `App\Core\Controller`
+1. **Controller** — Create `app/Controllers/ProductController.php` with namespace `App\Controllers`, extending `App\Core\Controller`
 2. **Model** — Create `app/Models/Product.php` with namespace `App\Models`, extending `App\Core\Model`
 3. **Views** — Create `views/products/index.php`, `create.php`, etc.
 4. **Routes** — Add entries to `routes/web.php`:
    ```php
-   ['method' => 'GET',  'path' => '/products',        'controller' => 'Products\Product@index',  'middleware' => ['auth', 'perm:products']],
-   ['method' => 'POST', 'path' => '/products',        'controller' => 'Products\Product@store',  'middleware' => ['auth', 'perm:products']],
-   ['method' => 'GET',  'path' => '/products/create', 'controller' => 'Products\Product@create', 'middleware' => ['auth', 'perm:products']],
+   ['method' => 'GET',  'path' => '/products',        'controller' => 'Product@index',  'middleware' => ['auth', 'perm:products']],
+   ['method' => 'POST', 'path' => '/products',        'controller' => 'Product@store',  'middleware' => ['auth', 'perm:products']],
+   ['method' => 'GET',  'path' => '/products/create', 'controller' => 'Product@create', 'middleware' => ['auth', 'perm:products']],
    ```
 5. **Assets** — Add CSS to `public/css/modules/products/` and JS to `public/js/modules/products/`
 6. **Permission** — Insert the permission into the `permissions` table in the database
@@ -129,7 +129,7 @@ The autoloader automatically resolves any class whose namespace matches the dire
 ```
 app/
 ├── Config/       # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
-├── Controllers/  # Feature controllers (Auth/, Users/, Permissions/, Roles/, Dashboard/)
+├── Controllers/  # Feature controllers (flat — no subdirectories)
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models

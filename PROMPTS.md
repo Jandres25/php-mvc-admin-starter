@@ -80,7 +80,7 @@ Stack: AdminLTE 3, Bootstrap 4, jQuery, DataTables, SweetAlert2, Select2, PDO/My
 Módulo activo: [nombre del módulo — ej: users, permissions, dashboard]
 
 Estructura de archivos relevante:
-- app/Controllers/[Modulo]/[Modulo]Controller.php
+- app/Controllers/[Modulo]Controller.php
 - app/Models/[Modulo].php
 - views/[modulo]/[vista].php
 - public/js/modules/[modulo]/[script].js
@@ -283,7 +283,7 @@ Devuelve en este orden:
 1. SQL: ALTER/CREATE TABLE + INSERT en seeder para el permiso nuevo
 2. Rutas a agregar en routes/web.php
 3. app/Models/[Modulo].php
-4. app/Controllers/[Modulo]/[Modulo]Controller.php
+4. app/Controllers/[Modulo]Controller.php
 5. views/[modulo]/index.php
 6. views/[modulo]/create.php (si aplica)
 7. views/[modulo]/update.php (si aplica)

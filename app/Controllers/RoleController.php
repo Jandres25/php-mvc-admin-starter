@@ -6,12 +6,12 @@
  * Handles all HTTP actions for the Roles module (index, CRUD AJAX, check-name).
  *
  * @package ProyectoBase
- * @subpackage App\Controllers\Roles
+ * @subpackage App\Controllers
  * @author Jandres25
  * @version 1.0
  */
 
-namespace App\Controllers\Roles;
+namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\Permission;

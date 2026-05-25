@@ -6,12 +6,12 @@
  * Manages the authenticated user's own profile.
  *
  * @package ProyectoBase
- * @subpackage App\Controllers\Users
+ * @subpackage App\Controllers
  * @author Jandres25
  * @version 1.0
  */
 
-namespace App\Controllers\Users;
+namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;

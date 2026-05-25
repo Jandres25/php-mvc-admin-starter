@@ -234,7 +234,7 @@ When adding new features, follow the existing project structure:
 │       └── modules/      # Feature-specific CSS
 ├── app/
 │   ├── Core/             # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
-│   ├── Controllers/      # Feature controllers (Auth/, Users/, Permissions/, Dashboard/, Roles/)
+│   ├── Controllers/      # Feature controllers (flat — no subdirectories)
 │   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 │   ├── Models/           # App\Models
 │   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger)

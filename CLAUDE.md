@@ -104,7 +104,7 @@ Clean URL examples:
 ```
 app/
 ├── Config/       # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
-├── Controllers/  # Feature controllers (Auth/, Users/, Permissions/, Roles/, Dashboard/)
+├── Controllers/  # Feature controllers (flat — AuthController, UserController, PermissionController, RoleController, DashboardController, AuditLogController, ProfileController, PasswordResetController)
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models
@@ -184,6 +184,7 @@ AuditLogger::log([
 `AuditLogger::log()` automatically reads `actor_id` and `actor_label` from `Auth::id()` / `Auth::user()`, resolves the client IP from `$_SERVER`, and delegates to `ActivityLog::create()`. On success it calls `DashboardCache::forget('audit_today')`. Failures are silently swallowed — logging must never break the primary action.
 
 **Call it after every state-changing action** in controllers:
+
 - `AuthController` — after `login` and `logout`.
 - `UserController` — after `create`, `update`, `delete`, `status change`, `unlock-login`.
 - `PermissionController` — after `create`, `update`, `delete`, `assign`, `revoke`.

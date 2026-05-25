@@ -26,7 +26,7 @@ public function toggleStatusAjax(): void
 Route declaration in `routes/web.php`:
 
 ```php
-['method' => 'POST', 'path' => '/users/toggle-status', 'controller' => 'Users\User@toggleStatusAjax', 'middleware' => ['auth', 'perm:users']],
+['method' => 'POST', 'path' => '/users/toggle-status', 'controller' => 'User@toggleStatusAjax', 'middleware' => ['auth', 'perm:users']],
 ```
 
 When the JS success flow ends with `location.reload()`, set the flash message before calling `jsonResponse()`:
