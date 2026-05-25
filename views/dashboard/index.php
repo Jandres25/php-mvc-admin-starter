@@ -39,17 +39,6 @@
             </div>
 
             <div class="col-xl-3 col-lg-6 col-md-6">
-                <div class="small-box bg-success">
-                    <div class="inner">
-                        <h3><?= $userStats['active'] ?></h3>
-                        <p>Active Users</p>
-                    </div>
-                    <div class="icon"><i class="fas fa-user-check"></i></div>
-                    <span class="small-box-footer"><?= $userStats['inactive'] ?> inactive</span>
-                </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
                         <h3><?= $permStats['total'] ?></h3>
@@ -82,6 +71,21 @@
                     <?php endif; ?>
                 </div>
             </div>
+
+            <?php if ($canViewAuditLog): ?>
+            <div class="col-xl-3 col-lg-6 col-md-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3><?= $auditToday ?></h3>
+                        <p>Events Today</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-history"></i></div>
+                    <a href="<?= URL ?>audit-log" class="small-box-footer">
+                        View Log <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
         <!-- /.row stats -->
 

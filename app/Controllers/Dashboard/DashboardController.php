@@ -4,6 +4,7 @@ namespace App\Controllers\Dashboard;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -16,6 +17,7 @@ class DashboardController extends Controller
         $userModel       = new User();
         $permissionModel = new Permission();
         $roleModel       = new Role();
+        $activityLogModel = new ActivityLog();
 
         $userStats    = DashboardCache::remember('user_stats',      fn() => $userModel->getStatistics());
         $permStats    = DashboardCache::remember('perm_stats',      fn() => $permissionModel->getStatistics());
@@ -24,6 +26,7 @@ class DashboardController extends Controller
         $usersByStatus = DashboardCache::remember('users_by_status', fn() => $userModel->getUsersByStatus());
         $topPerms     = DashboardCache::remember('top_permissions', fn() => $permissionModel->getTopAssigned(5));
         $usersByMonth = DashboardCache::remember('users_by_month',  fn() => $userModel->getUsersByMonth(6));
+        $auditToday   = DashboardCache::remember('audit_today',    fn() => ['count' => $activityLogModel->countToday()])['count'];
 
         $this->render(
             'dashboard/index',
@@ -32,9 +35,11 @@ class DashboardController extends Controller
                 'permStats'            => $permStats,
                 'recentUsers'          => $recentUsers,
                 'roleStats'            => $roleStats,
+                'auditToday'           => $auditToday,
                 'canManageUsers'       => Auth::hasPermission('users'),
                 'canManagePermissions' => Auth::hasPermission('permissions'),
                 'canManageRoles'       => Auth::hasPermission('roles'),
+                'canViewAuditLog'      => Auth::hasPermission('audit_log.view'),
                 'chartData'            => [
                     'usersByStatus' => $usersByStatus,
                     'topPerms'      => $topPerms,

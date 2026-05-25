@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.12.0] - 2026-05-25
+
+### Added
+
+- **Audit Log module** — read-only activity log for all admin actions:
+  - `activity_logs` table in `schema.sql`: `id`, `actor_id` (nullable FK → `users`), `actor_label` (snapshot of user display name at event time), `module`, `action`, `description`, `details` (JSON), `ip_address`, `user_agent`, `created_at`.
+  - **`App\Services\AuditLogger`** — static service with a single `log(array $data)` method. Reads `actor_id` and `actor_label` from session, resolves client IP from `$_SERVER`, and delegates to `ActivityLog::create()`. Silently ignores write failures. Also calls `DashboardCache::forget('audit_today')` after every successful insert to keep the dashboard count current.
+  - **`ActivityLog` model** — append-only: `create()`, `getAll(array $filters)`, `getDistinctModules()`, `getDistinctActions()`, `getActorsWithLogs()`, `countToday()`, `purgeOlderThan(int $days)`.
+  - **`AuditLogController`** — read-only index with server-side filter support (module, action, actor, date range).
+  - **View `views/audit-log/index.php`** — filter card (collapsed by default) + DataTables table with export buttons; date inputs with calendar icon trigger native picker on mobile.
+  - **Partial `views/audit-log/_modal-detail.php`** — event detail modal with dynamic header subtitle (module badge + action code), meta grid, description callout, and human-readable key/value details table (no raw JSON).
+  - **`public/js/modules/audit-log/index-audit.js`** — DataTables init, `humanizeKey()` / `renderDetailsTable()` helpers, responsive fix for DataTables child rows (mobile `TypeError` guard).
+  - **Route** `GET /audit-log` (middleware: `auth + perm:audit_log.view`).
+  - **Permission `audit_log.view`** — seeded in `database/seeder.sql`; granted to Administrator via `is_system = 1` (`*`).
+  - **Sidebar link** gated by `audit_log.view` under the Administration section.
+  - **Dashboard "Events Today" card** — `DashboardCache::remember('audit_today', ...)` in `DashboardController`; `small-box bg-secondary` visible only when `canViewAuditLog`.
+  - **Seeder audit entries** — 17 `activity_logs` rows in `database/seeder.sql` reflecting the full setup timeline (roles, permissions, users, sync, first login).
+  - **Instrumentation** — `AuditLogger::log()` called in `AuthController` (login/logout), `UserController` (create/update/delete/status/unlock), `PermissionController` (create/update/delete/assign/revoke), `RoleController` (create/update/delete/sync).
+
+### Changed
+
+- **`DashboardController`** — imports `ActivityLog`, loads `audit_today` via `DashboardCache`, passes `auditToday` and `canViewAuditLog` to the view.
+- **`views/dashboard/index.php`** — new `small-box bg-secondary` card (Events Today) rendered after the Roles card, visible only when the user has `audit_log.view`.
+
+---
+
 ## [3.11.0] - 2026-05-24
 
 ### Added

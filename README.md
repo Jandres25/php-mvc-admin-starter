@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.11.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.12.0-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
@@ -19,7 +19,8 @@ A PHP starter template with authentication, user management, and role-based perm
 - **User management** — Full CRUD, profile images, account activation/deactivation
 - **Role management** — Role catalog with CRUD, role↔permission assignment UI, system-role protection (`is_system`), logical delete only
 - **Permission control** — Two-level permission model: direct per-user assignments + role-inherited permissions (UNION, deduplicated); adaptive navigation menu; zero DB queries per check
-- **Metrics dashboard** — Chart.js charts (donut, bar, line) + stat cards for users, permissions, and roles; session-based cache with event-driven invalidation
+- **Audit Log** — Append-only activity log for all admin actions (login, logout, user/role/permission CRUD); filterable by module, action, user, and date range; detail modal with human-readable key/value breakdown; export via DataTables; gated by `audit_log.view` permission
+- **Metrics dashboard** — Chart.js charts (donut, bar, line) + stat cards for users, permissions, roles, and today's audit events; session-based cache with event-driven invalidation
 - **Custom error pages** — Styled 403, 404, and 500 error pages via Apache `ErrorDocument`
 - **Composer-managed** — Native PSR-4 autoloading for `App\*`; Composer handles both autoloading and third-party packages
 - **AdminLTE 3** — Production-ready responsive dashboard
@@ -73,7 +74,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.11.0
+APP_VERSION=3.12.0
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300

@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.11.0`
+**Current release tag:** `3.12.0`
 
 ## No Build Process
 
@@ -108,7 +108,7 @@ app/
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models
-└── Services/     # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService)
+└── Services/     # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
 views/            # PHP templates; layouts/header.php pulls in all CSS/JS; sidebar.php handles navigation
@@ -164,9 +164,32 @@ Session-based cache for dashboard metrics with event-driven invalidation. Uses `
 
 Key methods: `DashboardCache::get(string $key)`, `DashboardCache::put(string $key, array $data)`, `DashboardCache::remember(string $key, callable $loader)`, `DashboardCache::forget(string $key)`, `DashboardCache::flush()`.
 
-**Invalidation contract:** any model method that mutates user, permission, or role data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Role mutations (`create`, `update`, `updateStatus`, `syncPermissions`) clear `role_stats`. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
+**Invalidation contract:** any model method that mutates user, permission, or role data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Role mutations (`create`, `update`, `updateStatus`, `syncPermissions`) clear `role_stats`. `AuditLogger::log()` calls `DashboardCache::forget('audit_today')` after every successful insert so the dashboard "Events Today" counter stays current. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
 
 **Passing data to JS:** views pass chart datasets as `data-*` attributes on canvas elements (e.g. `data-chart="<?= htmlspecialchars(json_encode(...)) ?>"`). Module JS reads `element.dataset.*` — no `<script>` blocks inside views.
+
+### Audit Logger — `App\Services\AuditLogger`
+
+Static service for appending entries to the `activity_logs` table. No instantiation needed.
+
+```php
+AuditLogger::log([
+    'module'      => 'users',          // required — module slug
+    'action'      => 'create',         // required — action verb
+    'description' => 'User created: John Doe',  // optional
+    'details'     => ['email' => 'john@...', 'role' => 'Editor'],  // optional array → JSON
+]);
+```
+
+`AuditLogger::log()` automatically reads `actor_id` and `actor_label` from `Auth::id()` / `Auth::user()`, resolves the client IP from `$_SERVER`, and delegates to `ActivityLog::create()`. On success it calls `DashboardCache::forget('audit_today')`. Failures are silently swallowed — logging must never break the primary action.
+
+**Call it after every state-changing action** in controllers:
+- `AuthController` — after `login` and `logout`.
+- `UserController` — after `create`, `update`, `delete`, `status change`, `unlock-login`.
+- `PermissionController` — after `create`, `update`, `delete`, `assign`, `revoke`.
+- `RoleController` — after `create`, `update`, `delete`, `sync_permissions`.
+
+**Never log inside model methods** — logging belongs in the controller, after the model returns success, so failed writes never produce spurious log entries.
 
 ### Frontend Modules
 

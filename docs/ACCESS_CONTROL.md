@@ -175,6 +175,19 @@ Permission changes are cached in session and refreshed when stale.
 
 **After changing role permissions:** call `$userModel->updatePermissionsTimestamp($uid)` for **every user** of that role — `Role::getUserIdsByRole($roleId)` returns the list. `RoleController::syncPermissions()` already does this automatically.
 
+## Application permissions reference
+
+| Permission name  | Module       | Description                                                      |
+| ---------------- | ------------ | ---------------------------------------------------------------- |
+| `profile`        | Profile      | Access to own profile and password changes                       |
+| `admin`          | Global       | General administration — granted to all system-role users (`*`) |
+| `users`          | Users        | Full user management (CRUD, activation, unlock)                  |
+| `permissions`    | Permissions  | Create, edit, and assign/revoke permissions                      |
+| `roles`          | Roles        | Create, edit, and manage role↔permission assignments             |
+| `audit_log.view` | Audit Log    | Read-only access to the activity/audit log                       |
+
+> Administrators (role with `is_system = 1`) receive `['*']` in session — `hasPermission()` returns `true` for **any** permission name without requiring explicit assignment.
+
 ## Practical pattern
 
 For any new protected route, declare middleware in `routes/web.php`:

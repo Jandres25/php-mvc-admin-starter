@@ -101,6 +101,7 @@ Descripción: [criterios de aceptación]
 - DataTables para listados; ToastUtils/AlertUtils (sweetalert-utils.js) para confirmaciones y notificaciones — nunca Swal.fire() directo
 - Select2 para dropdowns; con dropdownParent si está dentro de un modal
 - Permisos gateados con Auth::hasPermission() (session cache, sin query) o middleware perm:NAME en routes/web.php
+- Audit: llamar AuditLogger::log(['module'=>..., 'action'=>..., 'description'=>..., 'details'=>[...]]) en el controller tras cada acción exitosa que mute estado — nunca dentro del modelo
 - No inventar métodos de core que no existan en app/Core/
 
 [Formato de salida]
@@ -207,7 +208,7 @@ custom, diseño de base de datos y patrones de diseño (Repository, Service Laye
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack actual: App\Core\Router, middleware por ruta, PSR-4 custom autoloader,
               PDO singleton (Connection::getInstance()), App\Core\Auth (hub de sesión/permisos).
-Módulos existentes: auth, users, permissions, roles, dashboard (con métricas Chart.js y DashboardCache).
+Módulos existentes: auth, users, permissions, roles, dashboard (con métricas Chart.js y DashboardCache), audit-log (read-only, AuditLogger service).
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -253,6 +254,7 @@ BD existente relevante:
 - permissions (id, name, description, status)
 - user_permissions (user_id, permission_id) — permisos directos por usuario
 - role_permissions (id, role_id, permission_id) — permisos heredados por rol
+- activity_logs (id, actor_id FK nullable, actor_label, module, action, description, details JSON, ip_address, user_agent, created_at) — append-only; insertar vía AuditLogger::log()
 
 Módulo de referencia para patrones: users.
 
@@ -272,6 +274,7 @@ Criterios de aceptación:
 - AJAX: $this->jsonResponse(); feedback con $_SESSION['message'] + $_SESSION['icon'] si el JS hace location.reload(); $_SESSION['welcome_user'] para popup de bienvenida
 - Permisos gateados con Auth::hasPermission() o middleware perm:NAME en routes/web.php
 - Registrar el permiso nuevo en database/seeder.sql
+- Audit: llamar AuditLogger::log() en el controller tras cada acción exitosa que mute estado
 - PHPDoc en clases y métodos; JSDoc en funciones JS
 - No introducir librerías nuevas vía Composer sin aprobación del líder técnico
 
@@ -337,5 +340,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.11.0_
+_Última actualización: v3.12.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

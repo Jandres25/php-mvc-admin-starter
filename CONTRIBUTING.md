@@ -171,6 +171,8 @@ When adding a new feature or fixing a bug:
 
 When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, role/permission model, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
 
+When adding a controller action that mutates state, call `AuditLogger::log()` after the model write succeeds. Never log inside model methods — logging belongs in the controller layer.
+
 ### Pull Request Template
 
 ```markdown
@@ -235,7 +237,7 @@ When adding new features, follow the existing project structure:
 │   ├── Controllers/      # Feature controllers (Auth/, Users/, Permissions/, Dashboard/, Roles/)
 │   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 │   ├── Models/           # App\Models
-│   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService)
+│   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger)
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions
 ├── views/                # PHP templates
@@ -244,6 +246,7 @@ When adding new features, follow the existing project structure:
 │   ├── permissions/      # Permission views
 │   ├── auth/             # Login, forgot password, reset password
 │   ├── roles/            # Role views
+│   ├── audit-log/        # Audit log views (read-only)
 │   └── errors/           # 403, 404 error pages
 ├── database/             # schema.sql and seeder.sql
 ├── vendor/               # Composer dependencies (not committed — run composer install)
