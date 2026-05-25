@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Permission;
+use App\Services\AuditLogger;
 use App\Services\ImageService;
 use App\Services\LoginThrottleService;
 
@@ -252,6 +253,12 @@ class UserController extends Controller
         if ($this->userModel->create($data)) {
             $userId = $this->userModel->getLastInsertId();
             $this->processPermissions($userId, $_POST);
+            AuditLogger::log(
+                'users',
+                'create',
+                "User created: {$data['name']} {$data['first_surname']}",
+                ['name' => $data['name'], 'first_surname' => $data['first_surname'], 'email' => $data['email']]
+            );
             regenerateCSRFToken();
             return ['success' => true, 'message' => 'User created successfully.', 'icon' => 'success', 'redirect' => 'index.php'];
         }
@@ -323,6 +330,12 @@ class UserController extends Controller
 
         if ($updated && $passwordUpdated) {
             $this->processPermissions($id, $_POST);
+            AuditLogger::log(
+                'users',
+                'update',
+                "User updated: {$data['name']} {$data['first_surname']}",
+                ['user_id' => $id, 'name' => $data['name'], 'first_surname' => $data['first_surname'], 'email' => $data['email']]
+            );
             regenerateCSRFToken();
             return ['success' => true, 'message' => 'User updated successfully.', 'icon' => 'success', 'redirect' => 'index.php'];
         }
@@ -361,6 +374,7 @@ class UserController extends Controller
         }
 
         if ($this->userModel->updatePassword($id, $newPassword)) {
+            AuditLogger::log('users', 'password_changed', 'User changed their own password', ['user_id' => $id]);
             regenerateCSRFToken();
             return ['success' => true, 'message' => 'Password updated successfully.'];
         }
@@ -378,6 +392,12 @@ class UserController extends Controller
 
         if ($this->userModel->updateStatus($id, $newStatus)) {
             $action = $newStatus == 1 ? 'activated' : 'deactivated';
+            AuditLogger::log(
+                'users',
+                $newStatus == 1 ? 'activate' : 'deactivate',
+                "User {$action}: ID {$id}",
+                ['user_id' => $id, 'new_status' => $newStatus]
+            );
             return ['success' => true, 'message' => "User $action successfully.", 'icon' => 'success'];
         }
 

@@ -16,6 +16,7 @@ namespace App\Controllers\Users;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\ImageService;
 
 class ProfileController extends Controller
@@ -80,6 +81,13 @@ class ProfileController extends Controller
             if ($data['image'] !== $oldImage) {
                 $_SESSION['user_image'] = $data['image'];
             }
+            $avatarChanged = $data['image'] !== $oldImage;
+            AuditLogger::log(
+                'users',
+                $avatarChanged ? 'avatar_changed' : 'profile_updated',
+                $avatarChanged ? 'User changed their avatar' : 'User updated their profile',
+                ['user_id' => $id, 'avatar_changed' => $avatarChanged]
+            );
             return ['success' => true, 'message' => 'Profile updated successfully.', 'icon' => 'success', 'redirect' => 'views/users/profile.php'];
         }
 

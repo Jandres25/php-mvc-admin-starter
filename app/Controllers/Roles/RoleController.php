@@ -17,6 +17,7 @@ use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\DashboardCache;
 
 class RoleController extends Controller
@@ -62,6 +63,13 @@ class RoleController extends Controller
         }
 
         if ($this->roleModel->create($data)) {
+            $newRoleId = $this->roleModel->getLastInsertId();
+            AuditLogger::log(
+                'roles',
+                'create',
+                "Role created: {$data['name']}",
+                ['role_id' => $newRoleId, 'name' => $data['name']]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'Role created successfully.';
             $_SESSION['icon']    = 'success';
@@ -69,7 +77,7 @@ class RoleController extends Controller
                 'success' => true,
                 'message' => 'Role created successfully.',
                 'role'    => [
-                    'id'          => $this->roleModel->getLastInsertId(),
+                    'id'          => $newRoleId,
                     'name'        => $data['name'],
                     'status'      => 1,
                     'total_users' => 0,
@@ -108,6 +116,12 @@ class RoleController extends Controller
         }
 
         if ($this->roleModel->update($id, $data)) {
+            AuditLogger::log(
+                'roles',
+                'update',
+                "Role updated: {$data['name']}",
+                ['role_id' => $id, 'name' => $data['name'], 'description' => $data['description'] ?? null]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'Role updated successfully.';
             $_SESSION['icon']    = 'success';
@@ -148,8 +162,14 @@ class RoleController extends Controller
         $newStatus = $currentStatus == 1 ? 0 : 1;
 
         if ($this->roleModel->updateStatus($id, $newStatus)) {
+            $label = $newStatus == 1 ? 'activated' : 'deactivated';
+            AuditLogger::log(
+                'roles',
+                $newStatus == 1 ? 'activate' : 'deactivate',
+                "Role {$label}: ID {$id}",
+                ['role_id' => $id, 'new_status' => $newStatus]
+            );
             regenerateCSRFToken();
-            $label               = $newStatus == 1 ? 'activated' : 'deactivated';
             $_SESSION['message'] = "Role {$label} successfully.";
             $_SESSION['icon']    = 'success';
             $this->jsonResponse([
@@ -207,6 +227,12 @@ class RoleController extends Controller
                 $userModel->updatePermissionsTimestamp((int) $uid);
             }
             DashboardCache::forget('role_stats');
+            AuditLogger::log(
+                'roles',
+                'sync_permissions',
+                "Role permissions synced: role ID {$roleId}",
+                ['role_id' => $roleId, 'permission_ids' => $permissions, 'total' => count($permissions)]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'Permissions updated successfully.';
             $_SESSION['icon']    = 'success';

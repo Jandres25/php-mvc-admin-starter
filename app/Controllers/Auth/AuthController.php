@@ -5,6 +5,7 @@ namespace App\Controllers\Auth;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\LoginThrottleService;
 
 class AuthController extends Controller
@@ -60,6 +61,16 @@ class AuthController extends Controller
             if ($user) {
                 $this->throttle->registerFailure($user);
             }
+
+            AuditLogger::log(
+                'auth',
+                'login_failed',
+                "Failed login attempt for: {$identifier}",
+                ['identifier_type' => $isEmail ? 'email' : 'document'],
+                null,
+                $identifier
+            );
+
             $_SESSION['message'] = 'Incorrect credentials.';
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'login');
@@ -77,6 +88,13 @@ class AuthController extends Controller
         regenerateCSRFToken();
         $this->throttle->clearOnSuccess($user);
 
+        AuditLogger::log(
+            'auth',
+            'login',
+            "Successful login: {$user['name']} {$user['first_surname']}",
+            ['email' => $user['email']]
+        );
+
         if (!empty($_POST['remember']) && $_POST['remember'] === '1') {
             Auth::issueRememberCookie((int) $user['id']);
         }
@@ -87,6 +105,7 @@ class AuthController extends Controller
 
     public function logout(): void
     {
+        AuditLogger::log('auth', 'logout', 'User logged out');
         Auth::logout();
         $this->redirect(URL . 'login');
     }

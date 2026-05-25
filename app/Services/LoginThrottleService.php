@@ -17,6 +17,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Services\AuditLogger;
 
 class LoginThrottleService
 {
@@ -61,7 +62,25 @@ class LoginThrottleService
      */
     public function registerFailure(array $user): void
     {
-        $this->userModel->recordFailure((int) $user['id']);
+        $fresh = $this->userModel->recordFailure((int) $user['id']);
+
+        // Log account_locked exactly once — when this failure just crossed the threshold.
+        // isLocked() is checked before registerFailure() is called, so if locked_until
+        // is set now, the lock was triggered by this very failure.
+        if (!empty($fresh['locked_until'])) {
+            $label = trim(($user['name'] ?? '') . ' ' . ($user['first_surname'] ?? ''));
+            AuditLogger::log(
+                'auth',
+                'account_locked',
+                "Account locked after too many failed attempts: {$label}",
+                [
+                    'login_attempts' => (int) ($fresh['login_attempts'] ?? 0),
+                    'locked_until'   => $fresh['locked_until'],
+                ],
+                (int) $user['id'],
+                $label
+            );
+        }
     }
 
     /**
@@ -83,7 +102,18 @@ class LoginThrottleService
      */
     public function unlock(int $userId): bool
     {
-        return $this->userModel->unlock($userId);
+        $ok = $this->userModel->unlock($userId);
+
+        if ($ok) {
+            AuditLogger::log(
+                'auth',
+                'account_unlocked',
+                "Account manually unlocked for user ID: {$userId}",
+                ['target_user_id' => $userId]
+            );
+        }
+
+        return $ok;
     }
 
     /**

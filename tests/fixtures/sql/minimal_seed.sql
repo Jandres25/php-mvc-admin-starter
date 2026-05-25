@@ -3,6 +3,7 @@
 -- Keep small: 1 admin, 1 normal user, 2 permissions, 1 assignment.
 
 SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE activity_logs;
 TRUNCATE TABLE role_permissions;
 TRUNCATE TABLE user_permissions;
 TRUNCATE TABLE users;

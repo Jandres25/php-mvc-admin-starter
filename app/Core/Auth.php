@@ -5,6 +5,7 @@ namespace App\Core;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AuditLogger;
 
 /**
  * Central authentication hub.
@@ -248,6 +249,13 @@ final class Auth
         }
 
         self::login($user, self::buildPermNames($user));
+
+        AuditLogger::log(
+            'auth',
+            'remember_login',
+            "Auto-login via remember-me: {$user['name']} {$user['first_surname']}",
+            ['email' => $user['email']]
+        );
 
         // Rotate token to mitigate cookie theft
         $newToken     = bin2hex(random_bytes(32));

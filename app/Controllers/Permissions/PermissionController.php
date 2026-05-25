@@ -5,6 +5,7 @@ namespace App\Controllers\Permissions;
 use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\DashboardCache;
 
 class PermissionController extends Controller
@@ -62,6 +63,13 @@ class PermissionController extends Controller
         }
 
         if ($this->permissionModel->create($data)) {
+            $newPermId = $this->permissionModel->getLastInsertId();
+            AuditLogger::log(
+                'permissions',
+                'create',
+                "Permission created: {$data['name']}",
+                ['permission_id' => $newPermId, 'name' => $data['name']]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'Permission created successfully.';
             $_SESSION['icon']    = 'success';
@@ -69,7 +77,7 @@ class PermissionController extends Controller
                 'success'    => true,
                 'message'    => 'Permission created successfully.',
                 'permission' => [
-                    'id'          => $this->permissionModel->getLastInsertId(),
+                    'id'          => $newPermId,
                     'name'        => $data['name'],
                     'status'      => 1,
                     'total_users' => 0,
@@ -107,6 +115,12 @@ class PermissionController extends Controller
         }
 
         if ($this->permissionModel->update($id, $data)) {
+            AuditLogger::log(
+                'permissions',
+                'update',
+                "Permission updated: {$data['name']}",
+                ['permission_id' => $id, 'name' => $data['name']]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'Permission updated successfully.';
             $_SESSION['icon']    = 'success';
@@ -143,8 +157,14 @@ class PermissionController extends Controller
         $newStatus = $currentStatus == 1 ? 0 : 1;
 
         if ($this->permissionModel->updateStatus($id, $newStatus)) {
-            regenerateCSRFToken();
             $label = $newStatus == 1 ? 'activated' : 'deactivated';
+            AuditLogger::log(
+                'permissions',
+                $newStatus == 1 ? 'activate' : 'deactivate',
+                "Permission {$label}: ID {$id}",
+                ['permission_id' => $id, 'new_status' => $newStatus]
+            );
+            regenerateCSRFToken();
             $_SESSION['message'] = "Permission $label successfully.";
             $_SESSION['icon']    = 'success';
             $this->jsonResponse([
@@ -173,6 +193,12 @@ class PermissionController extends Controller
             (new User())->updatePermissionsTimestamp($userId);
             DashboardCache::forget('perm_stats');
             DashboardCache::forget('top_permissions');
+            AuditLogger::log(
+                'permissions',
+                'assign_user',
+                "Permission assigned to user",
+                ['permission_id' => $permissionId, 'target_user_id' => $userId]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'User assigned successfully.';
             $_SESSION['icon']    = 'success';
@@ -197,6 +223,12 @@ class PermissionController extends Controller
             (new User())->updatePermissionsTimestamp($userId);
             DashboardCache::forget('perm_stats');
             DashboardCache::forget('top_permissions');
+            AuditLogger::log(
+                'permissions',
+                'revoke_user',
+                "Permission revoked from user",
+                ['permission_id' => $permissionId, 'target_user_id' => $userId]
+            );
             regenerateCSRFToken();
             $_SESSION['message'] = 'Permission revoked successfully.';
             $_SESSION['icon']    = 'success';
