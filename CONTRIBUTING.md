@@ -171,6 +171,8 @@ When adding a new feature or fixing a bug:
 
 When your changes affect session/permissions flow, AJAX endpoint patterns, local seed data, role/permission model, or AI/MCP tooling, update the corresponding docs under `docs/` (`ACCESS_CONTROL.md`, `AJAX_AND_MODULES.md`, `SEEDING.md`, `TESTING.md`, `AI_SETUP.md`) in the same PR.
 
+When adding a new standalone auth page (one that does not use `layouts/footer.php`), manually include: `dark-mode.css`, `login-dark.css`, the anti-FOUC inline IIFE in `<head>`, the `#theme-toggle` button with class `auth-theme-toggle`, and `theme-toggle.js` at the bottom of `<body>` — see `views/auth/login.php` as reference.
+
 When adding a controller action that mutates state, call `AuditLogger::log()` after the model write succeeds. Never log inside model methods — logging belongs in the controller layer.
 
 ### Pull Request Template
@@ -244,7 +246,7 @@ When adding new features, follow the existing project structure:
 │   ├── layouts/          # Layout components (header, sidebar, footer, messages)
 │   ├── users/            # User views
 │   ├── permissions/      # Permission views
-│   ├── auth/             # Login, forgot password, reset password
+│   ├── auth/             # Login, forgot password, reset password (standalone — include dark mode assets manually)
 │   ├── roles/            # Role views
 │   ├── audit-log/        # Audit log views (read-only)
 │   └── errors/           # 403, 404 error pages

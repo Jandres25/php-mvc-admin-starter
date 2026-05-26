@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.12.0`
+**Current release tag:** `3.13.0`
 
 ## No Build Process
 
@@ -210,7 +210,9 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 
 **Form validation:** Pass `['select2', 'validate']` as the plugins argument. `public/js/core/common-validate.js` (loaded automatically with `validate`) configures jQuery Validate globally for Bootstrap 4 — `errorPlacement` inside `.form-group`, `highlight`/`unhighlight`, `onkeyup: false`. Each module calls `$('#form').validate({ rules, messages, submitHandler })` with its own rules. For uniqueness checks against the DB, use `remote` rules pointing to `/users/check-email` or `/users/check-document`.
 
-**Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include `sweetalert-utils.js` and the validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly.
+**Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include `sweetalert-utils.js` and the validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly. Each auth page also loads `dark-mode.css`, `login-dark.css`, and `theme-toggle.js` manually — add these to any new standalone auth page.
+
+**Dark mode:** Theme preference is stored in `localStorage` (key `'theme'`, values `'light'` | `'dark'`); falls back to `prefers-color-scheme` on first visit. The anti-FOUC IIFE in `views/layouts/header.php` (and in each auth standalone page) applies `html.dark-mode` before any CSS loads. Toggle JS lives in `public/js/modules/profile/theme-toggle.js` (loaded globally from `footer.php`). CSS overrides are split into `public/css/core/dark-mode.css` (global panel) and `public/css/modules/login/login-dark.css` (auth pages). No DB column, no AJAX endpoint, no `AuditLogger` call — theme changes are not auditable business actions. See `docs/DARK_MODE_PLAN.md` for the full architecture and testing checklist.
 
 ## Coding Conventions
 

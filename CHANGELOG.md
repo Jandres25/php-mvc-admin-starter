@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.0] - 2026-05-26
+
+### Added
+
+- **Dark mode** — system-aware theme toggle with `localStorage` persistence and zero-DB-query design:
+  - **Anti-FOUC inline script** in `views/layouts/header.php` (`<head>`, before all CSS) — synchronous IIFE reads `localStorage('theme')` and falls back to `prefers-color-scheme`; adds `dark-mode` to `<html>` before the browser paints any pixel.
+  - **`public/css/core/dark-mode.css`** — global dark-mode overrides loaded on every page. Covers: CSS custom-property palette (`--dm-bg`, `--dm-bg-alt`, `--dm-border`, `--dm-text`, `--dm-text-muted`, `--dm-primary/success/info/warning/danger`), sidebar light→dark (CSS-only, no HTML class change), navbar, small-box dashboard cards, Bootstrap semantic colors (btn, badge, links, pagination), DataTables (header, rows, hover, pagination), Select2 (dropdown, options, multi-choice tags), SweetAlert2 popup, and webkit autofill fix (`-webkit-box-shadow` inset trick to suppress the yellow background).
+  - **`public/js/modules/profile/theme-toggle.js`** — loaded globally from `footer.php`; handles click toggle (writes `localStorage`), syncs icon (moon ↔ sun), animates the icon with a 360° spin + bounce via `cubic-bezier(0.34, 1.56, 0.64, 1)`, and reacts to OS theme changes in real time (only when no manual preference is set). Loaded after `sweetalert-utils.js`, before `$module_scripts`.
+  - **Toggle button** in `views/layouts/header.php` navbar (`#theme-toggle`, `navbar-nav ml-auto`, before fullscreen widget).
+  - **Global CSS transition** on `*, *::before, *::after` for smooth `background-color`, `color`, `border-color`, and `box-shadow` interpolation when switching themes.
+  - **Auth standalone pages** (`views/auth/login.php`, `forgot_password.php`, `reset_password.php`) — each gets the anti-FOUC IIFE, `dark-mode.css`, `login-dark.css`, a fixed `#theme-toggle` button (`.auth-theme-toggle`, bottom-right to avoid SweetAlert2 toast overlap), and `theme-toggle.js`.
+  - **`public/css/modules/login/login-dark.css`** — auth-specific dark overrides: page background gradient, card + card-header, login-card-body, inputs + placeholder + focus ring, input-group icons, iCheck label, links, footer text, and the `.auth-theme-toggle` button (bottom-right, hover opacity).
+
+### Changed
+
+- **`views/layouts/header.php`** — added anti-FOUC script (first element in `<head>`), `dark-mode.css` link (after `ui-components.css`), and `#theme-toggle` nav item.
+- **`views/layouts/footer.php`** — added global load of `theme-toggle.js` after `sweetalert-utils.js`.
+
+---
+
 ## [3.12.0] - 2026-05-25
 
 ### Added
@@ -676,6 +696,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.13.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.12.0...3.13.0
 [3.12.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.11.0...3.12.0
 [3.11.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.10.0...3.11.0
 [3.10.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.9.0...3.10.0

@@ -76,11 +76,12 @@ Asset resolution is handled by `App\Core\AssetRegistry` and rendered in `layouts
 2. Conditional plugin JS
 3. `public/js/core/ui-components.js`
 4. `public/js/core/sweetalert-utils.js` — `ToastUtils` and `AlertUtils` available globally from here
-5. Module scripts
+5. `public/js/modules/profile/theme-toggle.js` — dark mode toggle, available globally from here
+6. Module scripts (`$module_scripts`)
 
 Do not place page inline scripts that depend on Bootstrap plugins before `footer.php`.
 
-Auth views (`views/auth/*.php`) do not use `footer.php` — they must include `sweetalert-utils.js` manually before their module script.
+Auth views (`views/auth/*.php`) do not use `footer.php` — they must include `sweetalert-utils.js`, `dark-mode.css`, `login-dark.css`, and `theme-toggle.js` manually before their module script.
 
 ## AJAX URL targets
 

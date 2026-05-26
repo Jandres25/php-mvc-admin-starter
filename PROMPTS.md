@@ -208,7 +208,7 @@ custom, diseño de base de datos y patrones de diseño (Repository, Service Laye
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack actual: App\Core\Router, middleware por ruta, PSR-4 custom autoloader,
               PDO singleton (Connection::getInstance()), App\Core\Auth (hub de sesión/permisos).
-Módulos existentes: auth, users, permissions, roles, dashboard (con métricas Chart.js y DashboardCache), audit-log (read-only, AuditLogger service).
+Módulos existentes: auth, users, permissions, roles, dashboard (con métricas Chart.js y DashboardCache), audit-log (read-only, AuditLogger service), dark-mode (localStorage + prefers-color-scheme, sin BD).
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -340,5 +340,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.12.0_
+_Última actualización: v3.13.0_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._
