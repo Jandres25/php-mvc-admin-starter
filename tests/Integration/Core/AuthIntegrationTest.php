@@ -146,11 +146,12 @@ class AuthIntegrationTest extends IntegrationTestCase
         );
     }
 
-    public function test_refresh_returns_empty_when_user_has_no_role_and_no_direct_permissions(): void
+    public function test_refresh_returns_empty_when_user_has_no_role_permissions_and_no_direct_permissions(): void
     {
-        // Remove direct permission and set role_id to NULL for user 2
+        // Remove direct permissions; assign a role that has no role_permissions rows.
+        // role_id = 2 (Editor in minimal_seed) — we wipe its role_permissions for this test.
         self::$pdo->exec("DELETE FROM user_permissions WHERE user_id = 2");
-        self::$pdo->exec("UPDATE users SET role_id = NULL WHERE id = 2");
+        self::$pdo->exec("DELETE FROM role_permissions WHERE role_id = (SELECT role_id FROM users WHERE id = 2 LIMIT 1)");
 
         $this->userModel->updatePermissionsTimestamp(2);
         $dbTs  = $this->userModel->getPermissionsTimestamp(2);

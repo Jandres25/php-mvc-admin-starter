@@ -74,6 +74,7 @@ class UserTest extends IntegrationTestCase
             'email'           => 'jane@test.com',
             'password'        => 'plainpassword',
             'image'           => null,
+            'role_id'         => 1,
             'status'          => 1,
         ]);
 
@@ -113,8 +114,9 @@ class UserTest extends IntegrationTestCase
         $this->assertContains('Editor', $roleNames);
     }
 
-    public function test_create_with_null_role_id_saves_null(): void
+    public function test_create_persists_role_id(): void
     {
+        // role_id is NOT NULL in the schema — every user must have a role assigned.
         $this->model->create([
             'name'            => 'Norole',
             'first_surname'   => 'User',
@@ -126,12 +128,12 @@ class UserTest extends IntegrationTestCase
             'email'           => 'norole@test.com',
             'password'        => 'pass',
             'image'           => null,
-            'role_id'         => null,
+            'role_id'         => 2,
             'status'          => 1,
         ]);
 
         $user = $this->model->getById((int) $this->model->getLastInsertId());
-        $this->assertNull($user['role_id']);
+        $this->assertSame(2, (int) $user['role_id']);
     }
 
     public function test_create_hashes_password(): void
@@ -147,6 +149,7 @@ class UserTest extends IntegrationTestCase
             'email'           => 'hash@test.com',
             'password'        => 'mypassword',
             'image'           => null,
+            'role_id'         => 1,
             'status'          => 1,
         ]);
 
@@ -171,6 +174,7 @@ class UserTest extends IntegrationTestCase
             'phone'           => '5551234',
             'email'           => 'user@test.com',
             'image'           => null,
+            'role_id'         => 1,
             'status'          => 1,
         ]);
 
@@ -200,8 +204,9 @@ class UserTest extends IntegrationTestCase
         $this->assertSame(1, (int) $this->model->getById(2)['role_id']);
     }
 
-    public function test_update_sets_role_id_to_null(): void
+    public function test_update_with_valid_role_id_persists(): void
     {
+        // role_id is NOT NULL — updates must always supply a valid role id.
         $result = $this->model->update(2, [
             'name'            => 'Normal',
             'first_surname'   => 'User',
@@ -212,12 +217,12 @@ class UserTest extends IntegrationTestCase
             'phone'           => null,
             'email'           => 'user@test.com',
             'image'           => null,
-            'role_id'         => null,
+            'role_id'         => 2,
             'status'          => 1,
         ]);
 
         $this->assertTrue($result);
-        $this->assertNull($this->model->getById(2)['role_id']);
+        $this->assertSame(2, (int) $this->model->getById(2)['role_id']);
     }
 
     public function test_update_status_changes_active_flag(): void

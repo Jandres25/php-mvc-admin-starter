@@ -135,6 +135,7 @@ class DashboardCacheInvalidationTest extends IntegrationTestCase
             'position'        => 'editor',
             'password'        => 'password123',
             'image'           => '',
+            'role_id'         => 1,
             'status'          => 1,
         ];
     }
