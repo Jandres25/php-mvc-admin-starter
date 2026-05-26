@@ -44,6 +44,9 @@ foreach ($pluginJsFiles as $js): ?>
 <!-- SweetAlert2 utilities -->
 <script src="<?= URL; ?>/js/core/sweetalert-utils.js"></script>
 
+<!-- Dark mode toggle (global) -->
+<script src="<?= URL; ?>/js/modules/profile/theme-toggle.js"></script>
+
 <!-- Module-specific scripts -->
 <?php if (isset($module_scripts) && is_array($module_scripts)): ?>
     <?php foreach ($module_scripts as $script): ?>

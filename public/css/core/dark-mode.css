@@ -6,6 +6,17 @@
  * Todos los selectores bajo html.dark-mode para máxima especificidad sin !important.
  */
 
+/* ─── Transición global al cambiar de tema ─────────────────────────────── */
+*,
+*::before,
+*::after {
+    transition:
+        background-color 0.3s ease,
+        color            0.2s ease,
+        border-color     0.3s ease,
+        box-shadow       0.3s ease;
+}
+
 /* ─── Variables de paleta ──────────────────────────────────────────────── */
 /* Colores semánticos alineados con .dark-mode :root de AdminLTE           */
 html.dark-mode {
