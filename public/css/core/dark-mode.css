@@ -182,12 +182,6 @@ html.dark-mode table.dataTable thead td {
     border-bottom-color: var(--dm-border);
 }
 
-html.dark-mode .table thead th {
-    background-color: var(--dm-bg-alt);
-    color: var(--dm-text);
-    border-bottom-color: var(--dm-border);
-}
-
 html.dark-mode table.dataTable tbody tr {
     background-color: var(--dm-bg);
     color: var(--dm-text);
@@ -216,49 +210,201 @@ html.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.disable
     color: var(--dm-text-muted) !important;
 }
 
-/* ─── Select2 ─────────────────────────────────────────────────────────── */
-html.dark-mode .select2-container--default .select2-selection--single,
-html.dark-mode .select2-container--default .select2-selection--multiple {
+/* ─── Select2 (theme: bootstrap4) ────────────────────────────────────── */
+html.dark-mode .select2-container--bootstrap4 .select2-selection--single,
+html.dark-mode .select2-container--bootstrap4 .select2-selection--multiple {
     background-color: var(--dm-bg);
     border-color: var(--dm-border);
     color: var(--dm-text);
 }
 
-html.dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
+html.dark-mode .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
     color: var(--dm-text);
 }
 
-html.dark-mode .select2-container--default .select2-selection--single .select2-selection__arrow b {
+html.dark-mode .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
     border-color: var(--dm-text-muted) transparent transparent transparent;
 }
 
-html.dark-mode .select2-dropdown {
+html.dark-mode .select2-container--bootstrap4 .select2-dropdown {
     background-color: var(--dm-bg);
     border-color: var(--dm-border);
 }
 
-html.dark-mode .select2-container--default .select2-search--dropdown .select2-search__field {
+html.dark-mode .select2-container--bootstrap4 .select2-search--dropdown .select2-search__field {
     background-color: var(--dm-bg-alt);
     border-color: var(--dm-border);
     color: var(--dm-text);
 }
 
-html.dark-mode .select2-container--default .select2-results__option {
+html.dark-mode .select2-container--bootstrap4 .select2-results__option {
     color: var(--dm-text);
+    background-color: var(--dm-bg);
 }
 
-html.dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+html.dark-mode .select2-container--bootstrap4 .select2-results__option--highlighted {
     background-color: var(--dm-bg-hover);
     color: var(--dm-text);
 }
 
-html.dark-mode .select2-container--default .select2-results__option[aria-selected=true] {
+html.dark-mode .select2-container--bootstrap4 .select2-results__option[aria-selected=true] {
     background-color: var(--dm-bg-alt);
 }
 
-html.dark-mode .select2-container--default .select2-selection--multiple .select2-selection__choice {
+html.dark-mode .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
     background-color: var(--dm-bg-hover);
     border-color: var(--dm-border);
+    color: var(--dm-text);
+}
+
+/* Focus/open state en dark */
+html.dark-mode .select2-container--bootstrap4.select2-container--focus .select2-selection,
+html.dark-mode .select2-container--bootstrap4.select2-container--open .select2-selection {
+    border-color: var(--dm-primary);
+    box-shadow: 0 0 0 0.2rem rgba(63, 103, 145, 0.25);
+}
+
+/* ─── Modal headers con bg-{color} ────────────────────────────────────── */
+html.dark-mode .modal-header.bg-primary { background-color: var(--dm-primary) !important; }
+html.dark-mode .modal-header.bg-success { background-color: var(--dm-success) !important; }
+html.dark-mode .modal-header.bg-info    { background-color: var(--dm-info)    !important; }
+html.dark-mode .modal-header.bg-warning { background-color: var(--dm-warning) !important; }
+html.dark-mode .modal-header.bg-danger  { background-color: var(--dm-danger)  !important; }
+
+/* ─── DataTables Buttons (Reports / Column visibility) ───────────────── */
+/* Dropdown collection — fondo blanco en dark mode */
+html.dark-mode .dt-button-collection {
+    background-color: var(--dm-bg-alt);
+    border-color: var(--dm-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+html.dark-mode .dt-button-collection .dt-button {
+    background: transparent;
+    border-color: transparent;
+    color: var(--dm-text);
+    text-shadow: none;
+    box-shadow: none;
+}
+
+html.dark-mode .dt-button-collection .dt-button:hover {
+    background-color: var(--dm-bg-hover);
+    border-color: var(--dm-border);
+    color: var(--dm-text);
+}
+
+/* Botón activo (column seleccionada) — reemplaza el #007bff por dm-primary */
+html.dark-mode .dt-button-collection .dt-button.active,
+html.dark-mode .dt-button-collection .dt-button.active:hover {
+    background-color: var(--dm-primary);
+    border-color: var(--dm-primary);
+    color: #fff;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/* Botones Reports/Column visibility en la toolbar */
+html.dark-mode .dt-buttons .dt-button {
+    background-color: var(--dm-bg-alt);
+    border-color: var(--dm-border);
+    color: var(--dm-text);
+    text-shadow: none;
+    box-shadow: none;
+}
+
+html.dark-mode .dt-buttons .dt-button:hover,
+html.dark-mode .dt-buttons .dt-button:focus {
+    background-color: var(--dm-bg-hover);
+    border-color: var(--dm-border);
+    color: var(--dm-text);
+    box-shadow: none;
+}
+
+/* ─── Tooltips ────────────────────────────────────────────────────────── */
+/* El fondo base ya es oscuro (#212529), en dark mode lo aclaramos un poco */
+html.dark-mode .tooltip .tooltip-inner {
+    background-color: var(--dm-bg-hover);
+    border-color: var(--dm-border);
+}
+
+html.dark-mode .tooltip .arrow::before,
+html.dark-mode .bs-tooltip-top .arrow::before,
+html.dark-mode .bs-tooltip-auto[x-placement^=top] .arrow::before    { border-top-color:    var(--dm-bg-hover); }
+html.dark-mode .bs-tooltip-bottom .arrow::before,
+html.dark-mode .bs-tooltip-auto[x-placement^=bottom] .arrow::before { border-bottom-color: var(--dm-bg-hover); }
+html.dark-mode .bs-tooltip-left .arrow::before,
+html.dark-mode .bs-tooltip-auto[x-placement^=left] .arrow::before   { border-left-color:   var(--dm-bg-hover); }
+html.dark-mode .bs-tooltip-right .arrow::before,
+html.dark-mode .bs-tooltip-auto[x-placement^=right] .arrow::before  { border-right-color:  var(--dm-bg-hover); }
+
+/* ─── Nav tabs (card-outline-tabs) ────────────────────────────────────── */
+/* Tab activo: texto blanco para cada color de card-outline               */
+html.dark-mode .card-outline-tabs .nav-tabs .nav-link.active,
+html.dark-mode .card-primary.card-outline-tabs .nav-tabs .nav-link.active {
+    color: var(--dm-primary);
+}
+
+html.dark-mode .card-info.card-outline-tabs .nav-tabs .nav-link.active {
+    color: var(--dm-info);
+}
+
+html.dark-mode .card-success.card-outline-tabs .nav-tabs .nav-link.active {
+    color: var(--dm-success);
+}
+
+html.dark-mode .card-warning.card-outline-tabs .nav-tabs .nav-link.active {
+    color: var(--dm-warning);
+}
+
+html.dark-mode .card-danger.card-outline-tabs .nav-tabs .nav-link.active {
+    color: var(--dm-danger);
+}
+
+/* Pestañas inactivas: solo dentro de card-outline-tabs */
+html.dark-mode .card-outline-tabs .nav-tabs .nav-link:not(.active) {
+    color: var(--dm-text-muted);
+}
+
+html.dark-mode .card-outline-tabs .nav-tabs .nav-link:not(.active):hover {
+    color: var(--dm-text);
+}
+
+html.dark-mode .card-outline-tabs .nav-tabs {
+    border-bottom-color: var(--dm-border);
+}
+
+/* ─── Custom file input (Bootstrap 4) ────────────────────────────────── */
+html.dark-mode .custom-file-label {
+    background-color: var(--dm-bg-alt);
+    border-color: var(--dm-border);
+    color: var(--dm-text);
+}
+
+html.dark-mode .custom-file-label::after {
+    background-color: var(--dm-bg-hover);
+    border-left-color: var(--dm-border);
+    color: var(--dm-text);
+}
+
+html.dark-mode .custom-file-input:focus ~ .custom-file-label {
+    border-color: var(--dm-primary);
+    box-shadow: 0 0 0 0.2rem rgba(63, 103, 145, 0.25);
+}
+
+/* ─── img-thumbnail ────────────────────────────────────────────────────── */
+html.dark-mode .img-thumbnail {
+    background-color: var(--dm-bg-alt);
+    border-color: var(--dm-border);
+}
+
+/* ─── list-group (perfil) — solo dentro de card sin fondo propio ──────── */
+/* AdminLTE cubre .list-group-item globalmente; aquí solo forzamos         */
+/* transparencia y color de texto de los títulos dentro del box-profile    */
+html.dark-mode .box-profile .list-group-item {
+    background-color: transparent;
+}
+
+html.dark-mode .box-profile .list-group-item b {
     color: var(--dm-text);
 }
 

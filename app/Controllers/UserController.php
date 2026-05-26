@@ -61,10 +61,7 @@ class UserController extends Controller
 
         $this->render(
             'users/show',
-            compact('user', 'userPermissions', 'isAdminUser'),
-            [],
-            ['users/show-user'],
-            ['users/show-user']
+            compact('user', 'userPermissions', 'isAdminUser')
         );
     }
 

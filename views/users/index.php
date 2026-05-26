@@ -47,7 +47,7 @@
                                     <th>Image</th>
                                     <th>Role</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -105,4 +105,3 @@
     <!-- /.container-fluid -->
 </section>
 <!-- /.content -->
-

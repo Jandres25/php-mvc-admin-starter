@@ -111,63 +111,43 @@
 }
 
 /* ============================================
-   SELECT2 - Modo oscuro
-   ============================================ */
-
-/* Estilos para modo oscuro */
-.dark-mode .select2-container--bootstrap4 .select2-selection {
-    background-color: #343a40;
-    border-color: #6c757d;
-    color: #fff;
-}
-
-.dark-mode .select2-container--bootstrap4 .select2-selection__rendered {
-    color: #fff;
-}
-
-.dark-mode .select2-container--bootstrap4 .select2-dropdown {
-    background-color: #343a40;
-    border-color: #6c757d;
-}
-
-.dark-mode .select2-container--bootstrap4 .select2-results__option {
-    color: #fff;
-}
-
-.dark-mode .select2-container--bootstrap4 .select2-results__option--highlighted {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.dark-mode .select2-container--bootstrap4 .select2-search__field {
-    background-color: #454d55;
-    border-color: #6c757d;
-    color: #fff;
-}
-
-/* ============================================
-   TOOLTIPS - Mejoras
+   TOOLTIPS - Estilos base
    ============================================ */
 
 /* Transición suave */
 .tooltip {
+    opacity: 1;
+    z-index: 1060;
     transition: opacity 0.2s ease-in-out;
 }
+
+/* Estilo base del tooltip (fondo oscuro, texto blanco — funciona en light y dark) */
+.tooltip .tooltip-inner {
+    background-color: #212529;
+    color: #fff;
+    border: 1px solid #343a40;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 0.3rem;
+}
+
+.tooltip .arrow::before,
+.bs-tooltip-top .arrow::before,
+.bs-tooltip-auto[x-placement^=top] .arrow::before      { border-top-color:    #212529; }
+.bs-tooltip-bottom .arrow::before,
+.bs-tooltip-auto[x-placement^=bottom] .arrow::before   { border-bottom-color: #212529; }
+.bs-tooltip-left .arrow::before,
+.bs-tooltip-auto[x-placement^=left] .arrow::before     { border-left-color:   #212529; }
+.bs-tooltip-right .arrow::before,
+.bs-tooltip-auto[x-placement^=right] .arrow::before    { border-right-color:  #212529; }
 
 /* Tooltip con fondo primario para progress-bar */
 .tooltip .tooltip-inner.bg-primary {
     background-color: #007bff;
+    border-color: #007bff;
     font-weight: 500;
-}
-
-/* Modo oscuro para tooltips */
-.dark-mode .tooltip .tooltip-inner {
-    background-color: #454d55;
-    color: #fff;
-}
-
-.dark-mode .tooltip .arrow::before {
-    border-top-color: #454d55;
 }
 
 /* ============================================

@@ -254,9 +254,6 @@ const ComponentUtils = {
             // Manejar interacción táctil
             this._setupTooltipTouchEvents(selector);
 
-            // Aplicar estilos personalizados
-            this.applyTooltipStyles();
-
             return true;
 
         } catch (error) {
@@ -285,63 +282,6 @@ const ComponentUtils = {
         $(document).on('touchend.componentUtils touchcancel.componentUtils', selector, function () {
             $(this).tooltip('hide');
         });
-    },
-
-    /**
-     * Aplicar estilos a los tooltips
-     */
-    applyTooltipStyles: function () {
-        try {
-            // Estilo por defecto (Negro/Gris oscuro con texto blanco)
-            const style = {
-                background: '#212529',
-                border: '#343a40',
-                text: '#ffffff'
-            };
-
-            // Crear o actualizar elemento de estilos dinámicos
-            let styleElement = document.getElementById('tooltip-custom-styles');
-            if (!styleElement) {
-                styleElement = document.createElement('style');
-                styleElement.id = 'tooltip-custom-styles';
-                document.head.appendChild(styleElement);
-            }
-
-            // Inyectar CSS
-            styleElement.textContent = `
-                .tooltip .tooltip-inner {
-                    background-color: ${style.background} !important;
-                    color: ${style.text} !important;
-                    border: 1px solid ${style.border};
-                    padding: 0.5rem 0.75rem;
-                    font-size: 0.85rem;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-                    border-radius: 0.3rem;
-                    font-weight: 400;
-                }
-                .tooltip .arrow::before {
-                    border-top-color: ${style.background} !important;
-                }
-                .bs-tooltip-top .arrow::before, .bs-tooltip-auto[x-placement^=top] .arrow::before {
-                    border-top-color: ${style.background} !important;
-                }
-                .bs-tooltip-bottom .arrow::before, .bs-tooltip-auto[x-placement^=bottom] .arrow::before {
-                    border-bottom-color: ${style.background} !important;
-                }
-                .bs-tooltip-left .arrow::before, .bs-tooltip-auto[x-placement^=left] .arrow::before {
-                    border-left-color: ${style.background} !important;
-                }
-                .bs-tooltip-right .arrow::before, .bs-tooltip-auto[x-placement^=right] .arrow::before {
-                    border-right-color: ${style.background} !important;
-                }
-                .tooltip {
-                    opacity: 1 !important;
-                    z-index: 1060;
-                }
-            `;
-        } catch (error) {
-            console.error('Error al aplicar estilos de tooltips:', error);
-        }
     },
 
     /**
