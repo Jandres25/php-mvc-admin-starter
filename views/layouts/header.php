@@ -30,6 +30,8 @@
     <link rel="stylesheet" href="<?= URL; ?>/css/lib/adminlte/adminlte.min.css">
     <!-- UI Components custom styles -->
     <link rel="stylesheet" href="<?= URL; ?>/css/core/ui-components.css">
+    <!-- Dark mode overrides (DataTables, Select2, SweetAlert2) -->
+    <link rel="stylesheet" href="<?= URL; ?>/css/core/dark-mode.css">
     <!-- Conditional plugin CSS -->
     <?php
     $activePlugins = (isset($plugins) && is_array($plugins)) ? $plugins : [];
