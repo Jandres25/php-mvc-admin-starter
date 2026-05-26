@@ -192,9 +192,9 @@
                                 <!-- Role -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="role_id">Role</label>
-                                        <select class="form-control select2" id="role_id" name="role_id">
-                                            <option value="">No role assigned</option>
+                                        <label for="role_id">Role <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" id="role_id" name="role_id" required>
+                                            <option value="">Select a role</option>
                                             <?php foreach ($activeRoles as $role): ?>
                                                 <option value="<?= $role['id'] ?>"
                                                     <?= $currentRoleId === (int) $role['id'] ? 'selected' : '' ?>>
@@ -232,7 +232,7 @@
                                             <input type="password" class="form-control" id="password" name="password"
                                                 placeholder="Leave blank to keep current" autocomplete="new-password" minlength="8">
                                             <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                <button class="btn btn-default" type="button" id="togglePassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
@@ -249,7 +249,7 @@
                                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                                 placeholder="Confirm new password" autocomplete="new-password">
                                             <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                                <button class="btn btn-default" type="button" id="toggleConfirmPassword">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
@@ -550,4 +550,3 @@
     <!-- /.container-fluid -->
 </section>
 <!-- /.content -->
-

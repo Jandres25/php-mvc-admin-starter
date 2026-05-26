@@ -44,7 +44,7 @@ $(document).ready(function () {
                     }
                 }
             },
-            position: { required: true },
+            role_id: { required: true },
             password: { minlength: 8 },
             confirm_password: {
                 minlength: 8,
@@ -68,7 +68,7 @@ $(document).ready(function () {
                 email: 'Enter a valid email address.',
                 remote: 'This email is already in use.'
             },
-            position: { required: 'Select a position.' },
+            role_id: { required: 'Select a role.' },
             password: {
                 minlength: 'Password must be at least 8 characters.'
             },
@@ -91,7 +91,7 @@ $(document).ready(function () {
     });
 
     // Revalidate Select2 selects on change
-    $('#document_type, #position').on('change', function () {
+    $('#document_type, #role_id').on('change', function () {
         $(this).valid();
     });
 

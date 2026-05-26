@@ -104,28 +104,17 @@ class ProfileController extends Controller
             return ['success' => false, 'message' => 'Session not started.'];
         }
 
-        $id              = Auth::id();
-        $currentPassword = isset($_POST['current_password']) ? trim($_POST['current_password']) : '';
-        $newPassword     = isset($_POST['new_password'])     ? trim($_POST['new_password'])     : '';
-        $confirmPassword = isset($_POST['confirm_password']) ? trim($_POST['confirm_password']) : '';
+        $id      = Auth::id();
+        $current = trim($_POST['current_password'] ?? '');
+        $new     = trim($_POST['new_password']     ?? '');
+        $confirm = trim($_POST['confirm_password'] ?? '');
 
-        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            return ['success' => false, 'message' => 'All password fields are required.'];
+        $errors = $this->model->validatePasswordChange($id, $current, $new, $confirm);
+        if (!empty($errors)) {
+            return ['success' => false, 'message' => $errors[0]];
         }
 
-        if (!$this->model->verifyCurrentPassword($id, $currentPassword)) {
-            return ['success' => false, 'message' => 'The current password is incorrect.'];
-        }
-
-        if ($newPassword !== $confirmPassword) {
-            return ['success' => false, 'message' => 'New passwords do not match.'];
-        }
-
-        if (strlen($newPassword) < 6) {
-            return ['success' => false, 'message' => 'Password must be at least 6 characters.'];
-        }
-
-        if ($this->model->updatePassword($id, $newPassword)) {
+        if ($this->model->updatePassword($id, $new)) {
             return ['success' => true, 'message' => 'Password updated successfully.'];
         }
 

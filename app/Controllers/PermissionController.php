@@ -25,7 +25,7 @@ class PermissionController extends Controller
         $this->render(
             'permissions/index',
             compact('permissions', 'statistics'),
-            ['datatables', 'datatables-export'],
+            ['datatables', 'datatables-export', 'validate'],
             ['permissions/modal-permission', 'permissions/index-permissions']
         );
     }
@@ -42,7 +42,7 @@ class PermissionController extends Controller
         $this->render(
             'permissions/detail',
             compact('permission', 'users', 'usersWithoutPerm', 'isInactive', 'permissionId'),
-            ['datatables', 'select2'],
+            ['datatables', 'select2', 'validate'],
             ['permissions/modal-permission', 'permissions/detail-permission']
         );
     }
@@ -244,15 +244,7 @@ class PermissionController extends Controller
             $this->jsonResponse([]);
         }
 
-        $users  = $this->permissionModel->getUsersWithoutPermission($permissionId);
-        $result = [];
-        foreach ($users as $u) {
-            $name     = htmlspecialchars(trim($u['name'] . ' ' . $u['first_surname'] . ' ' . ($u['second_surname'] ?? '')), ENT_QUOTES, 'UTF-8');
-            $position = $u['position'] ? ' — ' . htmlspecialchars($u['position'], ENT_QUOTES, 'UTF-8') : '';
-            $result[] = ['id' => $u['id'], 'text' => $name . $position];
-        }
-
-        $this->jsonResponse($result);
+        $this->jsonResponse($this->permissionModel->getUsersWithoutFormatted($permissionId));
     }
 
     // -------------------------------------------------------------------------
@@ -278,6 +270,22 @@ class PermissionController extends Controller
         $permission['users']       = $this->permissionModel->getUsersByPermission($id);
 
         return $permission;
+    }
+
+    public function checkName()
+    {
+        $name         = trim($_POST['name']          ?? '');
+        $permissionId = filter_var($_POST['permission_id'] ?? '', FILTER_VALIDATE_INT) ?: null;
+
+        if (!$name) {
+            echo 'true';
+            exit;
+        }
+
+        $exists = $this->permissionModel->nameExists($name, $permissionId);
+        header('Content-Type: application/json');
+        echo $exists ? json_encode('This permission name already exists.') : 'true';
+        exit;
     }
 
 }

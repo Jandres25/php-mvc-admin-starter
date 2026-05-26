@@ -49,6 +49,7 @@ return [
     ['method' => 'POST', 'path' => '/permissions/assign-user',      'controller' => 'Permission@assignUser',      'middleware' => ['auth', 'perm:permissions']],
     ['method' => 'POST', 'path' => '/permissions/revoke-user',      'controller' => 'Permission@revokeUser',      'middleware' => ['auth', 'perm:permissions']],
     ['method' => 'GET',  'path' => '/permissions/get-users-without', 'controller' => 'Permission@getUsersWithout', 'middleware' => ['auth', 'perm:permissions']],
+    ['method' => 'POST', 'path' => '/permissions/check-name',        'controller' => 'Permission@checkName',       'middleware' => ['auth']],
 
     // Roles
     ['method' => 'GET',  'path' => '/roles',               'controller' => 'Role@pageIndex',      'middleware' => ['auth', 'perm:roles']],

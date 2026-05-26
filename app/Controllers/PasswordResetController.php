@@ -65,14 +65,19 @@ class PasswordResetController extends Controller
         $password = $_POST['password']         ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
 
-        if (empty($token) || empty($password) || $password !== $confirm) {
-            $_SESSION['message'] = 'Invalid data or passwords do not match.';
+        if (empty($token)) {
+            $_SESSION['message'] = 'Invalid or missing token.';
             $_SESSION['icon']    = 'error';
-            $this->redirect(URL . 'reset-password?token=' . urlencode($token));
+            $this->redirect(URL . 'login');
         }
 
-        if (strlen($password) < 8) {
-            $_SESSION['message'] = 'Password must be at least 8 characters.';
+        $pwErrors = $this->userModel->validateNewPassword($password, $confirm);
+        // Reset password flow requires minimum 8 chars (stricter than profile)
+        if (empty($pwErrors) && strlen($password) < 8) {
+            $pwErrors[] = 'Password must be at least 8 characters.';
+        }
+        if (!empty($pwErrors)) {
+            $_SESSION['message'] = $pwErrors[0];
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'reset-password?token=' . urlencode($token));
         }

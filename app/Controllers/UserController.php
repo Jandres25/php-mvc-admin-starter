@@ -313,14 +313,9 @@ class UserController extends Controller
         $confirmPassword = trim($_POST['confirm_password'] ?? '');
 
         if (!empty($password) || !empty($confirmPassword)) {
-            if (empty($password) || empty($confirmPassword)) {
-                return ['success' => false, 'message' => 'Both password fields are required to change the password.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
-            }
-            if ($password !== $confirmPassword) {
-                return ['success' => false, 'message' => 'Passwords do not match.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
-            }
-            if (strlen($password) < 6) {
-                return ['success' => false, 'message' => 'Password must be at least 6 characters.', 'icon' => 'error', 'redirect' => "update.php?id=$id"];
+            $pwErrors = $this->userModel->validateNewPassword($password, $confirmPassword);
+            if (!empty($pwErrors)) {
+                return ['success' => false, 'message' => $pwErrors[0], 'icon' => 'error', 'redirect' => "update.php?id=$id"];
             }
             $passwordUpdated = $this->userModel->updatePassword($id, $password);
         }
@@ -349,28 +344,17 @@ class UserController extends Controller
 
     private function updateProfilePasswordAjax()
     {
-        $id              = $_SESSION['user_id'] ?? null;
-        $currentPassword = trim($_POST['current_password'] ?? '');
-        $newPassword     = trim($_POST['new_password']     ?? '');
-        $confirmPassword = trim($_POST['confirm_password'] ?? '');
+        $id      = (int) ($_SESSION['user_id'] ?? 0);
+        $current = trim($_POST['current_password'] ?? '');
+        $new     = trim($_POST['new_password']     ?? '');
+        $confirm = trim($_POST['confirm_password'] ?? '');
 
-        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            return ['success' => false, 'message' => 'All password fields are required.'];
+        $errors = $this->userModel->validatePasswordChange($id, $current, $new, $confirm);
+        if (!empty($errors)) {
+            return ['success' => false, 'message' => $errors[0]];
         }
 
-        if (!$this->userModel->verifyCurrentPassword($id, $currentPassword)) {
-            return ['success' => false, 'message' => 'The current password is incorrect.'];
-        }
-
-        if ($newPassword !== $confirmPassword) {
-            return ['success' => false, 'message' => 'New passwords do not match.'];
-        }
-
-        if (strlen($newPassword) < 6) {
-            return ['success' => false, 'message' => 'Password must be at least 6 characters.'];
-        }
-
-        if ($this->userModel->updatePassword($id, $newPassword)) {
+        if ($this->userModel->updatePassword($id, $new)) {
             AuditLogger::log('users', 'password_changed', 'User changed their own password', ['user_id' => $id]);
             regenerateCSRFToken();
             return ['success' => true, 'message' => 'Password updated successfully.'];
@@ -385,13 +369,18 @@ class UserController extends Controller
             return ['success' => false, 'message' => 'Invalid user ID or status.', 'icon' => 'error'];
         }
 
-        $newStatus = $currentStatus == 1 ? 0 : 1;
+        $activating = $currentStatus == 1 ? false : true;
+        $ok         = $activating
+            ? $this->userModel->activate($id)
+            : $this->userModel->deactivate($id);
 
-        if ($this->userModel->updateStatus($id, $newStatus)) {
-            $action = $newStatus == 1 ? 'activated' : 'deactivated';
+        if ($ok) {
+            $action    = $activating ? 'activated' : 'deactivated';
+            $auditVerb = $activating ? 'activate'  : 'deactivate';
+            $newStatus = $activating ? 1 : 0;
             AuditLogger::log(
                 'users',
-                $newStatus == 1 ? 'activate' : 'deactivate',
+                $auditVerb,
                 "User {$action}: ID {$id}",
                 ['user_id' => $id, 'new_status' => $newStatus]
             );

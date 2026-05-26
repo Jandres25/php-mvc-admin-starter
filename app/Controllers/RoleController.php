@@ -16,9 +16,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
 use App\Services\AuditLogger;
-use App\Services\DashboardCache;
 
 class RoleController extends Controller
 {
@@ -222,11 +220,6 @@ class RoleController extends Controller
         }
 
         if ($this->roleModel->syncPermissions($roleId, $permissions)) {
-            $userModel = new User();
-            foreach ($this->roleModel->getUserIdsByRole($roleId) as $uid) {
-                $userModel->updatePermissionsTimestamp((int) $uid);
-            }
-            DashboardCache::forget('role_stats');
             AuditLogger::log(
                 'roles',
                 'sync_permissions',
