@@ -7,6 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Base System MVC</title>
 
+    <!-- Dark mode detection (inline — evita FOUC) -->
+    <script>
+        (function() {
+            try {
+                const saved = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (saved === 'dark' || (!saved && prefersDark)) {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="<?= URL; ?>/css/lib/bootstrap/bootstrap.min.css">
     <!-- Font Awesome Icons -->
