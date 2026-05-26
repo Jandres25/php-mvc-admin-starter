@@ -45,6 +45,9 @@ git checkout -b feature/your-feature-name
 - Include proper error handling
 - Maintain consistent indentation (4 spaces)
 - Ensure all PHP files have proper PHPDoc documentation
+- **Fat model / thin controller** — validation logic, data formatting, and cache invalidation belong in the model. Controllers only read input, call model methods, set flash messages, and redirect or return JSON.
+- **Model base class** — all models extend `App\Core\Model` and set `protected $table = 'table_name'`. Never redeclare `getLastInsertId()` or `trimInput()` in a concrete model — inherit them from the base.
+- **Model traits** — when a model exceeds ~400 lines, split concerns into PHP traits under `app/Models/Traits/`. Traits access `$this->connection` and `$this->table` directly. Group by responsibility (auth queries, password lifecycle, statistics).
 
 ### JavaScript Code Standards
 
@@ -238,7 +241,7 @@ When adding new features, follow the existing project structure:
 │   ├── Core/             # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 │   ├── Controllers/      # Feature controllers (flat — no subdirectories)
 │   ├── Middleware/       # AuthMiddleware, GuestMiddleware, PermissionMiddleware
-│   ├── Models/           # App\Models
+│   ├── Models/           # App\Models; Traits/ holds UserAuthTrait, UserPasswordTrait, UserStatsTrait
 │   ├── Services/         # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger)
 │   └── Config/           # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
 ├── routes/               # web.php — all route definitions

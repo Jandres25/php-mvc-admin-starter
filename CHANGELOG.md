@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.1] - 2026-05-26
+
+### Fixed
+
+- **Role required on user create/edit** — the role field now carries `required` validation both client-side (jQuery Validate) and server-side (`User::validateData()`); the placeholder changed from "No role assigned" to "Select a role".
+- **jQuery Validate added to permissions modal** — `modal-permission.js` rewritten with jQuery Validate rules (`required`, `maxlength: 60`, `remote` uniqueness check against `/permissions/check-name`), `isSubmitting` guard, and proper reset on modal close. Consistent with the existing validation in the roles modal.
+- **`/permissions/check-name` route** — new `POST` endpoint (`Permission@checkName`) added to `routes/web.php`; gated by `auth` middleware.
+- **Thin controllers** — extracted validation logic that lived inline in controllers into model methods:
+  - `User::validatePasswordChange()` and `User::validateNewPassword()` centralise password validation; called by `ProfileController`, `UserController`, and `PasswordResetController`.
+  - `Permission::getUsersWithoutFormatted()` centralises Select2 formatting; `PermissionController::getUsersWithout()` delegates to it.
+  - `Role::syncPermissions()` now internally invalidates permission timestamps for all role users after commit; `RoleController` no longer needs to do it manually.
+
+### Refactored
+
+- **`app/Core/Model.php`** — base class now provides fully usable generic CRUD (`find`, `all`, `insert`, `update`, `delete`, `query`, `getLastInsertId`, `trimInput`). All concrete models extend and inherit these; model-specific methods override only where JOINs or custom field handling are needed.
+- **`$tabla` → `$table`** — renamed in `User`, `Role`, and `Permission` to match the protected `$table` property declared in the base `Model`. Visibility changed from `private` to `protected` so the base class can reference it.
+- **`getLastInsertId()` deduplicated** — removed from `User`, `Role`, and `Permission`; the method now lives only in the base `Model`.
+- **`User.php` split into traits** — the 1 270-line model reorganised into three focused traits under `app/Models/Traits/`:
+  - `UserAuthTrait` — login queries (`loginByEmail`, `loginByDocumentNumber`), lookup methods (`findByEmail`, `findByDocumentNumber`), uniqueness checks (`emailExists`, `documentTypeExists`, …), and login throttle (`recordFailure`, `clearAttempts`, `unlock`, `getLockStatus`).
+  - `UserPasswordTrait` — password reset token lifecycle (`createPasswordResetToken`, `setResetToken`, `getUserByResetToken`, `resetPassword`), remember-me token (`setRememberToken`, `findByRememberToken`, `clearRememberToken`), and `verifyCurrentPassword`.
+  - `UserStatsTrait` — dashboard aggregation queries (`getStatistics`, `getRecent`, `getUsersByStatus`, `getUsersByMonth`).
+- **`User.php` `forgetUserCaches()`** — dashboard cache invalidation extracted to a private helper called by `create`, `update`, and `updateStatus`, eliminating four repeated `DashboardCache::forget()` calls.
+
+---
+
 ## [3.13.0] - 2026-05-26
 
 ### Added
@@ -696,6 +721,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.13.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.12.0...3.13.0
 [3.12.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.11.0...3.12.0
 [3.11.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.10.0...3.11.0

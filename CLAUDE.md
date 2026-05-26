@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.13.0`
+**Current release tag:** `3.13.1`
 
 ## No Build Process
 
@@ -107,7 +107,7 @@ app/
 ├── Controllers/  # Feature controllers (flat — AuthController, UserController, PermissionController, RoleController, DashboardController, AuditLogController, ProfileController, PasswordResetController)
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
-├── Models/       # App\Models
+├── Models/       # App\Models; Traits/ holds UserAuthTrait, UserPasswordTrait, UserStatsTrait
 └── Services/     # App\Services (ImageService, MailService, DashboardCache, LoginThrottleService, AuditLogger)
 routes/           # web.php — all route definitions
 database/         # schema.sql and seeder.sql
@@ -226,4 +226,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 - **Select2 auto-init:** `ComponentUtils.initAll()` (called automatically on `DOMContentLoaded` by `ui-components.js`) initializes every `.select2` element on the page. Do not call `initializeSelect2()` manually in module scripts unless extra options are needed.
 - **Select2 in modals:** When a Select2 element lives inside a Bootstrap modal, call `initializeSelect2('#selectId', { dropdownParent: $('#modalId') })` explicitly. `ComponentUtils.initAll()` cannot apply `dropdownParent` globally, so modal selects need targeted initialization. Without `dropdownParent`, Bootstrap's focus trap closes the dropdown immediately. Populate options from PHP `<option>` elements (server-side) rather than AJAX to avoid re-initialization conflicts.
 - **AdminLTE cards:** `card-outline card-{color}` classes go on the outer `div.card`, **never** on `div.card-header`. Adding them to the header instead of the card silently breaks the colored left border style.
+- **Models — fat model / thin controller:** Validation logic, data formatting, and cache invalidation belong in the model, not in the controller. Controllers read POST/GET, call one or a few model methods, set session flash messages, and redirect or return JSON — nothing more.
+- **Model base class:** `App\Core\Model` provides generic CRUD (`find`, `all`, `insert`, `update`, `delete`, `query`, `getLastInsertId`, `trimInput`). Concrete models extend it, set `protected $table = 'table_name'`, and override only the methods that require JOINs or custom field handling. Never duplicate `getLastInsertId()` or `trimInput()` in a concrete model.
+- **Model traits:** When a model grows beyond ~400 lines, split concerns into PHP traits under `app/Models/Traits/`. Traits share `$this` with the model, so they access `$this->connection` and `$this->table` directly — no extra parameters needed. Group by responsibility (auth queries, password/token lifecycle, statistics), not by arbitrary size.
 - **Commits:** Follow Conventional Commits (`feat:`, `fix:`, `docs:`, etc.).
