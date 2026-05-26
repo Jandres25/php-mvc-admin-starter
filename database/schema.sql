@@ -35,7 +35,7 @@ CREATE TABLE users (
   document_number varchar(20) NOT NULL,
   address varchar(255) DEFAULT NULL,
   phone varchar(15) DEFAULT NULL,
-  email varchar(255) DEFAULT NULL CHECK (email IS NULL OR email LIKE '%@%.%'),
+  email varchar(255) NOT NULL,
   password varchar(255) NOT NULL,
   image varchar(255),
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -49,10 +49,10 @@ CREATE TABLE users (
   reset_token_expiry DATETIME DEFAULT NULL,
   remember_token CHAR(64) NULL DEFAULT NULL,
   remember_token_expires DATETIME NULL DEFAULT NULL,
-  role_id int DEFAULT NULL,
+  role_id int NOT NULL,
   UNIQUE KEY (email),
   UNIQUE KEY (document_type, document_number),
-  CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)
+  CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Role permissions pivot table
@@ -69,12 +69,13 @@ CREATE TABLE role_permissions (
 -- User permissions pivot table
 CREATE TABLE user_permissions (
   id int PRIMARY KEY AUTO_INCREMENT,
-  permission_id int DEFAULT NULL,
-  user_id int DEFAULT NULL,
+  permission_id int NOT NULL,
+  user_id int NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_up_permission FOREIGN KEY (permission_id) REFERENCES permissions(id),
-  CONSTRAINT fk_up_user       FOREIGN KEY (user_id)       REFERENCES users(id)
+  UNIQUE KEY uq_user_perm (user_id, permission_id),
+  CONSTRAINT fk_up_permission FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_up_user       FOREIGN KEY (user_id)       REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Activity / audit log table (append-only)
