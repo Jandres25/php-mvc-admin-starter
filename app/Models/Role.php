@@ -14,6 +14,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Models\User;
 use App\Services\DashboardCache;
 use PDO;
 use PDOException;
@@ -21,7 +22,7 @@ use PDOException;
 class Role extends Model
 {
     /** @var string */
-    private $tabla = 'roles';
+    protected $table = 'roles';
 
     /**
      * Returns all roles with the count of assigned users.
@@ -33,7 +34,7 @@ class Role extends Model
         try {
             $stmt = $this->connection->prepare(
                 "SELECT r.*, COUNT(u.id) AS total_users
-                 FROM {$this->tabla} r
+                 FROM {$this->table} r
                  LEFT JOIN users u ON u.role_id = r.id
                  GROUP BY r.id
                  ORDER BY r.name"
@@ -56,7 +57,7 @@ class Role extends Model
     {
         try {
             $stmt = $this->connection->prepare(
-                "SELECT * FROM {$this->tabla} WHERE id = :id"
+                "SELECT * FROM {$this->table} WHERE id = :id"
             );
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
@@ -83,7 +84,7 @@ class Role extends Model
 
             $description = !empty($data['description']) ? $data['description'] : null;
             $stmt = $this->connection->prepare(
-                "INSERT INTO {$this->tabla} (name, description) VALUES (:name, :description)"
+                "INSERT INTO {$this->table} (name, description) VALUES (:name, :description)"
             );
             $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
             if ($description === null) {
@@ -112,7 +113,7 @@ class Role extends Model
      * @param array $data  Keys: name, description
      * @return bool
      */
-    public function update($id, $data)
+    public function update(int $id, array $data): bool
     {
         try {
             if ($this->nameExists($data['name'], $id)) {
@@ -122,7 +123,7 @@ class Role extends Model
 
             $description = !empty($data['description']) ? $data['description'] : null;
             $stmt = $this->connection->prepare(
-                "UPDATE {$this->tabla} SET name = :name, description = :description WHERE id = :id"
+                "UPDATE {$this->table} SET name = :name, description = :description WHERE id = :id"
             );
             $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
             if ($description === null) {
@@ -156,7 +157,7 @@ class Role extends Model
     {
         try {
             $stmt = $this->connection->prepare(
-                "UPDATE {$this->tabla} SET status = :status WHERE id = :id"
+                "UPDATE {$this->table} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
             $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
@@ -184,13 +185,13 @@ class Role extends Model
         try {
             if ($excludeId) {
                 $stmt = $this->connection->prepare(
-                    "SELECT COUNT(*) FROM {$this->tabla} WHERE name = :name AND id != :id"
+                    "SELECT COUNT(*) FROM {$this->table} WHERE name = :name AND id != :id"
                 );
                 $stmt->bindParam(':name', $name,      PDO::PARAM_STR);
                 $stmt->bindParam(':id',   $excludeId, PDO::PARAM_INT);
             } else {
                 $stmt = $this->connection->prepare(
-                    "SELECT COUNT(*) FROM {$this->tabla} WHERE name = :name"
+                    "SELECT COUNT(*) FROM {$this->table} WHERE name = :name"
                 );
                 $stmt->bindParam(':name', $name, PDO::PARAM_STR);
             }
@@ -236,7 +237,7 @@ class Role extends Model
                     COUNT(*) AS total,
                     SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
                     SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive
-                FROM {$this->tabla}
+                FROM {$this->table}
             ");
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -251,20 +252,6 @@ class Role extends Model
         }
     }
 
-    /**
-     * Returns the ID of the last inserted row.
-     *
-     * @return int
-     */
-    public function getLastInsertId(): int
-    {
-        try {
-            return (int) $this->connection->lastInsertId();
-        } catch (PDOException $e) {
-            $this->lastError = $e->getMessage();
-            return 0;
-        }
-    }
 
     /**
      * Returns the permission IDs currently assigned to a role.
@@ -346,6 +333,13 @@ class Role extends Model
 
             $this->connection->commit();
             DashboardCache::forget('role_stats');
+
+            // Invalidate permission cache for every user of this role
+            $userModel = new User();
+            foreach ($this->getUserIdsByRole($roleId) as $uid) {
+                $userModel->updatePermissionsTimestamp((int) $uid);
+            }
+
             return true;
         } catch (PDOException $e) {
             $this->connection->rollBack();
@@ -385,7 +379,7 @@ class Role extends Model
     {
         try {
             $stmt = $this->connection->prepare(
-                "SELECT id, name FROM {$this->tabla} WHERE status = 1 ORDER BY name"
+                "SELECT id, name FROM {$this->table} WHERE status = 1 ORDER BY name"
             );
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);

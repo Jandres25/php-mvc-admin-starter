@@ -24,7 +24,7 @@ class Permission extends Model
      * Permissions table name
      * @var string
      */
-    private $tabla = 'permissions';
+    protected $table = 'permissions';
 
     /**
      * Returns all permissions.
@@ -35,7 +35,7 @@ class Permission extends Model
     public function getAll($onlyActive = false)
     {
         try {
-            $query = "SELECT * FROM {$this->tabla}";
+            $query = "SELECT * FROM {$this->table}";
             if ($onlyActive) {
                 $query .= " WHERE status = 1";
             }
@@ -61,7 +61,7 @@ class Permission extends Model
         try {
             $where = $onlyActive ? "WHERE p.status = 1" : "";
             $query = "SELECT p.*, COUNT(up.user_id) AS total_users
-                      FROM {$this->tabla} p
+                      FROM {$this->table} p
                       LEFT JOIN user_permissions up ON p.id = up.permission_id
                       {$where}
                       GROUP BY p.id
@@ -86,7 +86,7 @@ class Permission extends Model
     {
         try {
             $stmt = $this->connection->prepare(
-                "SELECT * FROM {$this->tabla} WHERE id = :id"
+                "SELECT * FROM {$this->table} WHERE id = :id"
             );
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
@@ -103,7 +103,7 @@ class Permission extends Model
      * @param array $data  Keys: name, description
      * @return bool
      */
-    public function create($data)
+    public function create(array $data): bool
     {
         try {
             if ($this->nameExists($data['name'])) {
@@ -113,7 +113,7 @@ class Permission extends Model
 
             $description = !empty($data['description']) ? $data['description'] : null;
             $stmt = $this->connection->prepare(
-                "INSERT INTO {$this->tabla} (name, description) VALUES (:name, :description)"
+                "INSERT INTO {$this->table} (name, description) VALUES (:name, :description)"
             );
             $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
             if ($description === null) {
@@ -145,7 +145,7 @@ class Permission extends Model
      * @param array $data  Keys: name, description
      * @return bool
      */
-    public function update($id, $data)
+    public function update(int $id, array $data): bool
     {
         try {
             if ($this->nameExists($data['name'], $id)) {
@@ -155,7 +155,7 @@ class Permission extends Model
 
             $description = !empty($data['description']) ? $data['description'] : null;
             $stmt = $this->connection->prepare(
-                "UPDATE {$this->tabla} SET name = :name, description = :description WHERE id = :id"
+                "UPDATE {$this->table} SET name = :name, description = :description WHERE id = :id"
             );
             $stmt->bindParam(':name', $data['name'], PDO::PARAM_STR);
             if ($description === null) {
@@ -192,7 +192,7 @@ class Permission extends Model
     {
         try {
             $stmt = $this->connection->prepare(
-                "UPDATE {$this->tabla} SET status = :status WHERE id = :id"
+                "UPDATE {$this->table} SET status = :status WHERE id = :id"
             );
             $stmt->bindParam(':status', $status, PDO::PARAM_INT);
             $stmt->bindParam(':id',     $id,     PDO::PARAM_INT);
@@ -220,12 +220,12 @@ class Permission extends Model
     {
         try {
             if ($excludeId) {
-                $query = "SELECT COUNT(*) FROM {$this->tabla} WHERE name = :name AND id != :id";
+                $query = "SELECT COUNT(*) FROM {$this->table} WHERE name = :name AND id != :id";
                 $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':name', $name,      PDO::PARAM_STR);
                 $stmt->bindParam(':id',   $excludeId, PDO::PARAM_INT);
             } else {
-                $query = "SELECT COUNT(*) FROM {$this->tabla} WHERE name = :name";
+                $query = "SELECT COUNT(*) FROM {$this->table} WHERE name = :name";
                 $stmt  = $this->connection->prepare($query);
                 $stmt->bindParam(':name', $name, PDO::PARAM_STR);
             }
@@ -313,6 +313,26 @@ class Permission extends Model
     }
 
     /**
+     * Returns users without this permission formatted for Select2 (id + text).
+     *
+     * @param int $permissionId
+     * @return array  [['id' => int, 'text' => string], ...]
+     */
+    public function getUsersWithoutFormatted(int $permissionId): array
+    {
+        $result = [];
+        foreach ($this->getUsersWithoutPermission($permissionId) as $u) {
+            $parts = [$u['name'], $u['first_surname']];
+            if (!empty($u['second_surname'])) {
+                $parts[] = $u['second_surname'];
+            }
+            $name     = htmlspecialchars(trim(implode(' ', $parts)), ENT_QUOTES, 'UTF-8');
+            $result[] = ['id' => (int) $u['id'], 'text' => $name];
+        }
+        return $result;
+    }
+
+    /**
      * Returns statistics: total, active, inactive counts (single query).
      *
      * @return array  Keys: total, active, inactive, most_used
@@ -325,7 +345,7 @@ class Permission extends Model
                     COUNT(*) AS total,
                     SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
                     SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive
-                FROM {$this->tabla}
+                FROM {$this->table}
             ");
             $stmt->execute();
             $counts = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -364,7 +384,7 @@ class Permission extends Model
         try {
             $stmt = $this->connection->prepare("
                 SELECT p.id, p.name, COUNT(up.user_id) AS total_users
-                FROM {$this->tabla} p
+                FROM {$this->table} p
                 LEFT JOIN user_permissions up ON p.id = up.permission_id
                 WHERE p.status = 1
                 GROUP BY p.id, p.name
@@ -387,20 +407,6 @@ class Permission extends Model
         }
     }
 
-    /**
-     * Returns the ID of the last inserted row.
-     *
-     * @return int
-     */
-    public function getLastInsertId()
-    {
-        try {
-            return $this->connection->lastInsertId();
-        } catch (PDOException $e) {
-            $this->lastError = $e->getMessage();
-            return 0;
-        }
-    }
 
     /**
      * Returns id and name of all active permissions.
@@ -411,7 +417,7 @@ class Permission extends Model
     {
         try {
             $stmt = $this->connection->prepare(
-                "SELECT id, name FROM {$this->tabla} WHERE status = 1 ORDER BY name"
+                "SELECT id, name FROM {$this->table} WHERE status = 1 ORDER BY name"
             );
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -454,7 +460,7 @@ class Permission extends Model
             $stmt = $this->connection->prepare("
                 SELECT p.id, p.name
                 FROM user_permissions up
-                JOIN {$this->tabla} p ON up.permission_id = p.id
+                JOIN {$this->table} p ON up.permission_id = p.id
                 WHERE up.user_id = :user_id AND p.status = 1
             ");
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
