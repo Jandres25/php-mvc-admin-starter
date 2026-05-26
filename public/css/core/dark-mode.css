@@ -148,6 +148,18 @@ html.dark-mode .page-link {
     color: var(--dm-text);
 }
 
+/* ─── Autofill del navegador (webkit) ─────────────────────────────────── */
+/* background-color no se puede sobreescribir; se usa box-shadow inset para taparlo */
+html.dark-mode .form-control:-webkit-autofill,
+html.dark-mode .form-control:-webkit-autofill:hover,
+html.dark-mode .form-control:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--dm-bg-alt) inset;
+    -webkit-text-fill-color: var(--dm-text);
+    caret-color: var(--dm-text);
+    border-color: var(--dm-border);
+    transition: background-color 9999s ease-in-out 0s;
+}
+
 /* ─── DataTables ───────────────────────────────────────────────────────── */
 html.dark-mode .dataTables_wrapper .dataTables_length label,
 html.dark-mode .dataTables_wrapper .dataTables_filter label,

@@ -1,0 +1,127 @@
+/*
+ * login-dark.css
+ * Dark mode overrides para páginas standalone de auth (login, forgot-password, reset-password).
+ * Complementa dark-mode.css (DataTables, Select2, SweetAlert2) con los
+ * elementos específicos del layout de auth: fondo, card, inputs y toggle.
+ */
+
+/* ─── Fondo de la página ──────────────────────────────────────────────────── */
+html.dark-mode .login-page {
+    background: linear-gradient(135deg, #1a1d21 0%, #2c3038 100%);
+}
+
+/* ─── Card ────────────────────────────────────────────────────────────────── */
+html.dark-mode .login-page .card {
+    background-color: #343a40;
+    border-color: #4b545c;
+}
+
+html.dark-mode .login-page .card-header {
+    background-color: #2c3038;
+    border-bottom-color: #4b545c;
+}
+
+html.dark-mode .login-page .card-header h1 {
+    color: #dee2e6;
+}
+
+html.dark-mode .login-page .login-card-body {
+    background-color: #343a40;
+}
+
+html.dark-mode .login-page .login-box-msg {
+    color: #adb5bd;
+}
+
+/* ─── Inputs ──────────────────────────────────────────────────────────────── */
+html.dark-mode .login-page .form-control {
+    background-color: #3d4349;
+    border-color: #6c757d;
+    color: #dee2e6;
+}
+
+html.dark-mode .login-page .form-control::placeholder {
+    color: #868e96;
+}
+
+html.dark-mode .login-page .form-control:focus {
+    background-color: #454d55;
+    border-color: #3f6791;
+    color: #dee2e6;
+    box-shadow: 0 0 0 0.2rem rgba(63, 103, 145, 0.35);
+}
+
+html.dark-mode .login-page .input-group-text {
+    background-color: #3d4349;
+    border-color: #6c757d;
+    color: #adb5bd;
+}
+
+html.dark-mode .login-page .password-toggle:hover {
+    background-color: #454d55;
+}
+
+/* ─── Autofill del navegador (webkit) ─────────────────────────────────────── */
+/* background-color no se puede sobreescribir; se usa box-shadow inset para taparlo */
+html.dark-mode .login-page .form-control:-webkit-autofill,
+html.dark-mode .login-page .form-control:-webkit-autofill:hover,
+html.dark-mode .login-page .form-control:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #3d4349 inset;
+    -webkit-text-fill-color: #dee2e6;
+    caret-color: #dee2e6;
+    border-color: #6c757d;
+    transition: background-color 9999s ease-in-out 0s; /* evita el flash amarillo */
+}
+
+/* Light mode — fondo blanco/casi-blanco consistente con el diseño */
+.login-page .form-control:-webkit-autofill,
+.login-page .form-control:-webkit-autofill:hover,
+.login-page .form-control:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: #495057;
+    caret-color: #495057;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ─── iCheck (remember me) ────────────────────────────────────────────────── */
+html.dark-mode .login-page .icheck-primary label {
+    color: #dee2e6;
+}
+
+/* ─── Links ───────────────────────────────────────────────────────────────── */
+html.dark-mode .login-page a:not(.btn) {
+    color: #3498db;
+}
+
+/* ─── Footer copyright ────────────────────────────────────────────────────── */
+html.dark-mode .login-footer p {
+    color: #adb5bd;
+    text-shadow: none;
+}
+
+/* ─── Toggle de dark mode (posicionado en bottom-right para no tapar toasts) */
+.auth-theme-toggle {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 1050;
+    color: #6c757d;
+    opacity: 0.8;
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.auth-theme-toggle:hover {
+    opacity: 1;
+    color: #495057;
+    text-decoration: none;
+}
+
+html.dark-mode .auth-theme-toggle {
+    color: #adb5bd;
+}
+
+html.dark-mode .auth-theme-toggle:hover {
+    color: #dee2e6;
+}
