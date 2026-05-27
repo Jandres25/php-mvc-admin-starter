@@ -35,6 +35,23 @@ class User extends Model
     protected $table = 'users';
 
     // -------------------------------------------------------------------------
+    // Status constants
+    // -------------------------------------------------------------------------
+
+    /** Account is deactivated by an administrator */
+    const STATUS_INACTIVE = 0;
+
+    /** Account is active and can log in */
+    const STATUS_ACTIVE = 1;
+
+    /**
+     * Account is pending — invitation sent but password not yet set.
+     * Pending users cannot log in, request a password reset, or be
+     * auto-logged in via remember-me cookie.
+     */
+    const STATUS_PENDING = 2;
+
+    // -------------------------------------------------------------------------
     // Read
     // -------------------------------------------------------------------------
 

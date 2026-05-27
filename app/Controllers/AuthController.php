@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\PasswordReset;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\LoginThrottleService;
@@ -125,9 +126,9 @@ class AuthController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $user = $this->userModel->getUserByResetToken($token);
+        $row = (new PasswordReset())->findValidByToken($token, 'reset');
 
-        if (!$user) {
+        if (!$row) {
             $_SESSION['message'] = 'The link has expired or is invalid.';
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'login');
@@ -145,5 +146,4 @@ class AuthController extends Controller
     {
         (new PasswordResetController())->resetPassword();
     }
-
 }

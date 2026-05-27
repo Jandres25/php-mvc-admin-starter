@@ -3,17 +3,21 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\PasswordReset;
 use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\MailService;
 
 class PasswordResetController extends Controller
 {
-    private User $userModel;
-    private MailService $mailService;
+    private User          $userModel;
+    private PasswordReset $resets;
+    private MailService   $mailService;
 
     public function __construct()
     {
         $this->userModel   = new User();
+        $this->resets      = new PasswordReset();
         $this->mailService = new MailService();
     }
 
@@ -29,10 +33,12 @@ class PasswordResetController extends Controller
             $this->redirect(URL . 'forgot-password');
         }
 
-        // Generic message to avoid user enumeration
+        // Generic message to avoid user enumeration (covers unknown email AND pending accounts)
         $genericMessage = 'If the email is registered, you will receive a reset link.';
 
-        if (!$this->userModel->emailExists($email)) {
+        $userId = $this->userModel->getIdByEmail($email);
+
+        if (!$userId) {
             if (env('DEBUG')) {
                 $_SESSION['message'] = 'The email address is not registered in our system (DEBUG mode).';
                 $_SESSION['icon']    = 'error';
@@ -44,11 +50,16 @@ class PasswordResetController extends Controller
             $this->redirect(URL . 'login');
         }
 
-        $token = $this->userModel->createPasswordResetToken($email);
-
-        if ($token !== null) {
-            $this->mailService->sendPasswordResetEmail($email, $token);
+        // Block pending accounts — same generic message to avoid enumeration
+        $user = $this->userModel->getById($userId);
+        if ($user && (int) $user['status'] === User::STATUS_PENDING) {
+            $_SESSION['message'] = $genericMessage;
+            $_SESSION['icon']    = 'info';
+            $this->redirect(URL . 'login');
         }
+
+        $token = $this->resets->create($userId, 'reset');
+        $this->mailService->sendPasswordResetEmail($email, $token);
 
         regenerateCSRFToken();
 
@@ -82,15 +93,24 @@ class PasswordResetController extends Controller
             $this->redirect(URL . 'reset-password?token=' . urlencode($token));
         }
 
-        $user = $this->userModel->getUserByResetToken($token);
+        $row = $this->resets->findValidByToken($token, 'reset');
 
-        if (!$user) {
+        if (!$row) {
             $_SESSION['message'] = 'The link has expired or is invalid.';
             $_SESSION['icon']    = 'error';
             $this->redirect(URL . 'login');
         }
 
-        if ($this->userModel->resetPassword($user['id'], $password)) {
+        if ($this->userModel->resetPassword($row['user_id'], $password)) {
+            $this->resets->markUsed((int) $row['id']);
+
+            AuditLogger::log(
+                'auth',
+                'password_reset',
+                'Password reset completed',
+                ['user_id' => $row['user_id']]
+            );
+
             regenerateCSRFToken();
             $_SESSION['message'] = 'Password updated successfully. You can now log in.';
             $_SESSION['icon']    = 'success';
