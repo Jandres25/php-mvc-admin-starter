@@ -45,8 +45,6 @@ CREATE TABLE users (
   locked_until    DATETIME     NULL     DEFAULT NULL,
   last_attempt_at DATETIME     NULL     DEFAULT NULL,
   permissions_updated_at DATETIME NULL DEFAULT NULL,
-  reset_token varchar(255) DEFAULT NULL,
-  reset_token_expiry DATETIME DEFAULT NULL,
   remember_token CHAR(64) NULL DEFAULT NULL,
   remember_token_expires DATETIME NULL DEFAULT NULL,
   role_id int NOT NULL,

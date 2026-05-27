@@ -21,6 +21,27 @@ class PasswordResetController extends Controller
         $this->mailService = new MailService();
     }
 
+    public function showResetPasswordForm(): void
+    {
+        $token = trim($_GET['token'] ?? '');
+
+        if (empty($token)) {
+            $_SESSION['message'] = 'Invalid or missing token.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        $row = $this->resets->findValidByToken($token, 'reset');
+
+        if (!$row) {
+            $_SESSION['message'] = 'The link has expired or is invalid.';
+            $_SESSION['icon']    = 'error';
+            $this->redirect(URL . 'login');
+        }
+
+        $this->renderStandalone('auth/reset_password', compact('token'));
+    }
+
     public function requestReset(): void
     {
         $this->csrfCheck();

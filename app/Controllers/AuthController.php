@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Models\PasswordReset;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\LoginThrottleService;
@@ -114,27 +113,6 @@ class AuthController extends Controller
     public function showForgotPasswordForm(): void
     {
         $this->renderStandalone('auth/forgot_password');
-    }
-
-    public function showResetPasswordForm(): void
-    {
-        $token = trim($_GET['token'] ?? '');
-
-        if (empty($token)) {
-            $_SESSION['message'] = 'Invalid or missing token.';
-            $_SESSION['icon']    = 'error';
-            $this->redirect(URL . 'login');
-        }
-
-        $row = (new PasswordReset())->findValidByToken($token, 'reset');
-
-        if (!$row) {
-            $_SESSION['message'] = 'The link has expired or is invalid.';
-            $_SESSION['icon']    = 'error';
-            $this->redirect(URL . 'login');
-        }
-
-        $this->renderStandalone('auth/reset_password', compact('token'));
     }
 
     public function requestPasswordReset(): void
