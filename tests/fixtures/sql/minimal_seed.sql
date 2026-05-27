@@ -4,6 +4,7 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE activity_logs;
+TRUNCATE TABLE password_resets;
 TRUNCATE TABLE role_permissions;
 TRUNCATE TABLE user_permissions;
 TRUNCATE TABLE users;

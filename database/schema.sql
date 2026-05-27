@@ -78,6 +78,20 @@ CREATE TABLE user_permissions (
   CONSTRAINT fk_up_user       FOREIGN KEY (user_id)       REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Password resets / invitations table
+CREATE TABLE password_resets (
+  id          BIGINT       PRIMARY KEY AUTO_INCREMENT,
+  user_id     INT          NOT NULL,
+  token_hash  CHAR(64)     NOT NULL,
+  type        ENUM('reset','invitation') NOT NULL DEFAULT 'reset',
+  expires_at  DATETIME     NOT NULL,
+  used_at     DATETIME     NULL DEFAULT NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY  uq_token_hash (token_hash),
+  KEY         idx_user_type (user_id, type),
+  CONSTRAINT  fk_pr_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Activity / audit log table (append-only)
 CREATE TABLE activity_logs (
   id            bigint       PRIMARY KEY AUTO_INCREMENT,
