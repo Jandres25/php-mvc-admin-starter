@@ -77,7 +77,13 @@ class AuthController extends Controller
         }
 
         // 4. Account status check
-        if ((int) $user['status'] === 0) {
+        if ((int) $user['status'] === User::STATUS_PENDING) {
+            $_SESSION['message'] = 'Your account is pending activation. Check your email to set your password.';
+            $_SESSION['icon']    = 'warning';
+            $this->redirect(URL . 'login');
+        }
+
+        if ((int) $user['status'] === User::STATUS_INACTIVE) {
             $_SESSION['message'] = 'Your account is deactivated. Please contact an administrator.';
             $_SESSION['icon']    = 'warning';
             $this->redirect(URL . 'login');
