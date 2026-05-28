@@ -69,7 +69,9 @@
                             <li class="list-group-item">
                                 <b><i class="fas fa-toggle-on mr-1"></i> Status</b>
                                 <span class="float-right">
-                                    <?php if ($user['status'] == 1): ?>
+                                    <?php if ((int) $user['status'] === 2): ?>
+                                        <span class="badge badge-warning badge-pill p-2">Pending</span>
+                                    <?php elseif ((int) $user['status'] === 1): ?>
                                         <span class="badge badge-success badge-pill p-2">Active</span>
                                     <?php else: ?>
                                         <span class="badge badge-danger badge-pill p-2">Inactive</span>
@@ -92,6 +94,14 @@
                             <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning mb-3">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
+                            <?php if ((int) $user['status'] === 2): ?>
+                                <button type="button" id="btn-resend-invitation"
+                                    class="btn btn-secondary mb-3"
+                                    data-user-id="<?= (int) $user['id'] ?>"
+                                    data-name="<?= htmlspecialchars($user['name']) ?>">
+                                    <i class="fas fa-paper-plane mr-1"></i> Resend Invitation
+                                </button>
+                            <?php endif; ?>
                             <?php if ($isLoginLocked): ?>
                                 <button type="button" id="btn-unlock-login"
                                     class="btn btn-danger mb-3"

@@ -64,7 +64,9 @@ class UserController extends Controller
 
         $this->render(
             'users/show',
-            compact('user', 'userPermissions', 'isAdminUser')
+            compact('user', 'userPermissions', 'isAdminUser'),
+            [],
+            ['users/show-user']
         );
     }
 
@@ -199,6 +201,41 @@ class UserController extends Controller
     {
         $this->csrfCheck();
         $this->jsonResponse($this->updateProfilePasswordAjax());
+    }
+
+    public function resendInvitationAjax($id = null): void
+    {
+        $this->csrfCheck();
+
+        $userId = (int) $id;
+
+        if ($userId <= 0) {
+            regenerateCSRFToken();
+            $this->jsonResponse(['success' => false, 'message' => 'Invalid user ID.', 'icon' => 'error']);
+        }
+
+        $user = $this->userModel->getById($userId);
+
+        if (!$user || (int) $user['status'] !== User::STATUS_PENDING) {
+            regenerateCSRFToken();
+            $this->jsonResponse(['success' => false, 'message' => 'User is not pending.', 'icon' => 'error']);
+        }
+
+        $token       = (new PasswordReset())->create($userId, 'invitation');
+        $inviterName = Auth::user()['name'] ?? 'Administrator';
+        (new MailService())->sendInvitationEmail($user['email'], $token, $inviterName);
+
+        AuditLogger::log(
+            'users',
+            'invite_resent',
+            "Invitation resent: {$user['email']}",
+            ['user_id' => $userId]
+        );
+
+        $_SESSION['message'] = 'Invitation resent successfully.';
+        $_SESSION['icon']    = 'success';
+        regenerateCSRFToken();
+        $this->jsonResponse(['success' => true, 'message' => 'Invitation resent successfully.', 'icon' => 'success']);
     }
 
     public function unlockLoginAjax($id = null)

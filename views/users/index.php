@@ -54,7 +54,9 @@
                                 <?php
                                 $counter = 1;
                                 foreach ($users as $user):
-                                    $isActive = ((int) $user['status']) === 1;
+                                    $status   = (int) $user['status'];
+                                    $isActive = $status === 1;
+                                    $isPending = $status === 2;
                                 ?>
                                     <tr>
                                         <td class="text-center"><?= $counter++; ?></td>
@@ -67,7 +69,13 @@
                                         </td>
                                         <td><?= htmlspecialchars($user['role_name'] ?? 'N/A'); ?></td>
                                         <td class="text-center">
-                                            <span class="badge <?= $isActive ? 'badge-success' : 'badge-danger'; ?> badge-pill p-2"><?= $isActive ? 'Active' : 'Inactive'; ?></span>
+                                            <?php if ($isPending): ?>
+                                                <span class="badge badge-warning badge-pill p-2">Pending</span>
+                                            <?php elseif ($isActive): ?>
+                                                <span class="badge badge-success badge-pill p-2">Active</span>
+                                            <?php else: ?>
+                                                <span class="badge badge-danger badge-pill p-2">Inactive</span>
+                                            <?php endif; ?>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
@@ -77,7 +85,14 @@
                                                 <a href="<?= URL ?>users/<?= $user['id'] ?>/edit" class="btn btn-warning btn-sm" aria-label="Edit user <?= htmlspecialchars($user['name']); ?>" data-toggle="tooltip" title="Edit user">
                                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                                 </a>
-                                                <?php if (((int) $user['id']) !== $currentUserId): ?>
+                                                <?php if ($isPending): ?>
+                                                    <button type="button" class="btn btn-secondary btn-sm btn-resend-invitation"
+                                                        data-id="<?= $user['id']; ?>"
+                                                        data-name="<?= htmlspecialchars($user['name']); ?>"
+                                                        data-toggle="tooltip" title="Resend invitation">
+                                                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                                    </button>
+                                                <?php elseif (((int) $user['id']) !== $currentUserId): ?>
                                                     <button type="button" class="btn <?= $isActive ? 'btn-danger' : 'btn-success'; ?> btn-sm btn-toggle-status"
                                                         aria-label="<?= $isActive ? 'Yes, deactivate' : 'Yes, activate'; ?> user <?= htmlspecialchars($user['name']); ?>"
                                                         data-id="<?= $user['id']; ?>"

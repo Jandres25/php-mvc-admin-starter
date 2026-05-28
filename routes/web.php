@@ -38,7 +38,8 @@ return [
     ['method' => 'POST', 'path' => '/users/check-document',          'controller' => 'User@checkDocument',     'middleware' => ['auth']],
     ['method' => 'POST', 'path' => '/users/toggle-status',           'controller' => 'User@toggleStatusAjax',  'middleware' => ['auth', 'perm:users']],
     ['method' => 'POST', 'path' => '/users/change-password',         'controller' => 'User@ajaxChangePassword', 'middleware' => ['auth']],
-    ['method' => 'POST', 'path' => '/users/(\d+)/unlock-login',      'controller' => 'User@unlockLoginAjax',   'middleware' => ['auth', 'perm:users']],
+    ['method' => 'POST', 'path' => '/users/(\d+)/unlock-login',      'controller' => 'User@unlockLoginAjax',      'middleware' => ['auth', 'perm:users']],
+    ['method' => 'POST', 'path' => '/users/(\d+)/resend-invitation', 'controller' => 'User@resendInvitationAjax', 'middleware' => ['auth', 'perm:users']],
 
     // Permissions
     ['method' => 'GET', 'path' => '/permissions',       'controller' => 'Permission@pageIndex', 'middleware' => ['auth', 'perm:permissions']],

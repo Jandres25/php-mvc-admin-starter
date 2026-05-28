@@ -57,7 +57,9 @@
                             <input type="password" name="password" id="password" class="form-control"
                                 placeholder="New Password" required minlength="8" autocomplete="new-password">
                             <div class="input-group-append">
-                                <div class="input-group-text"><span class="fas fa-lock"></span></div>
+                                <button class="btn btn-default" type="button" id="togglePassword" tabindex="-1">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -67,7 +69,9 @@
                             <input type="password" name="confirm_password" id="confirm_password" class="form-control"
                                 placeholder="Confirm Password" required minlength="8" autocomplete="new-password">
                             <div class="input-group-append">
-                                <div class="input-group-text"><span class="fas fa-lock"></span></div>
+                                <button class="btn btn-default" type="button" id="toggleConfirmPassword" tabindex="-1">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                             </div>
                         </div>
                     </div>

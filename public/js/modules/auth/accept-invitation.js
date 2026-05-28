@@ -33,4 +33,20 @@ $(document).ready(function () {
             form.submit();
         }
     });
+
+    $('#togglePassword').on('click', function () {
+        const field    = $('#password');
+        const icon     = $(this).find('i');
+        const isHidden = field.attr('type') === 'password';
+        field.attr('type', isHidden ? 'text' : 'password');
+        icon.toggleClass('fa-eye', !isHidden).toggleClass('fa-eye-slash', isHidden);
+    });
+
+    $('#toggleConfirmPassword').on('click', function () {
+        const field    = $('#confirm_password');
+        const icon     = $(this).find('i');
+        const isHidden = field.attr('type') === 'password';
+        field.attr('type', isHidden ? 'text' : 'password');
+        icon.toggleClass('fa-eye', !isHidden).toggleClass('fa-eye-slash', isHidden);
+    });
 });

@@ -66,7 +66,47 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
+    function handleResendInvitation(button) {
+        const userId   = button.dataset.id;
+        const userName = button.dataset.name;
+
+        AlertUtils.confirm(
+            `Resend invitation to ${userName}?`,
+            'The previous invitation link will be invalidated.',
+            () => {
+                ToastUtils.loadingWithMinTime('Sending invitation...', () => {
+                    $.ajax({
+                        url: `${baseUrl}users/${userId}/resend-invitation`,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: { csrf_token: csrfToken },
+                        success: function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.close();
+                                ToastUtils.error('Error', response.message);
+                            }
+                        },
+                        error: function () {
+                            Swal.close();
+                            ToastUtils.error('Error', 'A communication error occurred with the server.');
+                        }
+                    });
+                }, 800);
+            },
+            { confirmText: 'Yes, resend', confirmColor: '#6c757d', cancelText: 'Cancel', cancelColor: '#adb5bd' }
+        );
+    }
+
     document.body.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-resend-invitation') || e.target.closest('.btn-resend-invitation')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const button = e.target.classList.contains('btn-resend-invitation') ? e.target : e.target.closest('.btn-resend-invitation');
+            handleResendInvitation(button);
+        }
+
         if (e.target.classList.contains('btn-toggle-status') || e.target.closest('.btn-toggle-status')) {
             e.preventDefault();
             e.stopPropagation();
