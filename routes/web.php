@@ -13,8 +13,10 @@ return [
     ['method' => 'POST', 'path' => '/login',           'controller' => 'Auth@login',                 'middleware' => ['guest']],
     ['method' => 'GET',  'path' => '/forgot-password', 'controller' => 'Auth@showForgotPasswordForm', 'middleware' => ['guest']],
     ['method' => 'POST', 'path' => '/forgot-password', 'controller' => 'Auth@requestPasswordReset',  'middleware' => ['guest']],
-    ['method' => 'GET',  'path' => '/reset-password',  'controller' => 'PasswordReset@showResetPasswordForm', 'middleware' => []],
-    ['method' => 'POST', 'path' => '/reset-password',  'controller' => 'PasswordReset@resetPassword',         'middleware' => []],
+    ['method' => 'GET',  'path' => '/reset-password',      'controller' => 'PasswordReset@showResetPasswordForm', 'middleware' => []],
+    ['method' => 'POST', 'path' => '/reset-password',      'controller' => 'PasswordReset@resetPassword',         'middleware' => []],
+    ['method' => 'GET',  'path' => '/accept-invitation',   'controller' => 'Invitation@showAcceptForm',           'middleware' => []],
+    ['method' => 'POST', 'path' => '/accept-invitation',   'controller' => 'Invitation@acceptInvitation',         'middleware' => []],
     ['method' => 'GET',  'path' => '/logout',          'controller' => 'Auth@logout',                'middleware' => []],
 
     // Dashboard
