@@ -11,6 +11,33 @@
  */
 
 $(document).ready(function () {
+    // ============= INVITATION TOGGLE =============
+
+    $('#invite_toggle').on('change', function () {
+        const isInvite = $(this).is(':checked');
+        $('#invite').val(isInvite ? '1' : '0');
+
+        if (isInvite) {
+            $('#password-fields').hide();
+            $('#status-field').hide();
+            $('#password, #confirm_password').removeAttr('required').val('');
+            $('#profile-preview-badge')
+                .removeClass('badge-success badge-danger')
+                .addClass('badge-warning')
+                .text('Pending');
+        } else {
+            $('#password-fields').show();
+            $('#status-field').show();
+            $('#password, #confirm_password').attr('required', 'required');
+            const status = $('#status').val();
+            if (status === '1') {
+                $('#profile-preview-badge').removeClass('badge-warning badge-danger').addClass('badge-success').text('Active');
+            } else {
+                $('#profile-preview-badge').removeClass('badge-warning badge-success').addClass('badge-danger').text('Inactive');
+            }
+        }
+    });
+
     // ============= JQUERY VALIDATE =============
 
     $('#formUser').validate({
@@ -43,8 +70,8 @@ $(document).ready(function () {
                 }
             },
             role_id: { required: true },
-            password: { required: true, minlength: 8 },
-            confirm_password: { required: true, minlength: 8, equalTo: '#password' },
+            password: { required: function () { return $('#invite').val() !== '1'; }, minlength: 8 },
+            confirm_password: { required: function () { return $('#invite').val() !== '1'; }, minlength: 8, equalTo: '#password' },
             image: { extension: 'jpg|jpeg|png|gif|webp' }
         },
         messages: {

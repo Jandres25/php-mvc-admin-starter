@@ -2,13 +2,16 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\PasswordReset;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Permission;
 use App\Services\AuditLogger;
 use App\Services\ImageService;
 use App\Services\LoginThrottleService;
+use App\Services\MailService;
 
 class UserController extends Controller
 {
@@ -226,16 +229,20 @@ class UserController extends Controller
 
     private function save()
     {
-        $data   = $this->userModel->trimInput($this->prepareUserData($_POST));
-        $errors = $this->userModel->validateData($data);
+        $isInvite = !empty($_POST['invite']) && $_POST['invite'] === '1';
+        $data     = $this->userModel->trimInput($this->prepareUserData($_POST));
+        $errors   = $this->userModel->validateData($data);
 
         if (!empty($errors)) {
             return ['success' => false, 'message' => $errors[0], 'icon' => 'error', 'redirect' => 'create.php'];
         }
 
-        $confirmPassword = trim($_POST['confirm_password'] ?? '');
-        if ($data['password'] !== $confirmPassword) {
-            return ['success' => false, 'message' => 'Passwords do not match.', 'icon' => 'error', 'redirect' => 'create.php'];
+        if (!$isInvite) {
+            $confirmPassword = trim($_POST['confirm_password'] ?? '');
+            $plainPassword   = trim($_POST['password'] ?? '');
+            if ($plainPassword !== $confirmPassword) {
+                return ['success' => false, 'message' => 'Passwords do not match.', 'icon' => 'error', 'redirect' => 'create.php'];
+            }
         }
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -250,6 +257,21 @@ class UserController extends Controller
         if ($this->userModel->create($data)) {
             $userId = $this->userModel->getLastInsertId();
             $this->processPermissions($userId, $_POST);
+
+            if ($isInvite) {
+                $token       = (new PasswordReset())->create($userId, 'invitation');
+                $inviterName = Auth::user()['name'] ?? 'Administrator';
+                (new MailService())->sendInvitationEmail($data['email'], $token, $inviterName);
+                AuditLogger::log(
+                    'users',
+                    'invite',
+                    "Invitation sent: {$data['email']}",
+                    ['name' => $data['name'], 'first_surname' => $data['first_surname'], 'user_id' => $userId]
+                );
+                regenerateCSRFToken();
+                return ['success' => true, 'message' => 'Invitation sent successfully.', 'icon' => 'success', 'redirect' => 'index.php'];
+            }
+
             AuditLogger::log(
                 'users',
                 'create',
@@ -410,6 +432,8 @@ class UserController extends Controller
 
     private function prepareUserData($postData)
     {
+        $isInvite = !empty($postData['invite']) && $postData['invite'] === '1';
+
         return [
             'name'            => trim($postData['name']            ?? ''),
             'first_surname'   => trim($postData['first_surname']   ?? ''),
@@ -419,8 +443,12 @@ class UserController extends Controller
             'address'         => !empty($postData['address'])  ? trim($postData['address'])  : null,
             'phone'           => !empty($postData['phone'])    ? trim($postData['phone'])    : null,
             'email'           => trim($postData['email']    ?? ''),
-            'password'        => trim($postData['password'] ?? ''),
-            'status'          => isset($postData['status']) ? (int) $postData['status'] : 1,
+            'password'        => $isInvite
+                ? password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT)
+                : trim($postData['password'] ?? ''),
+            'status'          => $isInvite
+                ? User::STATUS_PENDING
+                : (isset($postData['status']) ? (int) $postData['status'] : User::STATUS_ACTIVE),
             'role_id'         => !empty($postData['role_id']) ? (int) $postData['role_id'] : null,
             'image'           => null,
         ];

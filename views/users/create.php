@@ -184,6 +184,20 @@
                             </div>
                         </div>
                         <div class="card-body">
+                            <!-- Invitation toggle -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="invite_toggle" name="invite_toggle">
+                                        <input type="hidden" id="invite" name="invite" value="0">
+                                        <label class="custom-control-label" for="invite_toggle">
+                                            <i class="fas fa-envelope mr-1"></i>
+                                            Send invitation email — user will set their own password
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <!-- Role -->
                                 <div class="col-md-6">
@@ -200,8 +214,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Status -->
-                                <div class="col-md-6">
+                                <!-- Status (hidden when invite active) -->
+                                <div class="col-md-6" id="status-field">
                                     <div class="form-group">
                                         <label for="status">Status</label>
                                         <select class="form-control select2" id="status" name="status">
@@ -212,35 +226,38 @@
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <!-- Password -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="password">Password <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="password" name="password"
-                                                placeholder="Enter password" autocomplete="off" minlength="8" required>
-                                            <div class="input-group-append">
-                                                <button class="btn btn-default" type="button" id="togglePassword">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
+                            <!-- Password fields (hidden when invite active) -->
+                            <div id="password-fields">
+                                <div class="row">
+                                    <!-- Password -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="password">Password <span class="text-danger password-required">*</span></label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="password" name="password"
+                                                    placeholder="Enter password" autocomplete="off" minlength="8" required>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-default" type="button" id="togglePassword">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
                                             </div>
+                                            <small class="form-text text-muted">Minimum 8 characters</small>
                                         </div>
-                                        <small class="form-text text-muted">Minimum 8 characters</small>
                                     </div>
-                                </div>
 
-                                <!-- Confirm Password -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="confirm_password">Confirm Password <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
-                                                placeholder="Confirm password" autocomplete="off" required>
-                                            <div class="input-group-append">
-                                                <button class="btn btn-default" type="button" id="toggleConfirmPassword">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
+                                    <!-- Confirm Password -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="confirm_password">Confirm Password <span class="text-danger password-required">*</span></label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                                    placeholder="Confirm password" autocomplete="off" required>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-default" type="button" id="toggleConfirmPassword">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

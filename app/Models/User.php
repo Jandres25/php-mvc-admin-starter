@@ -434,13 +434,14 @@ class User extends Model
         $isUpdate = ($excludeId !== null);
 
         if (!$isUpdate) {
+            $isPending = isset($data['status']) && (int) $data['status'] === self::STATUS_PENDING;
             if (
                 empty($data['name'])            ||
                 empty($data['first_surname'])   ||
                 empty($data['document_type'])   ||
                 empty($data['document_number']) ||
                 empty($data['email'])           ||
-                empty($data['password'])
+                (!$isPending && empty($data['password']))
             ) {
                 $errors[] = 'All required fields must be filled in.';
             }
@@ -478,7 +479,8 @@ class User extends Model
             }
         }
 
-        if ((!$isUpdate && isset($data['password'])) || !empty($data['password'])) {
+        $isPendingCreate = !$isUpdate && isset($data['status']) && (int) $data['status'] === self::STATUS_PENDING;
+        if (!$isPendingCreate && ((!$isUpdate && isset($data['password'])) || !empty($data['password']))) {
             if (strlen($data['password']) < 8) {
                 $errors[] = 'Password must be at least 8 characters long.';
             }

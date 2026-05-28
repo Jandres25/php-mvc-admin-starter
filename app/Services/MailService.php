@@ -81,4 +81,71 @@ class MailService
             return false;
         }
     }
+
+    /**
+     * Sends a user invitation email with a link to set their password.
+     *
+     * @param string $email
+     * @param string $token       Plain-text token (never stored — hashed in DB)
+     * @param string $inviterName Name of the admin who sent the invitation
+     * @return bool
+     */
+    public function sendInvitationEmail(string $email, string $token, string $inviterName): bool
+    {
+        $inviteLink = URL . 'accept-invitation?token=' . $token;
+
+        $subject = "You've been invited — Base System";
+        $message = "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+            <h2 style='color: #28a745;'>Welcome to Base System</h2>
+            <p><strong>" . htmlspecialchars($inviterName) . "</strong> has created an account for you.</p>
+            <p>Click the button below to set your password and activate your account:</p>
+            <div style='text-align: center; margin: 30px 0;'>
+                <a href='{$inviteLink}' style='background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Accept Invitation</a>
+            </div>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style='word-break: break-all;'><a href='{$inviteLink}'>{$inviteLink}</a></p>
+            <p style='color: #666; font-size: 0.9em;'>This link will expire in 48 hours.</p>
+            <p style='border-top: 1px solid #eee; padding-top: 10px; margin-top: 20px; font-size: 0.8em; color: #888;'>
+                If you were not expecting this invitation, please ignore this email.
+            </p>
+        </div>
+        ";
+
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->SMTPDebug = env('DEBUG') ? SMTP::DEBUG_SERVER : SMTP::DEBUG_OFF;
+            $mail->isSMTP();
+            $mail->Host       = env('MAIL_HOST', 'localhost');
+            $mail->SMTPAuth   = true;
+            $mail->Username   = env('MAIL_USER', '');
+            $mail->Password   = env('MAIL_PASS', '');
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = env('MAIL_PORT', 587);
+            $mail->CharSet    = 'UTF-8';
+
+            if (env('DEBUG')) {
+                $mail->Debugoutput = function ($str, $level) {
+                    error_log("SMTP DEBUG [$level]: $str");
+                };
+            }
+
+            $fromEmail = env('MAIL_FROM', 'noreply@example.com');
+            $fromName  = env('MAIL_FROM_NAME', 'Base System');
+            $mail->setFrom($fromEmail, $fromName);
+            $mail->addAddress($email);
+
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body    = $message;
+            $mail->AltBody = "You have been invited to Base System. Accept your invitation here: {$inviteLink}";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log("PHPMailer error: " . $mail->ErrorInfo);
+            return false;
+        }
+    }
 }
