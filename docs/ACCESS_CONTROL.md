@@ -88,7 +88,7 @@ Implemented in `App\Core\Auth`. Controlled by three `.env` variables:
 - Token never stored in plain text in DB — only SHA-256 hash.
 - Token rotated on every successful auto-login.
 - Cookie: `HttpOnly` (no XSS), `SameSite=Lax` (mitigates CSRF), `Secure` flag set when HTTPS is detected.
-- Deactivated users (`status = 0`) cannot auto-login.
+- Deactivated users (`status = 0`) and pending users (`status = 2`) cannot auto-login — the query filters `status = 1`.
 - Expired tokens ignored via `NOW()` comparison in the query.
 
 **DB columns in `users`:**
@@ -174,6 +174,18 @@ Permission changes are cached in session and refreshed when stale.
 **After changing direct user permissions:** call `$userModel->updatePermissionsTimestamp($userId)`.
 
 **After changing role permissions:** call `$userModel->updatePermissionsTimestamp($uid)` for **every user** of that role — `Role::getUserIdsByRole($roleId)` returns the list. `RoleController::syncPermissions()` already does this automatically.
+
+## User status values
+
+`users.status` is a `tinyint` with three values:
+
+| Value | Constant              | Login | Reset password | Remember-me cookie |
+|-------|-----------------------|-------|----------------|--------------------|
+| `0`   | `User::STATUS_INACTIVE` | ❌   | ❌ (generic msg) | ❌                |
+| `1`   | `User::STATUS_ACTIVE`   | ✅   | ✅              | ✅                |
+| `2`   | `User::STATUS_PENDING`  | ❌   | ❌ (generic msg) | ❌                |
+
+Pending users are created via the invitation flow. `AuthController::login()` blocks status 2 before `Auth::login()` is called.
 
 ## Application permissions reference
 

@@ -11,7 +11,7 @@ mysql -u root -p < database/seeder.sql
 
 ## Rerun behavior
 
-The seeder truncates `activity_logs`, `user_permissions`, `role_permissions`, `users`, `permissions`, and `roles` before inserting data again.
+The seeder truncates `activity_logs`, `password_resets`, `user_permissions`, `role_permissions`, `users`, `permissions`, and `roles` before inserting data again.
 This keeps seed imports deterministic and avoids duplicate records in local environments.
 
 ## Seeded roles
@@ -44,7 +44,7 @@ All users below are seeded with password: `admin123`
 | Administrator System    | admin@sistema.com            | Administrator | Active   | Full admin flows and global access        |
 | Ana Paredes Molina      | ana.paredes@sistema.com      | Editor        | Active   | User management, extra roles perm         |
 | Carlos Rojas Vega       | carlos.rojas@sistema.com     | Viewer        | Active   | Profile-only navigation                   |
-| Lucia Quispe Salas      | lucia.quispe@sistema.com     | Viewer        | Inactive | Account activation/deactivation flows     |
+| Lucia Quispe Salas      | lucia.quispe@sistema.com     | Viewer        | Inactive | Account deactivation flows (status=0)     |
 | Diego Torres Luna       | diego.torres@sistema.com     | Viewer        | Active   | Non-admin read/navigation smoke checks    |
 | Sofia Mendoza Riva      | sofia.mendoza@sistema.com    | Auditor       | Active   | Audit log access, extra permissions perm  |
 | Miguel Flores Campos    | miguel.flores@sistema.com    | Editor        | Active   | User management operations                |
@@ -84,4 +84,5 @@ Effective permissions are the **union** of direct `user_permissions` assignments
 - `admin@sistema.com` has `is_system = 1` on its role → `Auth::isAdmin()` returns `true` and the session cache is always `['*']`.
 - Permission names are intentionally aligned with the application checks (`profile`, `users`, `permissions`, `admin`, `roles`, `audit_log`).
 - `activity_logs` contains ~42 entries spread across the last 6 months for realistic dashboard "Events Today" and audit log QA.
+- `password_resets` is truncated on every seeder run. No pre-seeded tokens — use the invite flow or the forgot-password form to generate them.
 - If you modify permissions or role assignments manually, remember that the user permission cache depends on `permissions_updated_at`. Run `UPDATE users SET permissions_updated_at = NOW() WHERE id = X` to force a refresh on next page load.

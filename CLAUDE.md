@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.13.1`
+**Current release tag:** `3.14.0`
 
 ## No Build Process
 
@@ -104,7 +104,7 @@ Clean URL examples:
 ```
 app/
 ├── Config/       # Bootstrap: config.php, Connection.php (PDO singleton), phpdotenv init
-├── Controllers/  # Feature controllers (flat — AuthController, UserController, PermissionController, RoleController, DashboardController, AuditLogController, ProfileController, PasswordResetController)
+├── Controllers/  # Feature controllers (flat — AuthController, UserController, PermissionController, RoleController, DashboardController, AuditLogController, ProfileController, PasswordResetController, InvitationController)
 ├── Core/         # Controller.php, Model.php, Router.php, Auth.php, AssetRegistry.php, ErrorHandler.php, helpers.php
 ├── Middleware/   # AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── Models/       # App\Models; Traits/ holds UserAuthTrait, UserPasswordTrait, UserStatsTrait
@@ -158,6 +158,37 @@ When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['me
 
 Additional reference: `docs/ACCESS_CONTROL.md` and `docs/AJAX_AND_MODULES.md`.
 
+### Password Reset & Invitation — `App\Models\PasswordReset`
+
+Dedicated model for token lifecycle. Tokens are stored **hashed** (SHA-256); the plain token only travels in the email link.
+
+```php
+const TTL_RESET      = '+1 hour';
+const TTL_INVITATION = '+48 hours';
+
+PasswordReset::create(int $userId, string $type): string      // invalidates previous live tokens of same type, returns plain token
+PasswordReset::findValidByToken(string $token, string $type): array|false
+PasswordReset::markUsed(int $id): bool
+```
+
+**Table:** `password_resets` — columns: `id`, `user_id`, `token_hash CHAR(64)`, `type ENUM('reset','invitation')`, `expires_at`, `used_at`, `created_at`.
+
+**User invitation flow:**
+
+1. Admin creates user with `invite=1` → `UserController::save()` sets `status = User::STATUS_PENDING` and a random unusable password hash.
+2. `PasswordReset::create($userId, 'invitation')` issues a 48 h token; `MailService::sendInvitationEmail()` delivers the link.
+3. User opens `/accept-invitation?token=...` → `InvitationController::showAcceptForm()` validates the token.
+4. User submits password → `InvitationController::acceptInvitation()` calls `User::resetPassword()` + `User::activate()` + `PasswordReset::markUsed()`.
+5. Admin can resend via `POST /users/{id}/resend-invitation` — `PasswordReset::create()` auto-invalidates the previous token.
+
+**User status values (`users.status` tinyint):**
+
+| Value | Constant              | Meaning                                      |
+|-------|-----------------------|----------------------------------------------|
+| `0`   | `User::STATUS_INACTIVE` | Deactivated by admin — cannot log in        |
+| `1`   | `User::STATUS_ACTIVE`   | Normal active account                        |
+| `2`   | `User::STATUS_PENDING`  | Invitation sent, password not yet set — cannot log in, reset password, or auto-login via cookie |
+
 ### Dashboard Cache — `App\Services\DashboardCache`
 
 Session-based cache for dashboard metrics with event-driven invalidation. Uses `$_SESSION['dashboard_cache']` as store; TTL is configured via `DASHBOARD_CACHE_TTL` in `.env` (default 300 s).
@@ -186,7 +217,8 @@ AuditLogger::log([
 **Call it after every state-changing action** in controllers:
 
 - `AuthController` — after `login` and `logout`.
-- `UserController` — after `create`, `update`, `delete`, `status change`, `unlock-login`.
+- `UserController` — after `create`, `update`, `delete`, `status change`, `unlock-login`, `invite`, `invite_resent`.
+- `InvitationController` — after `invitation_accepted`.
 - `PermissionController` — after `create`, `update`, `delete`, `assign`, `revoke`.
 - `RoleController` — after `create`, `update`, `delete`, `sync_permissions`.
 
@@ -212,7 +244,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 
 **Auth standalone pages:** `views/auth/*.php` do not use `layouts/footer.php`, so they must include `sweetalert-utils.js` and the validation assets manually (`jquery.validate.min.js`, `additional-methods.min.js`, `common-validate.js`) before loading their module script. Keep auth input markup as `form-group > input-group` so `.invalid-feedback` placement from `common-validate.js` renders correctly. Each auth page also loads `dark-mode.css`, `login-dark.css`, and `theme-toggle.js` manually — add these to any new standalone auth page.
 
-**Dark mode:** Theme preference is stored in `localStorage` (key `'theme'`, values `'light'` | `'dark'`); falls back to `prefers-color-scheme` on first visit. The anti-FOUC IIFE in `views/layouts/header.php` (and in each auth standalone page) applies `html.dark-mode` before any CSS loads. Toggle JS lives in `public/js/modules/profile/theme-toggle.js` (loaded globally from `footer.php`). CSS overrides are split into `public/css/core/dark-mode.css` (global panel) and `public/css/modules/login/login-dark.css` (auth pages). No DB column, no AJAX endpoint, no `AuditLogger` call — theme changes are not auditable business actions. See `docs/DARK_MODE_PLAN.md` for the full architecture and testing checklist.
+**Dark mode:** Theme preference is stored in `localStorage` (key `'theme'`, values `'light'` | `'dark'`); falls back to `prefers-color-scheme` on first visit. The anti-FOUC IIFE in `views/layouts/header.php` (and in each auth standalone page) applies `html.dark-mode` before any CSS loads. Toggle JS lives in `public/js/modules/profile/theme-toggle.js` (loaded globally from `footer.php`). CSS overrides are split into `public/css/core/dark-mode.css` (global panel) and `public/css/modules/login/login-dark.css` (auth pages). No DB column, no AJAX endpoint, no `AuditLogger` call — theme changes are not auditable business actions.
 
 ## Coding Conventions
 

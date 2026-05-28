@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.14.0] - 2026-05-27
+
+### Added
+
+- **User invitation by email** — admin creates a user with status=pending; the system sends a 48 h invitation link; the user sets their own password via a standalone accept-invitation page; the account activates automatically on acceptance:
+  - `users.status` now has three values: `0` inactive, `1` active, `2` pending (new). `User::STATUS_PENDING` constant added.
+  - **`InvitationController`** — two public (no-auth) actions: `showAcceptForm()` validates the token and renders `views/auth/accept_invitation.php`; `acceptInvitation()` sets the password, activates the user, marks the token used, and logs `invitation_accepted`.
+  - **`MailService::sendInvitationEmail(string $email, string $token, string $inviterName): bool`** — invitation email via PHPMailer with a 48 h expiry message and `/accept-invitation?token=` link.
+  - **`UserController::save()`** — invite branch (POST `invite=1`) stores an unusable pre-hashed placeholder password, sets `STATUS_PENDING`, creates a `PasswordReset` token of type `invitation`, sends the email, and logs `invite`.
+  - **`UserController::resendInvitationAjax(int $id)`** — AJAX endpoint; rejects non-pending users; invalidates the previous token, issues a new 48 h token, resends the email, logs `invite_resent`.
+  - **`views/auth/accept_invitation.php`** — standalone auth page (anti-FOUC IIFE, dark-mode.css, login-dark.css, theme-toggle.js); password + confirm-password fields with eye-toggle; `card-outline card-success`.
+  - **`public/js/modules/auth/accept-invitation.js`** — jQuery Validate rules for password (min 8) and confirm_password (`equalTo`); eye-toggle handlers; loading toast on submit.
+  - **Invitation toggle on create-user form** — `custom-switch` hides password fields and sets `invite=1`; jQuery Validate password rule becomes conditional on `$('#invite').val() !== '1'`; status badge updates in real time.
+  - **"Pending" badge** — 3-way status badge (Pending/warning, Active/success, Inactive/danger) in `views/users/index.php` and `views/users/show.php`.
+  - **"Resend Invitation" button** — in `views/users/index.php` (DataTables row, pending only) and `views/users/show.php` (pending only); AJAX handlers in `index-users.js` and `show-user.js` with `AlertUtils.confirm` → `ToastUtils.loadingWithMinTime` → `location.reload()`.
+  - **3 new routes** in `routes/web.php`: `GET /accept-invitation` (guest middleware), `POST /accept-invitation` (no middleware), `POST /users/{id}/resend-invitation` (`auth + perm:users`).
+  - **20 integration tests** across 4 new test classes: `PendingUserBlockTest` (5), `InvitationCreateTest` (6), `AcceptInvitationTest` (6), `ResendInvitationTest` (3).
+
+- **Password reset refactored to dedicated table** — tokens moved out of `users` into a dedicated `password_resets` table:
+  - **`password_resets` table** — `id`, `user_id FK`, `token CHAR(64)`, `type ENUM('reset','invitation')`, `expires_at DATETIME`, `used_at DATETIME NULL`, `created_at`. Supports multiple concurrent tokens per user.
+  - **`App\Models\PasswordReset`** — `create(int $userId, string $type, int $ttlSeconds): array` (generates raw token + SHA-256 hash, inserts row, returns `[token, record]`); `findValidByToken(string $rawToken, string $type): ?array` (SHA-256 hash lookup, expiry + used_at check); `markUsed(int $id): bool`; `invalidatePreviousByType(int $userId, string $type): void`; TTL constants `TTL_RESET = 3600`, `TTL_INVITATION = 172800`.
+  - **`PasswordResetController`** updated to use `PasswordReset::create()` and `PasswordReset::findValidByToken()` instead of `users.reset_token` columns.
+  - **Legacy `users` columns removed** — `reset_token`, `reset_token_expires`, `reset_token_used` dropped from `schema.sql` and from `User` model / `UserPasswordTrait`.
+  - **`minimal_seed.sql`** updated with `TRUNCATE TABLE password_resets`.
+  - **5 integration tests** in `PasswordResetTest` + updated `PasswordResetFlowTest` and `PendingUserBlockTest`.
+
+### Changed
+
+- **`AuthController::login()`** — blocks `STATUS_PENDING` users before the `STATUS_INACTIVE` check; both return the same generic warning message to avoid status enumeration.
+- **`User::validateData()`** — password validation skipped when `status === STATUS_PENDING` (invitation path sets an unusable placeholder); length check also bypassed for pending creates.
+- **`views/users/index.php`** — pending users show a "Resend" action button instead of the toggle-status button.
+- **`docs/TESTING.md`**, **`docs/ACCESS_CONTROL.md`**, **`docs/SEEDING.md`**, **`CLAUDE.md`** — updated to reflect the new invitation flow, `password_resets` table, user status values, and extended test suite.
+
+---
+
 ## [3.13.1] - 2026-05-26
 
 ### Fixed
@@ -721,6 +756,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.14.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.1...3.14.0
 [3.13.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.12.0...3.13.0
 [3.12.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.11.0...3.12.0

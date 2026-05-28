@@ -73,6 +73,12 @@ teardown, so the DB is always clean.
 | `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                                                                       |
 | `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission/Role mutations                                                |
 | `tests/Integration/Auth/LoginThrottleTest.php`                  | `recordFailure`, `getLockStatus`, `clearAttempts`, `unlock`, `LoginThrottleService`, `formatRemaining` |
+| `tests/Integration/Models/PasswordResetTest.php`                | `PasswordReset::create`, `findValidByToken`, `markUsed`, TTL per type, hash storage, invalidation      |
+| `tests/Integration/Auth/PasswordResetFlowTest.php`              | Full reset flow: token creation, password change, used/expired token rejection, pending user guard      |
+| `tests/Integration/Auth/PendingUserBlockTest.php`               | `User::STATUS_*` constants, pending login block, pending user cannot request reset                     |
+| `tests/Integration/Models/InvitationCreateTest.php`             | Invited user status=pending, unusable password, 48 h token, normal user regression, `validateData`    |
+| `tests/Integration/Auth/AcceptInvitationTest.php`               | Accept flow: activates user, marks token used, reused/expired token rejection, type mismatch, cross-flow |
+| `tests/Integration/Auth/ResendInvitationTest.php`               | Resend invalidates previous token, new 48 h token, active user is rejected                             |
 
 ---
 
@@ -102,9 +108,10 @@ teardown, so the DB is always clean.
 - **`tests/fixtures/sql/minimal_seed.sql`** — inserts in dependency order (roles → permissions → users → assignments):
   - 3 roles: `Administrator` (is_system=1, active), `Editor` (active), `Auditor` (inactive)
   - 2 permissions: `users`, `permissions`
-  - 1 admin user (role = Administrator), 1 normal user (role = Editor)
+  - 1 admin user (role = Administrator), 1 normal user (role = Editor, status=active)
   - 1 direct permission assignment (user 2 → `users`)
   - 1 role permission assignment (Editor → `users`)
+  - `TRUNCATE TABLE password_resets` — always clean between runs
 
 ---
 
