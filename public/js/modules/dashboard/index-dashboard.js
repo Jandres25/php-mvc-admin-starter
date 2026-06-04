@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderAllCharts();
     watchThemeChanges();
+    initAccessMetricsToggle();
 });
 
 /**
@@ -213,6 +214,46 @@ function initUsersByMonthChart() {
                 },
             },
         },
+    });
+}
+
+/**
+ * Toggles the access-metrics row with a fade animation.
+ * Persists preference in localStorage under 'dashboard_access_metrics_visible'.
+ */
+function initAccessMetricsToggle() {
+    const $row  = $('#rowAccessMetrics');
+    const $btn  = $('#btnToggleAccessMetrics');
+    const $label = $('#labelToggleAccessMetrics');
+    const $icon  = $('#iconToggleAccessMetrics');
+
+    if (!$row.length || !$btn.length) return;
+
+    const LS_KEY = 'dashboard_access_metrics_visible';
+
+    function applyState(visible, animate) {
+        $label.text(visible ? 'Hide access metrics' : 'Show access metrics');
+        $icon.attr('class', visible ? 'fas fa-eye-slash mr-1' : 'fas fa-eye mr-1');
+
+        if (animate) {
+            if (visible) {
+                $row.css('opacity', 0).show().animate({ opacity: 1 }, 300);
+            } else {
+                $row.animate({ opacity: 0 }, 300, function () { $(this).hide(); });
+            }
+        } else {
+            $row.css('opacity', visible ? 1 : 0).toggle(visible);
+        }
+    }
+
+    // Restore saved preference without animation
+    applyState(localStorage.getItem(LS_KEY) === '1', false);
+
+    $btn.on('click', function (e) {
+        e.preventDefault();
+        const nowVisible = $row.is(':hidden');
+        localStorage.setItem(LS_KEY, nowVisible ? '1' : '0');
+        applyState(nowVisible, true);
     });
 }
 

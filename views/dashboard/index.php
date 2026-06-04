@@ -89,6 +89,48 @@
         </div>
         <!-- /.row stats -->
 
+        <!-- Access metrics toggle -->
+        <?php if ($canManageUsers): ?>
+            <div class="row mb-2">
+                <div class="col-12 text-right">
+                    <a href="#" id="btnToggleAccessMetrics" class="text-muted small">
+                        <i class="fas fa-eye mr-1" id="iconToggleAccessMetrics"></i>
+                        <span id="labelToggleAccessMetrics">Show access metrics</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Access metrics row (hidden by default, toggled via localStorage) -->
+            <div id="rowAccessMetrics" class="row" style="display:none; opacity:0;">
+                <!-- Pending Invitations -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3><?= (int) $pendingInvitations ?></h3>
+                            <p>Pending Invitations</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-envelope-open-text"></i></div>
+                        <a href="<?= URL ?>users" class="small-box-footer">
+                            View Users <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Resets This Week -->
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="small-box bg-secondary">
+                        <div class="inner">
+                            <h3><?= (int) $resetsThisWeek ?></h3>
+                            <p>Password Resets This Week</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-lock-open"></i></div>
+                        <span class="small-box-footer">&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row access metrics -->
+        <?php endif; ?>
+
         <!-- Charts -->
         <div class="row">
             <!-- Donut: active vs inactive users -->
