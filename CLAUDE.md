@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.14.0`
+**Current release tag:** `3.15.0`
 
 ## No Build Process
 
@@ -195,7 +195,7 @@ Session-based cache for dashboard metrics with event-driven invalidation. Uses `
 
 Key methods: `DashboardCache::get(string $key)`, `DashboardCache::put(string $key, array $data)`, `DashboardCache::remember(string $key, callable $loader)`, `DashboardCache::forget(string $key)`, `DashboardCache::flush()`.
 
-**Invalidation contract:** any model method that mutates user, permission, or role data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Role mutations (`create`, `update`, `updateStatus`, `syncPermissions`) clear `role_stats`. `AuditLogger::log()` calls `DashboardCache::forget('audit_today')` after every successful insert so the dashboard "Events Today" counter stays current. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
+**Invalidation contract:** any model method that mutates user, permission, or role data must call `DashboardCache::forget()` for the affected keys after a successful write. User mutations clear `user_stats`, `users_by_status`, `recent_users`, `users_by_month`. Permission mutations (including assign/revoke in `PermissionController`) clear `perm_stats`, `top_permissions`. Role mutations (`create`, `update`, `updateStatus`, `syncPermissions`) clear `role_stats`. `AuditLogger::log()` calls `DashboardCache::forget('audit_today')` after every successful insert so the dashboard "Events Today" counter stays current. Invitation mutations clear `pending_invitations`: call `DashboardCache::forget('pending_invitations')` in `UserController::save()` (invite branch), `UserController::resendInvitationAjax()`, and `InvitationController::acceptInvitation()`. Password-reset requests clear `resets_this_week`: call `DashboardCache::forget('resets_this_week')` in `PasswordResetController` after `$this->resets->create($userId, 'reset')`. Never read `$_SESSION['dashboard_cache']` directly — always go through `DashboardCache`.
 
 **Passing data to JS:** views pass chart datasets as `data-*` attributes on canvas elements (e.g. `data-chart="<?= htmlspecialchars(json_encode(...)) ?>"`). Module JS reads `element.dataset.*` — no `<script>` blocks inside views.
 

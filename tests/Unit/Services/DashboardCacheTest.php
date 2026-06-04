@@ -119,10 +119,18 @@ class DashboardCacheTest extends TestCase
 
     public function test_ttl_reads_env_override(): void
     {
+        $prev = $_ENV['DASHBOARD_CACHE_TTL'] ?? null;
         putenv('DASHBOARD_CACHE_TTL=120');
+        $_ENV['DASHBOARD_CACHE_TTL'] = '120';
 
         $this->assertSame(120, DashboardCache::ttl());
 
-        putenv('DASHBOARD_CACHE_TTL'); // restore
+        // restore
+        putenv('DASHBOARD_CACHE_TTL');
+        if ($prev === null) {
+            unset($_ENV['DASHBOARD_CACHE_TTL']);
+        } else {
+            $_ENV['DASHBOARD_CACHE_TTL'] = $prev;
+        }
     }
 }

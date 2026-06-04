@@ -70,10 +70,11 @@ teardown, so the DB is always clean.
 | `tests/Integration/Models/RolePermissionTest.php`               | `syncPermissions`, `getAssignedPermissionIds`, `getPermissionNames`, `getUserIdsByRole`                |
 | `tests/Integration/Core/AuthIntegrationTest.php`                | `refreshPermissionsIfStale` (including UNION merge and dedup), `attemptRememberLogin`                  |
 | `tests/Integration/Models/UserDashboardTest.php`                | `getUsersByStatus`, `getUsersByMonth`                                                                  |
+| `tests/Integration/Models/UserStatsTest.php`                    | `getStatistics` and `getUsersByStatus` include `pending` (status=2) count                             |
 | `tests/Integration/Models/PermissionDashboardTest.php`          | `getTopAssigned`                                                                                       |
 | `tests/Integration/Services/DashboardCacheInvalidationTest.php` | Cache invalidation after User/Permission/Role mutations                                                |
 | `tests/Integration/Auth/LoginThrottleTest.php`                  | `recordFailure`, `getLockStatus`, `clearAttempts`, `unlock`, `LoginThrottleService`, `formatRemaining` |
-| `tests/Integration/Models/PasswordResetTest.php`                | `PasswordReset::create`, `findValidByToken`, `markUsed`, TTL per type, hash storage, invalidation      |
+| `tests/Integration/Models/PasswordResetTest.php`                | `PasswordReset::create`, `findValidByToken`, `markUsed`, TTL, hash storage, invalidation, `getPendingInvitationsCount`, `getResetRequestsThisWeek` |
 | `tests/Integration/Auth/PasswordResetFlowTest.php`              | Full reset flow: token creation, password change, used/expired token rejection, pending user guard      |
 | `tests/Integration/Auth/PendingUserBlockTest.php`               | `User::STATUS_*` constants, pending login block, pending user cannot request reset                     |
 | `tests/Integration/Models/InvitationCreateTest.php`             | Invited user status=pending, unusable password, 48 h token, normal user regression, `validateData`    |

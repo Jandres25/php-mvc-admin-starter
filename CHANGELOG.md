@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.15.0] - 2026-06-04
+
+### Added
+
+- **Pending Invitations widget** — new `small-box bg-warning` showing the count of active (not used, not expired) invitation tokens. Sourced from `PasswordReset::getPendingInvitationsCount()`. Cache key `pending_invitations` invalidated in `UserController::save()` (invite branch), `UserController::resendInvitationAjax()`, and `InvitationController::acceptInvitation()`.
+- **Password Resets This Week widget** — new `small-box bg-secondary` showing reset tokens created in the last 7 days. Sourced from `PasswordReset::getResetRequestsThisWeek()`. Cache key `resets_this_week` invalidated in `PasswordResetController` after `$this->resets->create($userId, 'reset')`.
+- **Toggleable access-metrics row** — second widget row (Pending Invitations + Resets This Week) hidden by default; a link above it shows/hides it with a jQuery fade animation (300 ms). Preference persisted in `localStorage` under `dashboard_access_metrics_visible`. Visible only for users with the `users` permission.
+- **4 new integration tests** in `PasswordResetTest`: `getPendingInvitationsCount` (active tokens counted, used tokens excluded) and `getResetRequestsThisWeek` (recent tokens counted, returns int).
+- **2 new integration tests** in `UserStatsTest`: `getStatistics` and `getUsersByStatus` include `pending` key.
+
+### Fixed
+
+- **Donut chart ignored STATUS_PENDING** — `UserStatsTrait::getUsersByStatus()` and `getStatistics()` previously omitted `status = 2` users. Both methods now include a `pending` key with `SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END)`. The donut chart renders three segments: Active (green `#28a745`), Inactive (red `#dc3545`), Pending (yellow `#ffc107`).
+- **Recent Users table missing Pending badge** — status badge in `views/dashboard/index.php` was a 2-case `if/else`; extended to `if/elseif/else` for status 0/1/2 with a `badge-warning` "Pending" label.
+
+### Changed
+
+- **`DashboardController`** — imports `PasswordReset`; loads `pending_invitations` and `resets_this_week` via `DashboardCache::remember()`; passes both to the view.
+- **`DashboardCache` invalidation contract** updated in `CLAUDE.md` to document the two new cache keys and their invalidation controllers.
+- **Test suite** — 281 tests, 498 assertions (up from 275 / 486 in v3.14.0).
+
+---
+
 ## [3.14.0] - 2026-05-27
 
 ### Added
@@ -756,6 +779,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.15.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.14.0...3.15.0
 [3.14.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.1...3.14.0
 [3.13.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.12.0...3.13.0

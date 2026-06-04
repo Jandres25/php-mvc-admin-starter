@@ -91,9 +91,9 @@
 
         <!-- Access metrics toggle -->
         <?php if ($canManageUsers): ?>
-            <div class="row mb-2">
-                <div class="col-12 text-right">
-                    <a href="#" id="btnToggleAccessMetrics" class="text-muted small">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <a href="#" id="btnToggleAccessMetrics" class="text-secondary small">
                         <i class="fas fa-eye mr-1" id="iconToggleAccessMetrics"></i>
                         <span id="labelToggleAccessMetrics">Show access metrics</span>
                     </a>
