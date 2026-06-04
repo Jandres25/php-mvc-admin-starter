@@ -115,6 +115,49 @@ class PasswordReset extends Model
         }
     }
 
+    /**
+     * Returns the count of invitation tokens that are active (not used, not expired).
+     *
+     * @return int
+     */
+    public function getPendingInvitationsCount(): int
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT COUNT(*) FROM {$this->table}
+                 WHERE type       = 'invitation'
+                   AND used_at    IS NULL
+                   AND expires_at > NOW()"
+            );
+            $stmt->execute();
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return 0;
+        }
+    }
+
+    /**
+     * Returns the count of password-reset tokens created in the last 7 days.
+     *
+     * @return int
+     */
+    public function getResetRequestsThisWeek(): int
+    {
+        try {
+            $stmt = $this->connection->prepare(
+                "SELECT COUNT(*) FROM {$this->table}
+                 WHERE type       = 'reset'
+                   AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
+            );
+            $stmt->execute();
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            $this->lastError = $e->getMessage();
+            return 0;
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------

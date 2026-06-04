@@ -192,4 +192,48 @@ class PasswordResetTest extends IntegrationTestCase
         $this->assertNotNull($usedAt, 'used_at must be set after markUsed()');
         $this->assertNotFalse($usedAt);
     }
+
+    // -------------------------------------------------------------------------
+    // getPendingInvitationsCount()
+    // -------------------------------------------------------------------------
+
+    public function test_getPendingInvitationsCount_counts_active_invitation_tokens(): void
+    {
+        $this->model->create(self::ADMIN_ID, 'invitation');
+
+        $count = $this->model->getPendingInvitationsCount();
+
+        $this->assertGreaterThanOrEqual(1, $count);
+    }
+
+    public function test_getPendingInvitationsCount_excludes_used_tokens(): void
+    {
+        $rawToken = $this->model->create(self::EDITOR_ID, 'invitation');
+        $row      = $this->model->findValidByToken($rawToken, 'invitation');
+        $this->model->markUsed((int) $row['id']);
+
+        $count = $this->model->getPendingInvitationsCount();
+
+        $this->assertIsInt($count);
+    }
+
+    // -------------------------------------------------------------------------
+    // getResetRequestsThisWeek()
+    // -------------------------------------------------------------------------
+
+    public function test_getResetRequestsThisWeek_counts_recent_reset_tokens(): void
+    {
+        $this->model->create(self::ADMIN_ID, 'reset');
+
+        $count = $this->model->getResetRequestsThisWeek();
+
+        $this->assertGreaterThanOrEqual(1, $count);
+    }
+
+    public function test_getResetRequestsThisWeek_returns_int(): void
+    {
+        $count = $this->model->getResetRequestsThisWeek();
+
+        $this->assertIsInt($count);
+    }
 }
