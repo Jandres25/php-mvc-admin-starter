@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Permission;
 use App\Services\AuditLogger;
+use App\Services\DashboardCache;
 use App\Services\ImageService;
 use App\Services\LoginThrottleService;
 use App\Services\MailService;
@@ -222,6 +223,7 @@ class UserController extends Controller
         }
 
         $token       = (new PasswordReset())->create($userId, 'invitation');
+        DashboardCache::forget('pending_invitations');
         $inviterName = Auth::user()['name'] ?? 'Administrator';
         (new MailService())->sendInvitationEmail($user['email'], $token, $inviterName);
 
@@ -297,6 +299,7 @@ class UserController extends Controller
 
             if ($isInvite) {
                 $token       = (new PasswordReset())->create($userId, 'invitation');
+                DashboardCache::forget('pending_invitations');
                 $inviterName = Auth::user()['name'] ?? 'Administrator';
                 (new MailService())->sendInvitationEmail($data['email'], $token, $inviterName);
                 AuditLogger::log(

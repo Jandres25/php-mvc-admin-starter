@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\ActivityLog;
+use App\Models\PasswordReset;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -28,6 +29,10 @@ class DashboardController extends Controller
         $usersByMonth = DashboardCache::remember('users_by_month',  fn() => $userModel->getUsersByMonth(6));
         $auditToday   = DashboardCache::remember('audit_today',    fn() => ['count' => $activityLogModel->countToday()])['count'];
 
+        $passwordResetModel = new PasswordReset();
+        $pendingInvitations = DashboardCache::remember('pending_invitations', fn() => ['count' => $passwordResetModel->getPendingInvitationsCount()])['count'];
+        $resetsThisWeek     = DashboardCache::remember('resets_this_week',    fn() => ['count' => $passwordResetModel->getResetRequestsThisWeek()])['count'];
+
         $this->render(
             'dashboard/index',
             [
@@ -36,6 +41,8 @@ class DashboardController extends Controller
                 'recentUsers'          => $recentUsers,
                 'roleStats'            => $roleStats,
                 'auditToday'           => $auditToday,
+                'pendingInvitations'   => $pendingInvitations,
+                'resetsThisWeek'       => $resetsThisWeek,
                 'canManageUsers'       => Auth::hasPermission('users'),
                 'canManagePermissions' => Auth::hasPermission('permissions'),
                 'canManageRoles'       => Auth::hasPermission('roles'),

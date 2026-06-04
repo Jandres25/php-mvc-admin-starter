@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Models\PasswordReset;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\DashboardCache;
 
 class InvitationController extends Controller
 {
@@ -76,6 +77,7 @@ class InvitationController extends Controller
         if ($this->userModel->resetPassword($userId, $password)) {
             $this->userModel->activate($userId);
             $this->resets->markUsed((int) $row['id']);
+            DashboardCache::forget('pending_invitations');
 
             AuditLogger::log(
                 'users',

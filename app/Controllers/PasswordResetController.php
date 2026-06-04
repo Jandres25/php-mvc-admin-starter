@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Models\PasswordReset;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\DashboardCache;
 use App\Services\MailService;
 
 class PasswordResetController extends Controller
@@ -80,6 +81,7 @@ class PasswordResetController extends Controller
         }
 
         $token = $this->resets->create($userId, 'reset');
+        DashboardCache::forget('resets_this_week');
         $this->mailService->sendPasswordResetEmail($email, $token);
 
         regenerateCSRFToken();
