@@ -101,7 +101,8 @@
                         <div style="height:260px; position:relative;">
                             <canvas id="chartUserStatus"
                                 data-active="<?= (int) $chartData['usersByStatus']['active'] ?>"
-                                data-inactive="<?= (int) $chartData['usersByStatus']['inactive'] ?>">
+                                data-inactive="<?= (int) $chartData['usersByStatus']['inactive'] ?>"
+                                data-pending="<?= (int) $chartData['usersByStatus']['pending'] ?>">
                             </canvas>
                             <p id="chartUserStatusFallback" class="text-muted text-center pt-5" style="display:none;">
                                 No data to display.
@@ -189,6 +190,8 @@
                                                 <td>
                                                     <?php if ((int) $user['status'] === 1): ?>
                                                         <span class="badge badge-success badge-pill p-2">Active</span>
+                                                    <?php elseif ((int) $user['status'] === 2): ?>
+                                                        <span class="badge badge-warning badge-pill p-2">Pending</span>
                                                     <?php else: ?>
                                                         <span class="badge badge-danger badge-pill p-2">Inactive</span>
                                                     <?php endif; ?>

@@ -82,8 +82,8 @@ function watchThemeChanges() {
 }
 
 /**
- * Donut chart — active vs inactive users.
- * Reads data-active and data-inactive from the canvas element.
+ * Donut chart — active vs inactive vs pending users.
+ * Reads data-active, data-inactive and data-pending from the canvas element.
  */
 function initUserStatusChart() {
     const canvas   = document.getElementById('chartUserStatus');
@@ -93,8 +93,9 @@ function initUserStatusChart() {
 
     const active   = parseInt(canvas.dataset.active,   10) || 0;
     const inactive = parseInt(canvas.dataset.inactive, 10) || 0;
+    const pending  = parseInt(canvas.dataset.pending,  10) || 0;
 
-    if (active === 0 && inactive === 0) {
+    if (active === 0 && inactive === 0 && pending === 0) {
         canvas.style.display   = 'none';
         fallback.style.display = 'block';
         return;
@@ -103,10 +104,10 @@ function initUserStatusChart() {
     _charts.userStatus = new Chart(canvas, {
         type: 'doughnut',
         data: {
-            labels: ['Active', 'Inactive'],
+            labels: ['Active', 'Inactive', 'Pending'],
             datasets: [{
-                data: [active, inactive],
-                backgroundColor: ['#28a745', '#dc3545'],
+                data: [active, inactive, pending],
+                backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
                 borderWidth: 2,
             }],
         },
