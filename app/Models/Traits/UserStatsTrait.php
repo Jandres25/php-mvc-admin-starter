@@ -17,9 +17,9 @@ use PDOException;
 trait UserStatsTrait
 {
     /**
-     * Returns total, active and inactive user counts.
+     * Returns total, active, inactive and pending user counts.
      *
-     * @return array{total: int, active: int, inactive: int}
+     * @return array{total: int, active: int, inactive: int, pending: int}
      */
     public function getStatistics()
     {
@@ -28,7 +28,8 @@ trait UserStatsTrait
                 SELECT
                     COUNT(*) AS total,
                     SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
-                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive
+                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive,
+                    SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS pending
                 FROM {$this->table}
             ");
             $stmt->execute();
@@ -38,10 +39,11 @@ trait UserStatsTrait
                 'total'    => (int) $row['total'],
                 'active'   => (int) $row['active'],
                 'inactive' => (int) $row['inactive'],
+                'pending'  => (int) $row['pending'],
             ];
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
-            return ['total' => 0, 'active' => 0, 'inactive' => 0];
+            return ['total' => 0, 'active' => 0, 'inactive' => 0, 'pending' => 0];
         }
     }
 
@@ -70,9 +72,9 @@ trait UserStatsTrait
     }
 
     /**
-     * Returns active vs inactive user counts for the donut chart.
+     * Returns active, inactive and pending user counts for the donut chart.
      *
-     * @return array{active: int, inactive: int}
+     * @return array{active: int, inactive: int, pending: int}
      */
     public function getUsersByStatus(): array
     {
@@ -80,7 +82,8 @@ trait UserStatsTrait
             $stmt = $this->connection->prepare("
                 SELECT
                     SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
-                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive
+                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive,
+                    SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS pending
                 FROM {$this->table}
             ");
             $stmt->execute();
@@ -89,10 +92,11 @@ trait UserStatsTrait
             return [
                 'active'   => (int) ($row['active']   ?? 0),
                 'inactive' => (int) ($row['inactive']  ?? 0),
+                'pending'  => (int) ($row['pending']   ?? 0),
             ];
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
-            return ['active' => 0, 'inactive' => 0];
+            return ['active' => 0, 'inactive' => 0, 'pending' => 0];
         }
     }
 
