@@ -290,7 +290,11 @@ class User extends Model
             );
             $stmt->bindParam(':password', $hash, PDO::PARAM_STR);
             $stmt->bindParam(':id',       $id,   PDO::PARAM_INT);
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                $this->clearRememberToken($id);
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
             $this->lastError = $e->getMessage();
             return false;

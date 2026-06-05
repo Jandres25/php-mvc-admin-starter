@@ -289,7 +289,7 @@
                                 <div class="col-md-6 text-center">
                                     <label>Current Image:</label><br>
                                     <?php if (isset($user['image']) && !empty($user['image'])): ?>
-                                        <img src="<?= URL ?>uploads/users/<?= $user['image']; ?>"
+                                        <img src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>"
                                             alt="Current image" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
                                     <?php else: ?>
                                         <img src="<?= URL ?>uploads/users/user_default.jpg"
@@ -524,12 +524,12 @@
                     <div class="card-body text-center">
                         <div class="profile-preview">
                             <?php if (isset($user['image']) && !empty($user['image'])): ?>
-                                <img id="profile-preview-img" src="<?= URL ?>uploads/users/<?= $user['image']; ?>" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img id="profile-preview-img" src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
                             <?php else: ?>
                                 <img id="profile-preview-img" src="<?= URL ?>uploads/users/user_default.jpg" class="img-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
                             <?php endif; ?>
                             <h5 id="profile-preview-name" class="mt-3"><?= htmlspecialchars($user['name'] . ' ' . $user['first_surname'] . ' ' . $user['second_surname']); ?></h5>
-                            <p id="profile-preview-role" class="text-muted"><?= htmlspecialchars($user['position']); ?></p>
+                            <p id="profile-preview-role" class="text-muted"><?= htmlspecialchars($user['role_name'] ?? ''); ?></p>
                             <?php if ($user['status'] == 1): ?>
                                 <div id="profile-preview-badge" class="badge badge-success">Active</div>
                             <?php else: ?>

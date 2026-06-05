@@ -17,7 +17,7 @@ return [
     ['method' => 'POST', 'path' => '/reset-password',      'controller' => 'PasswordReset@resetPassword',         'middleware' => []],
     ['method' => 'GET',  'path' => '/accept-invitation',   'controller' => 'Invitation@showAcceptForm',           'middleware' => []],
     ['method' => 'POST', 'path' => '/accept-invitation',   'controller' => 'Invitation@acceptInvitation',         'middleware' => []],
-    ['method' => 'GET',  'path' => '/logout',          'controller' => 'Auth@logout',                'middleware' => []],
+    ['method' => 'POST', 'path' => '/logout',          'controller' => 'Auth@logout',                'middleware' => []],
 
     // Dashboard
     ['method' => 'GET', 'path' => '/',          'controller' => 'Dashboard@index', 'middleware' => ['auth']],

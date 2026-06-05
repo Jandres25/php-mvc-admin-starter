@@ -108,7 +108,10 @@
                             <?php if (\App\Core\Auth::hasPermission('profile')) : ?>
                                 <a href="<?= URL; ?>profile" class="btn btn-default btn-flat">Profile</a>
                             <?php endif; ?>
-                            <a href="<?= URL; ?>logout" class="btn btn-default btn-flat float-right">Log Out</a>
+                            <form method="POST" action="<?= URL; ?>logout" class="d-inline float-right">
+                                <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
+                                <button type="submit" class="btn btn-default btn-flat">Log Out</button>
+                            </form>
                         </li>
                     </ul>
 

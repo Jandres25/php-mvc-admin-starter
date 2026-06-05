@@ -416,9 +416,10 @@ class UserController extends Controller
             return ['success' => false, 'message' => $errors[0]];
         }
 
+        regenerateCSRFToken();
+
         if ($this->userModel->updatePassword($id, $new)) {
             AuditLogger::log('users', 'password_changed', 'User changed their own password', ['user_id' => $id]);
-            regenerateCSRFToken();
             return ['success' => true, 'message' => 'Password updated successfully.'];
         }
 

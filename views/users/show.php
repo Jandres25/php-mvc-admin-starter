@@ -28,7 +28,7 @@
                         <div class="text-center">
                             <?php if (isset($user['image']) && !empty($user['image'])): ?>
                                 <img class="profile-user-img img-fluid img-circle"
-                                    src="<?= URL ?>uploads/users/<?= $user['image']; ?>"
+                                    src="<?= URL ?>uploads/users/<?= htmlspecialchars($user['image']); ?>"
                                     alt="Profile image">
                             <?php else: ?>
                                 <img class="profile-user-img img-fluid img-circle"

@@ -111,6 +111,7 @@ class AuthController extends Controller
 
     public function logout(): void
     {
+        $this->csrfCheck();
         AuditLogger::log('auth', 'logout', 'User logged out');
         Auth::logout();
         $this->redirect(URL . 'login');

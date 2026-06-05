@@ -76,7 +76,9 @@ abstract class Controller
             } else {
                 $_SESSION['message'] = 'Token de seguridad inválido. Por favor, intenta de nuevo.';
                 $_SESSION['icon']    = 'error';
-                $this->redirect($_SERVER['HTTP_REFERER'] ?? URL);
+                $referer = $_SERVER['HTTP_REFERER'] ?? '';
+                $safe    = (defined('URL') && strpos($referer, URL) === 0) ? $referer : URL;
+                $this->redirect($safe);
             }
         }
     }
