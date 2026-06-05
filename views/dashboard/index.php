@@ -94,14 +94,15 @@
             <div class="row mb-3">
                 <div class="col-12">
                     <a href="#" id="btnToggleAccessMetrics" class="text-secondary small">
-                        <i class="fas fa-eye mr-1" id="iconToggleAccessMetrics"></i>
+                        <i class="fas fa-sliders-h" id="iconToggleAccessMetrics"></i>
                         <span id="labelToggleAccessMetrics">Show access metrics</span>
+                        <i class="fas fa-chevron-down" id="arrowToggleAccessMetrics"></i>
                     </a>
                 </div>
             </div>
 
             <!-- Access metrics row (hidden by default, toggled via localStorage) -->
-            <div id="rowAccessMetrics" class="row" style="display:none; opacity:0;">
+            <div id="rowAccessMetrics" class="row">
                 <!-- Pending Invitations -->
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="small-box bg-warning">
@@ -132,7 +133,7 @@
         <?php endif; ?>
 
         <!-- Charts -->
-        <div class="row">
+        <div class="row dashboard-charts">
             <!-- Donut: active vs inactive users -->
             <div class="col-xl-4 col-lg-6">
                 <div class="card card-outline card-primary">
@@ -195,7 +196,7 @@
         <!-- /.row charts -->
 
         <!-- Recent Users -->
-        <div class="row">
+        <div class="row dashboard-recent">
             <div class="col-12">
                 <div class="card card-outline card-primary">
                     <div class="card-header">

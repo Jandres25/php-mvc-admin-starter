@@ -115,6 +115,7 @@ function initUserStatusChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeInOutQuart' },
             plugins: {
                 legend: { position: 'bottom' },
             },
@@ -155,6 +156,7 @@ function initTopPermissionsChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeInOutQuart' },
             plugins: {
                 legend: { display: false },
             },
@@ -204,6 +206,7 @@ function initUsersByMonthChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeInOutQuart' },
             plugins: {
                 legend: { display: false },
             },
@@ -218,40 +221,45 @@ function initUsersByMonthChart() {
 }
 
 /**
- * Toggles the access-metrics row with a fade animation.
+ * Toggles the access-metrics row with a slide+fade CSS transition.
  * Persists preference in localStorage under 'dashboard_access_metrics_visible'.
  */
 function initAccessMetricsToggle() {
-    const $row  = $('#rowAccessMetrics');
-    const $btn  = $('#btnToggleAccessMetrics');
-    const $label = $('#labelToggleAccessMetrics');
-    const $icon  = $('#iconToggleAccessMetrics');
+    const row   = document.getElementById('rowAccessMetrics');
+    const btn   = document.getElementById('btnToggleAccessMetrics');
+    const label = document.getElementById('labelToggleAccessMetrics');
+    const arrow = document.getElementById('arrowToggleAccessMetrics');
 
-    if (!$row.length || !$btn.length) return;
+    if (!row || !btn) return;
 
     const LS_KEY = 'dashboard_access_metrics_visible';
 
     function applyState(visible, animate) {
-        $label.text(visible ? 'Hide access metrics' : 'Show access metrics');
-        $icon.attr('class', visible ? 'fas fa-eye-slash mr-1' : 'fas fa-eye mr-1');
+        label.textContent = visible ? 'Hide access metrics' : 'Show access metrics';
+        arrow.classList.toggle('rotated', visible);
 
-        if (animate) {
-            if (visible) {
-                $row.css('opacity', 0).show().animate({ opacity: 1 }, 300);
-            } else {
-                $row.animate({ opacity: 0 }, 300, function () { $(this).hide(); });
-            }
+        if (visible) {
+            row.classList.add('metrics-visible');
         } else {
-            $row.css('opacity', visible ? 1 : 0).toggle(visible);
+            if (!animate) {
+                // Suppress transition on initial restore
+                row.style.transition = 'none';
+                row.classList.remove('metrics-visible');
+                // Re-enable transition after next paint
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    row.style.transition = '';
+                }));
+            } else {
+                row.classList.remove('metrics-visible');
+            }
         }
     }
 
-    // Restore saved preference without animation
     applyState(localStorage.getItem(LS_KEY) === '1', false);
 
-    $btn.on('click', function (e) {
+    btn.addEventListener('click', function (e) {
         e.preventDefault();
-        const nowVisible = $row.is(':hidden');
+        const nowVisible = !row.classList.contains('metrics-visible');
         localStorage.setItem(LS_KEY, nowVisible ? '1' : '0');
         applyState(nowVisible, true);
     });

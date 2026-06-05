@@ -54,7 +54,8 @@ class DashboardController extends Controller
                 ],
             ],
             ['chart'],
-            ['dashboard/index-dashboard']
+            ['dashboard/index-dashboard'],
+            ['dashboard/dashboard']
         );
     }
 }
