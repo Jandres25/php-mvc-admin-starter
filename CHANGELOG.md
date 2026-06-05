@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.15.1] - 2026-06-05
+
+### Fixed
+
+- **XSS in `$user['image']` src attribute** — `views/users/show.php` and `views/users/update.php` (two locations) echoed the image filename directly into `src="..."` without escaping. Wrapped with `htmlspecialchars()` to prevent attribute-injection attacks.
+- **Undefined `$user['position']` in update view** — `views/users/update.php` profile-preview card referenced a `position` column that does not exist in the schema (removed in v3.10.0). Replaced with `$user['role_name'] ?? ''`.
+- **Open redirect in CSRF failure handler** — `app/Core/Controller::csrfCheck()` redirected to `$_SERVER['HTTP_REFERER']` without validation, allowing an attacker-controlled `Referer` header to send users to external URLs on CSRF token failure. Redirect now only follows the referrer if it starts with the application's `URL` constant; falls back to `URL` otherwise.
+- **Logout unprotected on GET route** — `GET /logout` triggered session destruction with no CSRF token, allowing any third-party page to log users out via `<img src="...">`. Route changed to `POST`; `views/layouts/header.php` logout link replaced with a `<form method="POST">` containing a CSRF token; `AuthController::logout()` now calls `$this->csrfCheck()`.
+- **Remember-me cookie not revoked on password change** — `User::updatePassword()` updated the password hash but left `remember_token` intact, meaning an attacker's stolen cookie stayed valid after the account owner changed their password. `clearRememberToken($id)` is now called unconditionally after a successful password update.
+- **CSRF token not rotated on password-change error path** — `UserController::updateProfilePasswordAjax()` only called `regenerateCSRFToken()` in the success branch. Token rotation moved before the `if/else` so it always runs, regardless of whether `updatePassword()` succeeds.
+
+### Added
+
+- **Dashboard CSS module** — new `public/css/modules/dashboard/dashboard.css` registered via `DashboardController` as a `module_style`. Contains all dashboard-specific animation and layout rules without touching AdminLTE or Bootstrap classes.
+- **Slide+fade animation for access-metrics toggle** — the hidden metrics row now uses CSS `max-height` + `opacity` + `translateY` transitions (`600 ms / 480 ms`, `cubic-bezier(0.4, 0, 0.2, 1)`) instead of jQuery `animate()`. Initial restore from `localStorage` suppresses the transition via `requestAnimationFrame` to avoid animating on page load.
+- **Chevron arrow on toggle button** — `fa-eye` replaced with `fa-sliders-h`; a `fa-chevron-down` icon appended after the label text rotates 180° (CSS `transform`) when the metrics row is visible.
+- **Chart.js entrance animation** — all three dashboard charts (donut, bar, line) now specify `animation: { duration: 700, easing: 'easeInOutQuart' }` for a smooth render on initial load and on theme change.
+- **Staggered entrance animations for stat cards** — the four top `small-box` widgets fade and slide up on page load with 70 ms stagger between each (`@keyframes db-fadein-up`).
+- **Staggered entrance for chart cards** — the three chart cards (`dashboard-charts` row) animate in with a combined fade + `translateY` + `scale(0.98→1)` effect at 200 / 310 / 420 ms delays.
+- **Hover lift on chart cards** — `translateY(-3px)` + box-shadow on hover with dark-mode–aware shadow intensity.
+- **Recent Users card entrance** — `.dashboard-recent` row animates in at 520 ms delay; table rows show a left-border accent (`#007bff` / `#4dabf7` dark) on hover.
+
+---
+
 ## [3.15.0] - 2026-06-04
 
 ### Added
@@ -779,6 +803,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.15.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.15.0...3.15.1
 [3.15.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.14.0...3.15.0
 [3.14.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.1...3.14.0
 [3.13.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.0...3.13.1

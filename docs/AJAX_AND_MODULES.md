@@ -7,7 +7,7 @@ This guide documents the project conventions for AJAX controller methods and mod
 AJAX actions are regular controller methods registered in `routes/web.php` with the appropriate HTTP method and middleware. A typical AJAX method follows this sequence:
 
 1. Call `$this->csrfCheck()` — validates the CSRF token; automatically returns JSON 403 for AJAX requests or redirects for regular POSTs.
-2. Call `regenerateCSRFToken()` after the action succeeds to prevent replay attacks.
+2. Call `regenerateCSRFToken()` **unconditionally** (before the `if/else`) on sensitive endpoints so the token rotates on both success and failure paths.
 3. Perform the action (model call, service call, etc.).
 4. Return JSON via `$this->jsonResponse($data)`.
 
@@ -17,10 +17,34 @@ Example:
 public function toggleStatusAjax(): void
 {
     $this->csrfCheck();
+    regenerateCSRFToken(); // always rotate — before success/failure branch
     // ... business logic ...
-    regenerateCSRFToken();
     $this->jsonResponse(['success' => true]);
 }
+```
+
+**Non-AJAX destructive actions** (logout, hard-delete, bulk operations) must also use `POST` routes with CSRF — never `GET`. A `GET /logout` can be triggered by any third-party `<img>` tag. The pattern is a minimal `<form method="POST">` with a hidden `csrf_token` field and a submit button styled as a link or button:
+
+```php
+// routes/web.php
+['method' => 'POST', 'path' => '/logout', 'controller' => 'Auth@logout', 'middleware' => []],
+```
+
+```php
+// Controller method
+public function logout(): void
+{
+    $this->csrfCheck();
+    // ... session teardown ...
+}
+```
+
+```php
+<!-- view -->
+<form method="POST" action="<?= URL ?>logout" class="d-inline">
+    <input type="hidden" name="csrf_token" value="<?= generateCSRFToken(); ?>">
+    <button type="submit" class="btn btn-default btn-flat">Log Out</button>
+</form>
 ```
 
 Route declaration in `routes/web.php`:

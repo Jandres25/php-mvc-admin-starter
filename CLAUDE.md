@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.15.0`
+**Current release tag:** `3.15.1`
 
 ## No Build Process
 
@@ -183,10 +183,10 @@ PasswordReset::markUsed(int $id): bool
 
 **User status values (`users.status` tinyint):**
 
-| Value | Constant              | Meaning                                      |
-|-------|-----------------------|----------------------------------------------|
-| `0`   | `User::STATUS_INACTIVE` | Deactivated by admin — cannot log in        |
-| `1`   | `User::STATUS_ACTIVE`   | Normal active account                        |
+| Value | Constant                | Meaning                                                                                         |
+| ----- | ----------------------- | ----------------------------------------------------------------------------------------------- |
+| `0`   | `User::STATUS_INACTIVE` | Deactivated by admin — cannot log in                                                            |
+| `1`   | `User::STATUS_ACTIVE`   | Normal active account                                                                           |
 | `2`   | `User::STATUS_PENDING`  | Invitation sent, password not yet set — cannot log in, reset password, or auto-login via cookie |
 
 ### Dashboard Cache — `App\Services\DashboardCache`
@@ -250,7 +250,8 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 
 - **Namespaces:** use `App\Controllers\*`, `App\Models\*`, `App\Services\*`, and `App\Core\*` consistently.
 - **Auth checks:** use `Auth::check()`, `Auth::hasPermission()`, `Auth::id()`, `Auth::user()` — never read `$_SESSION` directly for auth state outside of `App\Core\Auth`.
-- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST. All three functions live in `app/Core/helpers.php`.
+- **CSRF:** Generate token with `generateCSRFToken()`, validate via `$this->csrfCheck()` (controller helper that calls `verifyCSRFToken()` and returns JSON 403 for AJAX or redirects for regular POSTs). Call `regenerateCSRFToken()` after every successful POST — including failure paths on sensitive endpoints (e.g. password change). All three functions live in `app/Core/helpers.php`. Destructive actions that are not AJAX (including logout) must be `POST` routes with CSRF validation, never `GET`.
+- **Remember-me invalidation:** Call `$userModel->clearRememberToken($userId)` (via `Auth::clearRememberCookie()`) whenever a password is changed, regardless of who triggered the change (user self-service or admin edit). This revokes any active remember-me session for the affected user.
 - **Input sanitization:** Use `trim()` at the model layer (`trimInput()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
 - **Images:** Route all upload/resize/delete through `ImageService`.

@@ -90,6 +90,7 @@ Implemented in `App\Core\Auth`. Controlled by three `.env` variables:
 - Cookie: `HttpOnly` (no XSS), `SameSite=Lax` (mitigates CSRF), `Secure` flag set when HTTPS is detected.
 - Deactivated users (`status = 0`) and pending users (`status = 2`) cannot auto-login — the query filters `status = 1`.
 - Expired tokens ignored via `NOW()` comparison in the query.
+- **Token revoked on password change** — `User::updatePassword()` calls `clearRememberToken($id)` after every successful password hash update, regardless of whether the change was initiated by the user or an admin. This prevents a stolen cookie from remaining valid after a password reset.
 
 **DB columns in `users`:**
 
@@ -102,10 +103,10 @@ remember_token_expires DATETIME  NULL DEFAULT NULL
 
 Implemented in `App\Services\LoginThrottleService` + `App\Models\User`. Controlled by two `.env` variables:
 
-| Variable               | Default | Description                                    |
-| ---------------------- | ------- | ---------------------------------------------- |
-| `LOGIN_MAX_ATTEMPTS`   | `5`     | Consecutive failures before lockout            |
-| `LOGIN_LOCKOUT_MINUTES`| `15`    | Minutes the account stays locked               |
+| Variable                | Default | Description                         |
+| ----------------------- | ------- | ----------------------------------- |
+| `LOGIN_MAX_ATTEMPTS`    | `5`     | Consecutive failures before lockout |
+| `LOGIN_LOCKOUT_MINUTES` | `15`    | Minutes the account stays locked    |
 
 **How it works:**
 
@@ -179,24 +180,24 @@ Permission changes are cached in session and refreshed when stale.
 
 `users.status` is a `tinyint` with three values:
 
-| Value | Constant              | Login | Reset password | Remember-me cookie |
-|-------|-----------------------|-------|----------------|--------------------|
-| `0`   | `User::STATUS_INACTIVE` | ❌   | ❌ (generic msg) | ❌                |
-| `1`   | `User::STATUS_ACTIVE`   | ✅   | ✅              | ✅                |
-| `2`   | `User::STATUS_PENDING`  | ❌   | ❌ (generic msg) | ❌                |
+| Value | Constant                | Login | Reset password   | Remember-me cookie |
+| ----- | ----------------------- | ----- | ---------------- | ------------------ |
+| `0`   | `User::STATUS_INACTIVE` | ❌    | ❌ (generic msg) | ❌                 |
+| `1`   | `User::STATUS_ACTIVE`   | ✅    | ✅               | ✅                 |
+| `2`   | `User::STATUS_PENDING`  | ❌    | ❌ (generic msg) | ❌                 |
 
 Pending users are created via the invitation flow. `AuthController::login()` blocks status 2 before `Auth::login()` is called.
 
 ## Application permissions reference
 
-| Permission name  | Module       | Description                                                      |
-| ---------------- | ------------ | ---------------------------------------------------------------- |
-| `profile`        | Profile      | Access to own profile and password changes                       |
-| `admin`          | Global       | General administration — granted to all system-role users (`*`) |
-| `users`          | Users        | Full user management (CRUD, activation, unlock)                  |
-| `permissions`    | Permissions  | Create, edit, and assign/revoke permissions                      |
-| `roles`          | Roles        | Create, edit, and manage role↔permission assignments             |
-| `audit_log` | Audit Log    | Read-only access to the activity/audit log                       |
+| Permission name | Module      | Description                                                     |
+| --------------- | ----------- | --------------------------------------------------------------- |
+| `profile`       | Profile     | Access to own profile and password changes                      |
+| `admin`         | Global      | General administration — granted to all system-role users (`*`) |
+| `users`         | Users       | Full user management (CRUD, activation, unlock)                 |
+| `permissions`   | Permissions | Create, edit, and assign/revoke permissions                     |
+| `roles`         | Roles       | Create, edit, and manage role↔permission assignments            |
+| `audit_log`     | Audit Log   | Read-only access to the activity/audit log                      |
 
 > Administrators (role with `is_system = 1`) receive `['*']` in session — `hasPermission()` returns `true` for **any** permission name without requiring explicit assignment.
 

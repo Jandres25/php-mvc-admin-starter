@@ -208,7 +208,7 @@ custom, diseño de base de datos y patrones de diseño (Repository, Service Laye
 Proyecto: php-mvc-admin-starter — PHP MVC custom (sin framework; Composer para dependencias de terceros).
 Stack actual: App\Core\Router, middleware por ruta, PSR-4 custom autoloader,
               PDO singleton (Connection::getInstance()), App\Core\Auth (hub de sesión/permisos).
-Módulos existentes: auth, users (con flujo de invitación por email — pending → accept → active), permissions, roles, dashboard (con métricas Chart.js y DashboardCache), audit-log (read-only, AuditLogger service), dark-mode (localStorage + prefers-color-scheme, sin BD).
+Módulos existentes: auth, users (con flujo de invitación por email — pending → accept → active), permissions, roles, dashboard (con métricas Chart.js, DashboardCache, animaciones CSS de entrada y toggle de métricas de acceso), audit-log (read-only, AuditLogger service), dark-mode (localStorage + prefers-color-scheme, sin BD).
 Patrón de modelos: fat model / thin controller — validación, formateo e invalidación de caché viven en el modelo. App\Core\Model provee CRUD genérico heredable (find, all, insert, update, delete, getLastInsertId, trimInput). User usa tres traits (UserAuthTrait, UserPasswordTrait, UserStatsTrait) bajo app/Models/Traits/.
 
 [Tarea]
@@ -341,5 +341,5 @@ Escribir tests PHPUnit para [nombre de la clase], cubriendo:
 
 ---
 
-_Última actualización: v3.15.0_
+_Última actualización: v3.15.1_
 _Mantener sincronizado con CLAUDE.md al iniciar cada sprint._

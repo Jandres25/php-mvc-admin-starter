@@ -48,6 +48,9 @@ git checkout -b feature/your-feature-name
 - **Fat model / thin controller** — validation logic, data formatting, and cache invalidation belong in the model. Controllers only read input, call model methods, set flash messages, and redirect or return JSON.
 - **Model base class** — all models extend `App\Core\Model` and set `protected $table = 'table_name'`. Never redeclare `getLastInsertId()` or `trimInput()` in a concrete model — inherit them from the base.
 - **Model traits** — when a model exceeds ~400 lines, split concerns into PHP traits under `app/Models/Traits/`. Traits access `$this->connection` and `$this->table` directly. Group by responsibility (auth queries, password lifecycle, statistics).
+- **CSRF on destructive non-AJAX routes** — logout and any other destructive action that is not an AJAX endpoint must use a `POST` route with a CSRF token, never `GET`. Call `$this->csrfCheck()` at the top of the controller method. See `AuthController::logout()` and `views/layouts/header.php` as reference.
+- **CSRF token rotation** — call `regenerateCSRFToken()` unconditionally (before the success/failure branch) on sensitive endpoints so the token rotates even when the model write fails.
+- **Remember-me invalidation** — call `$userModel->clearRememberToken($userId)` after any successful password change, regardless of who triggered it. `User::updatePassword()` does this automatically — never bypass it with a raw SQL UPDATE on the `password` column.
 
 ### JavaScript Code Standards
 
