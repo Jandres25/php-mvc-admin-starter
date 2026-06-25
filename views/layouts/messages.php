@@ -1,7 +1,7 @@
 <?php if (isset($_SESSION['welcome_user'])): ?>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            AlertUtils.welcome('<?= addslashes($_SESSION['welcome_user']); ?>');
+        document.addEventListener('DOMContentLoaded', function() {
+            AlertUtils.welcome(<?= json_encode((string) $_SESSION['welcome_user']); ?>);
         });
     </script>
 <?php
@@ -9,12 +9,12 @@
 endif;
 
 if (isset($_SESSION['message'], $_SESSION['icon'])):
-    $message = addslashes($_SESSION['message']);
+    $message = $_SESSION['message'];
     $icon    = $_SESSION['icon'];
 ?>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            ToastUtils['<?= $icon; ?>']('<?= $message; ?>');
+        document.addEventListener('DOMContentLoaded', function() {
+            ToastUtils[<?= json_encode((string) $icon); ?>](<?= json_encode((string) $message); ?>);
         });
     </script>
 <?php
