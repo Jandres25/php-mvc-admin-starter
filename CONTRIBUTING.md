@@ -51,6 +51,8 @@ git checkout -b feature/your-feature-name
 - **CSRF on destructive non-AJAX routes** — logout and any other destructive action that is not an AJAX endpoint must use a `POST` route with a CSRF token, never `GET`. Call `$this->csrfCheck()` at the top of the controller method. See `AuthController::logout()` and `views/layouts/header.php` as reference.
 - **CSRF token rotation** — call `regenerateCSRFToken()` unconditionally (before the success/failure branch) on sensitive endpoints so the token rotates even when the model write fails.
 - **Remember-me invalidation** — call `$userModel->clearRememberToken($userId)` after any successful password change, regardless of who triggered it. `User::updatePassword()` does this automatically — never bypass it with a raw SQL UPDATE on the `password` column.
+- **File uploads** — always route through `ImageService`. MIME type must be validated server-side via `finfo` on `tmp_name`; never trust `$_FILES['type']` (client-controlled). Extension must be whitelisted. `public/uploads/users/.htaccess` blocks PHP execution and must not be removed.
+- **JS string interpolation** — use `json_encode()` when passing PHP values into `<script>` blocks. `addslashes()` does not escape `</script>` and is unsafe for JS context.
 
 ### JavaScript Code Standards
 

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.15.2] - 2026-06-25
+
+### Security
+
+- **RCE en `ImageService` por MIME type client-controlled** — `processImage()` usaba `$_FILES['type']` (header HTTP enviado por el cliente) para validar el MIME type, permitiendo a cualquier usuario autenticado subir un webshell PHP falsificando el `Content-Type`. Corregido reemplazando la validación con detección server-side via `(new \finfo(FILEINFO_MIME_TYPE))->file($tmp_name)`. Se agregó whitelist de extensiones (`jpg`, `jpeg`, `png`, `gif`, `webp`) para rechazar extensiones no-imagen independientemente del MIME. Se agregó `.htaccess` en `public/uploads/users/` bloqueando ejecución PHP como defensa en profundidad.
+- **Stored XSS en mensajes de sesión** — `views/layouts/messages.php` usaba `addslashes()` para escapar `$_SESSION['welcome_user']`, `$_SESSION['message']` e `$_SESSION['icon']` antes de interpolarlos en bloques `<script>`. `addslashes()` no escapa `</script>`, permitiendo que un payload (e.g. nombre de usuario con `</script><script>alert(1)</script>`) rompa el bloque de script. Corregido reemplazando las tres interpolaciones con `json_encode()`, que escapa `</` como `<\/`.
+
+---
+
 ## [3.15.1] - 2026-06-05
 
 ### Fixed
@@ -803,6 +812,7 @@ If upgrading from v3.0.x, follow these steps:
 - SQL injection protection with prepared statements
 - XSS prevention with input sanitization
 
+[3.15.2]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.15.1...3.15.2
 [3.15.1]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.15.0...3.15.1
 [3.15.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.14.0...3.15.0
 [3.14.0]: https://github.com/Jandres25/php-mvc-admin-starter/compare/3.13.1...3.14.0

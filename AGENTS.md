@@ -6,6 +6,7 @@ Compact reference for AI agents working on this repo. Only high-signal, non-obvi
 
 - `APP_URL` must end with `/public` (e.g. `http://localhost/ProyectoBase/public`) — without it router and assets break.
 - Apache runs as `daemon` on LAMPP; `public/uploads/users/` must be `777` or `move_uploaded_file()` silently fails.
+- `public/uploads/users/.htaccess` blocks PHP execution — never remove it. MIME type in `ImageService` is validated via `finfo` on `tmp_name`, not `$_FILES['type']`.
 - Test DB must exist before running integration suite: `CREATE DATABASE php_mvc_admin_starter_test CHARACTER SET utf8;`
 
 ## Commands

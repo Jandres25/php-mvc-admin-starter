@@ -4,7 +4,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.15.1-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.15.2-green)](CHANGELOG.md)
 [![Tests](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/php-mvc-admin-starter/actions/workflows/tests.yml)
 
 A PHP starter template with authentication, user management, and role-based permission control. Built on a pure MVC architecture with a custom PSR-4 autoloader and Composer for dependency management.
@@ -75,7 +75,7 @@ DB_CHARSET=utf8mb4
 APP_URL=http://localhost/php-mvc-admin-starter/public
 TIMEZONE=America/La_Paz
 DEBUG=true
-APP_VERSION=3.15.1
+APP_VERSION=3.15.2
 
 # Dashboard cache TTL in seconds (0 to disable)
 DASHBOARD_CACHE_TTL=300
@@ -179,6 +179,8 @@ Tests run automatically on every push and PR via GitHub Actions (see `.github/wo
 
 ## Security
 
+- File uploads validated server-side with `finfo` MIME detection (never trusts `$_FILES['type']`); extension whitelist enforced; `public/uploads/users/.htaccess` blocks PHP execution as defense-in-depth
+- Session flash messages (`$_SESSION['message']`, `$_SESSION['welcome_user']`) interpolated into JS via `json_encode()` — immune to `</script>` injection
 - Passwords hashed with `password_hash()` (PASSWORD_DEFAULT), minimum 8 characters
 - CSRF tokens on all forms and AJAX endpoints; token regenerated after every POST (including error paths on sensitive endpoints); destructive non-AJAX actions use POST routes, never GET
 - Prepared statements for all SQL queries

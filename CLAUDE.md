@@ -40,7 +40,7 @@ chmod 777 public/uploads/users/
 
 **Local URL:** `http://localhost/php-mvc-admin-starter/`
 
-**Current release tag:** `3.15.1`
+**Current release tag:** `3.15.2`
 
 ## No Build Process
 
@@ -154,7 +154,7 @@ The permission cache is refreshed automatically by `Auth::refreshPermissionsIfSt
 
 Controller methods that handle AJAX calls return JSON via `$this->jsonResponse($data)`. CSRF tokens are generated via `generateCSRFToken()` (global in `helpers.php`) and validated with `$this->csrfCheck()` (calls `verifyCSRFToken()` internally); call `regenerateCSRFToken()` after every successful POST. AJAX routes are declared in `routes/web.php` like any other route and protected by the same middleware.
 
-When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` before calling `jsonResponse()` — `messages.php` will call `ToastUtils[icon](message)` on the reloaded page. For the welcome popup on first login, set `$_SESSION['welcome_user']` instead; `messages.php` calls `AlertUtils.welcome()` for it.
+When an AJAX action is followed by `location.reload()` in JS, set `$_SESSION['message']` and `$_SESSION['icon']` before calling `jsonResponse()` — `messages.php` will call `ToastUtils[icon](message)` on the reloaded page. Session values are interpolated into `<script>` blocks via `json_encode()` — never use `addslashes()` for JS context (does not escape `</script>`). For the welcome popup on first login, set `$_SESSION['welcome_user']` instead; `messages.php` calls `AlertUtils.welcome()` for it.
 
 Additional reference: `docs/ACCESS_CONTROL.md` and `docs/AJAX_AND_MODULES.md`.
 
@@ -254,7 +254,7 @@ $this->render('users/index', $data, ['datatables', 'datatables-export'], ['users
 - **Remember-me invalidation:** Call `$userModel->clearRememberToken($userId)` (via `Auth::clearRememberCookie()`) whenever a password is changed, regardless of who triggered the change (user self-service or admin edit). This revokes any active remember-me session for the affected user.
 - **Input sanitization:** Use `trim()` at the model layer (`trimInput()`). Apply `htmlspecialchars()` exclusively at the view layer on all output — never in the model or before storing in the DB.
 - **Passwords:** Always `password_hash($pass, PASSWORD_DEFAULT)` / `password_verify()`.
-- **Images:** Route all upload/resize/delete through `ImageService`.
+- **Images:** Route all upload/resize/delete through `ImageService`. MIME type is validated server-side via `(new \finfo(FILEINFO_MIME_TYPE))->file($tmp_name)` — never use `$_FILES['type']` (client-controlled). Extension whitelist: `jpg`, `jpeg`, `png`, `gif`, `webp`. `public/uploads/users/.htaccess` blocks PHP execution.
 - **JS:** ES6+ with JSDoc comments. Use `ToastUtils` and `AlertUtils` from `public/js/core/sweetalert-utils.js` for all SweetAlert2 interactions — never call `Swal.fire()` directly in module scripts. Use `DataTables` for lists, `Select2` for dropdowns.
 - **Select2 auto-init:** `ComponentUtils.initAll()` (called automatically on `DOMContentLoaded` by `ui-components.js`) initializes every `.select2` element on the page. Do not call `initializeSelect2()` manually in module scripts unless extra options are needed.
 - **Select2 in modals:** When a Select2 element lives inside a Bootstrap modal, call `initializeSelect2('#selectId', { dropdownParent: $('#modalId') })` explicitly. `ComponentUtils.initAll()` cannot apply `dropdownParent` globally, so modal selects need targeted initialization. Without `dropdownParent`, Bootstrap's focus trap closes the dropdown immediately. Populate options from PHP `<option>` elements (server-side) rather than AJAX to avoid re-initialization conflicts.
