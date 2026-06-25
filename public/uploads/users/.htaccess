@@ -1,0 +1,5 @@
+# Deny execution of PHP and other server-side scripts in this directory
+<FilesMatch "\.(php|php3|php4|php5|php7|phtml|pl|py|cgi|sh|shtml)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

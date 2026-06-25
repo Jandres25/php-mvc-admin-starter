@@ -22,10 +22,16 @@ class ImageService
     private $upload_dir;
 
     /**
-     * Allowed MIME types
+     * Allowed MIME types (server-verified via finfo)
      * @var array
      */
     private $allowed_types;
+
+    /**
+     * Allowed file extensions (whitelist)
+     * @var array
+     */
+    private $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
     /**
      * Maximum allowed file size in bytes (5 MB)
@@ -58,7 +64,10 @@ class ImageService
             return false;
         }
 
-        if (!in_array($image['type'], $this->allowed_types)) {
+        // Server-side MIME detection — never trust $_FILES['type'] (client-controlled)
+        $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->file($image['tmp_name']);
+
+        if (!in_array($mimeType, $this->allowed_types, true)) {
             return false;
         }
 
@@ -66,7 +75,11 @@ class ImageService
             return false;
         }
 
-        $extension       = pathinfo($image['name'], PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+        if (!in_array($extension, $this->allowed_extensions, true)) {
+            return false;
+        }
+
         $nameWithoutExt  = pathinfo($image['name'], PATHINFO_FILENAME);
         $nameWithoutExt  = preg_replace('/[^a-zA-Z0-9_-]/', '', $nameWithoutExt);
         $filename        = uniqid() . '_' . $nameWithoutExt . '.' . $extension;

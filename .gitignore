@@ -10,6 +10,7 @@ bash.exe.stackdump
 .env
 /public/uploads/users/*
 !/public/uploads/users/user_default.jpg
+!/public/uploads/users/.htaccess
 # IA & Agentes locales
 .mcp.json
 opencode.json
