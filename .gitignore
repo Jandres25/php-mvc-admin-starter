@@ -12,6 +12,8 @@ bash.exe.stackdump
 !/public/uploads/users/user_default.jpg
 # IA & Agentes locales
 .mcp.json
+opencode.json
+opencode.json.example
 .claude/*
 !.claude/skills/
 !.claude/settings.example.json
